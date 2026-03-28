@@ -606,6 +606,7 @@ export default function MissionPanel({
   // ── Fetch AI narration on mount ──
   useEffect(() => {
     let cancelled = false;
+    console.log('[MissionPanel] 🎯 Fetching dynamic narration for:', poi.id, poi.name);
     setAiNarrationLoading(true);
     fetchNarration({
       poiName: poi.name,
@@ -617,8 +618,16 @@ export default function MissionPanel({
       timeOfDay,
       userInterests: profile.interests,
     })
-      .then((result) => { if (!cancelled) setAiNarration(result); })
-      .catch(() => { /* silent fallback to static content */ })
+      .then((result) => {
+        if (!cancelled) {
+          console.log('[MissionPanel] ✅ AI narration received for:', poi.name);
+          setAiNarration(result);
+        }
+      })
+      .catch((err) => {
+        console.error('[MissionPanel] ❌ AI narration FAILED for:', poi.name, err);
+        // Fallback: UI will show static DB content
+      })
       .finally(() => { if (!cancelled) setAiNarrationLoading(false); });
     return () => { cancelled = true; };
   }, [poi.id]); // eslint-disable-line react-hooks/exhaustive-deps
