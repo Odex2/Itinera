@@ -427,6 +427,7 @@ export default function MissionPanel({
       category: poi.category,
       personality: profile.personalityScores,
       timeOfDay,
+      userInterests: profile.interests,
     })
       .then((result) => { if (!cancelled) setAiNarration(result); })
       .catch(() => { /* silent fallback to static content */ })

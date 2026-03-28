@@ -12,7 +12,7 @@ import {
 } from '../types';
 import { romePOIs } from '../data/pois';
 import { rewards as initialRewards } from '../data/rewards';
-import { onboardingQuestions } from '../data/onboardingQuestions';
+
 import { getDistanceMeters } from './useGeolocation';
 import { fetchDiscoverPOIs, DiscoveredPOI } from '../services/api';
 
@@ -136,22 +136,37 @@ export function useGameState() {
       const interests: InterestCategory[] = [];
       const personality: PersonalityScores = { relax: 0, divertimento: 0, cultura: 0, avventura: 0, socialita: 0 };
 
+      // Collect unique interests from all answer categories
       answers.forEach((answer) => {
         answer.categories.forEach((cat) => {
           if (!interests.includes(cat)) interests.push(cat);
         });
       });
 
+      // Derive personality from categories (new onboarding format uses categories directly)
+      const CATEGORY_TO_PERSONALITY: Record<string, Partial<PersonalityScores>> = {
+        enogastronomia: { socialita: 2, relax: 1 },
+        storia: { cultura: 2, avventura: 1 },
+        cultura: { cultura: 2, relax: 1 },
+        arte: { cultura: 1, divertimento: 1 },
+        sport: { avventura: 2, divertimento: 1 },
+        natura: { avventura: 1, relax: 1 },
+        paesaggio: { relax: 2, avventura: 1 },
+        shopping: { divertimento: 1, socialita: 1 },
+        artigianato: { cultura: 1, socialita: 1 },
+        intrattenimento: { divertimento: 2, socialita: 1 },
+        family: { relax: 1, socialita: 2 },
+      };
+
       answers.forEach((answer) => {
-        const question = onboardingQuestions.find((q) => q.id === answer.questionId);
-        if (question) {
-          const option = question.options.find((o) => o.id === answer.answerId);
-          if (option?.personalityBoost) {
-            for (const [trait, boost] of Object.entries(option.personalityBoost)) {
-              personality[trait as keyof PersonalityScores] += boost as number;
+        answer.categories.forEach((cat) => {
+          const boosts = CATEGORY_TO_PERSONALITY[cat];
+          if (boosts) {
+            for (const [trait, val] of Object.entries(boosts)) {
+              personality[trait as keyof PersonalityScores] += val as number;
             }
           }
-        }
+        });
       });
 
       setProfile((prev) => ({

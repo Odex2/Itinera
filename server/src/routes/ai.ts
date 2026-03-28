@@ -8,7 +8,7 @@ export const aiRouter = Router();
 // POST /api/ai/narration
 aiRouter.post('/narration', async (req: Request, res: Response) => {
   try {
-    const { poiName, poiDescription, shortStory, hiddenFact, category, personality, timeOfDay } =
+    const { poiName, poiDescription, shortStory, hiddenFact, category, personality, timeOfDay, userInterests } =
       req.body;
 
     if (!poiName || !personality) {
@@ -24,6 +24,7 @@ aiRouter.post('/narration', async (req: Request, res: Response) => {
       category: category || 'cultura',
       personality,
       timeOfDay: timeOfDay || 'pomeriggio',
+      userInterests: Array.isArray(userInterests) ? userInterests : undefined,
     });
 
     res.json(result);
