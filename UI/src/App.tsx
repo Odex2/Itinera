@@ -33,12 +33,7 @@ function App() {
 
   const getUserDistanceToPOI = () => {
     if (!selectedPOI || !userLocation) return null;
-    return getDistanceMeters(
-      userLocation.lat,
-      userLocation.lng,
-      selectedPOI.lat,
-      selectedPOI.lng
-    );
+    return getDistanceMeters(userLocation.lat, userLocation.lng, selectedPOI.lat, selectedPOI.lng);
   };
 
   if (!hasOnboarded) {
@@ -53,6 +48,7 @@ function App() {
             pois={pois}
             profile={profile}
             userLocation={userLocation}
+            isDemoMode={geo.isDemoMode}
             onPOISelect={setSelectedPOI}
             timeOfDay={timeOfDay}
           />
@@ -78,6 +74,8 @@ function App() {
       {selectedPOI && (
         <MissionPanel
           poi={selectedPOI}
+          profile={profile}
+          timeOfDay={timeOfDay}
           onClose={() => setSelectedPOI(null)}
           onCompleteChallenge={completeChallenge}
           onCompletePOI={completePOI}

@@ -26,7 +26,7 @@ const LEVEL_TITLES: { max: number; title: string }[] = [
   { max: Infinity, title: 'Cittadino Onorario' },
 ];
 
-const XP_PER_LEVEL = 500;
+const XP_PER_LEVEL = 300;
 
 const BADGE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   map: Map,

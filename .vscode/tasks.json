@@ -1,0 +1,24 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Server",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/server && npm run dev",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Start UI",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/UI && npm run dev",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Start All (Server + UI)",
+      "dependsOn": ["Start Server", "Start UI"],
+      "problemMatcher": []
+    }
+  ]
+}

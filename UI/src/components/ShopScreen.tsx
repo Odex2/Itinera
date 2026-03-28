@@ -58,16 +58,13 @@ function TimeIcon({ timeOfDay }: { timeOfDay: string }) {
 }
 
 function isAvailableNow(reward: Reward): boolean {
-  const now = Date.now();
-  return now >= reward.availableFrom && now <= reward.availableTo;
+  const hour = new Date().getHours();
+  return hour >= reward.availableFrom && hour <= reward.availableTo;
 }
 
 function getAvailabilityLabel(reward: Reward): string | null {
   if (isAvailableNow(reward)) return null;
-  const from = new Date(reward.availableFrom);
-  const hours = from.getHours().toString().padStart(2, '0');
-  const minutes = from.getMinutes().toString().padStart(2, '0');
-  return `Apre alle ${hours}:${minutes}`;
+  return `Apre alle ${reward.availableFrom.toString().padStart(2, '0')}:00`;
 }
 
 function matchesUserInterests(reward: Reward, profile: UserProfile): boolean {
