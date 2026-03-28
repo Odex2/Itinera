@@ -1,558 +1,1486 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ITINERA — Pitch Deck</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ITINERA — Play The City · Pitch Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Space+Grotesk:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --cyan: #06b6d4;
+      --cyan-dark: #0891b2;
+      --teal: #14b8a6;
+      --emerald: #10b981;
+      --violet: #7c3aed;
+      --rose: #f43f5e;
+      --bg: #070709;
+      --surface: rgba(255, 255, 255, 0.04);
+      --surface-hover: rgba(255, 255, 255, 0.07);
+      --border: rgba(255, 255, 255, 0.08);
+      --text-dim: #71717a;
+      --text-mid: #a1a1aa;
+      /* alias per retrocompat */
+      --amber: var(--cyan);
+      --green: var(--emerald);
+      --purple: var(--violet);
+    }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background: #0a0a0a;
-    color: #fff;
-    overflow-x: hidden;
-  }
+    html {
+      scroll-behavior: smooth;
+      scroll-snap-type: y mandatory;
+    }
 
-  .slide {
-    min-height: 100vh;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 60px 80px;
-    position: relative;
-    border-bottom: 1px solid #1a1a1a;
-  }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: #fff;
+      overflow-x: hidden;
+    }
 
-  /* SLIDE 1 — HERO */
-  .slide-hero {
-    background: radial-gradient(ellipse at 50% 40%, #1a0a00 0%, #0a0a0a 70%);
-    text-align: center;
-  }
-  .slide-hero .tag {
-    background: linear-gradient(135deg, #f59e0b, #ef4444);
-    color: white;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    padding: 8px 20px;
-    border-radius: 100px;
-    display: inline-block;
-    margin-bottom: 32px;
-  }
-  .slide-hero h1 {
-    font-size: clamp(60px, 10vw, 110px);
-    font-weight: 900;
-    line-height: 1;
-    background: linear-gradient(135deg, #fff 30%, #f59e0b 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 24px;
-  }
-  .slide-hero .subtitle {
-    font-size: clamp(18px, 2.5vw, 26px);
-    color: #a1a1aa;
-    font-weight: 300;
-    max-width: 700px;
-    line-height: 1.6;
-    margin: 0 auto 48px;
-  }
-  .slide-hero .city-tag {
-    font-size: 16px;
-    color: #f59e0b;
-    font-weight: 600;
-    letter-spacing: 2px;
-  }
+    /* ── CANVAS particelle ── */
+    #particles-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: .35;
+    }
 
-  /* SLIDE 2 — PROBLEMA */
-  .slide-problem {
-    background: #0a0a0a;
-  }
-  .slide-label {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: #f59e0b;
-    margin-bottom: 20px;
-  }
-  .slide-problem h2 {
-    font-size: clamp(36px, 6vw, 72px);
-    font-weight: 900;
-    line-height: 1.1;
-    max-width: 900px;
-    margin-bottom: 60px;
-  }
-  .problem-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    width: 100%;
-    max-width: 1000px;
-  }
-  .problem-card {
-    background: #111;
-    border: 1px solid #222;
-    border-radius: 20px;
-    padding: 32px;
-    text-align: center;
-  }
-  .problem-card .emoji { font-size: 48px; margin-bottom: 16px; display: block; }
-  .problem-card p { color: #a1a1aa; font-size: 16px; line-height: 1.5; }
-  .problem-card strong { color: #fff; display: block; font-size: 20px; margin-bottom: 8px; }
+    /* ── NAV LATERALE ── */
+    .nav-dots {
+      position: fixed;
+      right: 28px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 100;
+    }
 
-  /* SLIDE 3 — SOLUZIONE */
-  .slide-solution {
-    background: radial-gradient(ellipse at 30% 50%, #0d1f0d 0%, #0a0a0a 60%);
-    text-align: center;
-  }
-  .slide-solution h2 {
-    font-size: clamp(36px, 6vw, 72px);
-    font-weight: 900;
-    margin-bottom: 16px;
-    line-height: 1.1;
-  }
-  .slide-solution .big-desc {
-    font-size: clamp(18px, 2.2vw, 24px);
-    color: #a1a1aa;
-    max-width: 750px;
-    margin: 0 auto 60px;
-    line-height: 1.6;
-  }
-  .highlight { color: #f59e0b; }
-  .highlight-green { color: #4ade80; }
-  .solution-pills {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .pill {
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 100px;
-    padding: 14px 28px;
-    font-size: 16px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all .3s;
+      position: relative;
+    }
 
-  /* SLIDE 4 — COME FUNZIONA */
-  .slide-how {
-    background: #0a0a0a;
-  }
-  .slide-how h2 {
-    font-size: clamp(36px, 5vw, 64px);
-    font-weight: 900;
-    margin-bottom: 60px;
-    text-align: center;
-  }
-  .steps {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    width: 100%;
-    max-width: 1100px;
-    position: relative;
-  }
-  .steps::before {
-    content: '';
-    position: absolute;
-    top: 40px;
-    left: 10%;
-    width: 80%;
-    height: 2px;
-    background: linear-gradient(90deg, #f59e0b, #ef4444, #8b5cf6, #4ade80);
-  }
-  .step {
-    text-align: center;
-    padding: 0 20px;
-    position: relative;
-    z-index: 1;
-  }
-  .step-num {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-    margin: 0 auto 24px;
-    border: 3px solid;
-  }
-  .step:nth-child(1) .step-num { background: #1a1000; border-color: #f59e0b; }
-  .step:nth-child(2) .step-num { background: #1a0a0a; border-color: #ef4444; }
-  .step:nth-child(3) .step-num { background: #100a1a; border-color: #8b5cf6; }
-  .step:nth-child(4) .step-num { background: #001a0a; border-color: #4ade80; }
-  .step h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
-  .step p { color: #a1a1aa; font-size: 14px; line-height: 1.6; }
+    .nav-dot::before {
+      content: attr(data-label);
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--cyan);
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity .2s;
+    }
 
-  /* SLIDE 5 — MAGIA AI */
-  .slide-ai {
-    background: radial-gradient(ellipse at 70% 50%, #0d0a1a 0%, #0a0a0a 60%);
-  }
-  .slide-ai h2 {
-    font-size: clamp(36px, 5vw, 64px);
-    font-weight: 900;
-    margin-bottom: 16px;
-    max-width: 800px;
-  }
-  .slide-ai .desc {
-    font-size: 20px;
-    color: #a1a1aa;
-    margin-bottom: 60px;
-    max-width: 700px;
-  }
-  .ai-features {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    max-width: 900px;
-    width: 100%;
-  }
-  .ai-card {
-    background: linear-gradient(135deg, #111 0%, #0d0a1a 100%);
-    border: 1px solid #2a2040;
-    border-radius: 20px;
-    padding: 32px;
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-  }
-  .ai-card .icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #7c3aed, #4f46e5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    flex-shrink: 0;
-  }
-  .ai-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-  .ai-card p { color: #a1a1aa; font-size: 14px; line-height: 1.6; }
+    .nav-dot:hover::before {
+      opacity: 1;
+    }
 
-  /* SLIDE 6 — IMPATTO */
-  .slide-impact {
-    background: radial-gradient(ellipse at 50% 50%, #1a0f00 0%, #0a0a0a 70%);
-    text-align: center;
-  }
-  .slide-impact h2 {
-    font-size: clamp(36px, 5vw, 64px);
-    font-weight: 900;
-    margin-bottom: 16px;
-  }
-  .slide-impact .desc {
-    font-size: 20px;
-    color: #a1a1aa;
-    margin-bottom: 60px;
-  }
-  .impact-numbers {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 32px;
-    max-width: 900px;
-    width: 100%;
-  }
-  .impact-num {
-    background: #111;
-    border: 1px solid #222;
-    border-radius: 24px;
-    padding: 40px 24px;
-  }
-  .impact-num .num {
-    font-size: 56px;
-    font-weight: 900;
-    background: linear-gradient(135deg, #f59e0b, #ef4444);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1;
-    margin-bottom: 8px;
-  }
-  .impact-num .label { color: #a1a1aa; font-size: 16px; }
+    .nav-dot.active {
+      background: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan);
+      transform: scale(1.4);
+    }
 
-  /* SLIDE 7 — WIN */
-  .slide-win {
-    background: radial-gradient(ellipse at 50% 40%, #0f1a05 0%, #0a0a0a 60%);
-    text-align: center;
-  }
-  .slide-win h2 {
-    font-size: clamp(36px, 6vw, 80px);
-    font-weight: 900;
-    line-height: 1.1;
-    margin-bottom: 32px;
-  }
-  .slide-win .desc {
-    font-size: clamp(18px, 2vw, 22px);
-    color: #a1a1aa;
-    max-width: 800px;
-    line-height: 1.7;
-    margin: 0 auto 60px;
-  }
-  .win-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    max-width: 1000px;
-    width: 100%;
-  }
-  .win-card {
-    border-radius: 20px;
-    padding: 32px 24px;
-    text-align: left;
-  }
-  .win-card:nth-child(1) { background: linear-gradient(135deg, #1a1200, #2a1f00); border: 1px solid #3a2f00; }
-  .win-card:nth-child(2) { background: linear-gradient(135deg, #001a0a, #002a12); border: 1px solid #003a1a; }
-  .win-card:nth-child(3) { background: linear-gradient(135deg, #0a001a, #12002a); border: 1px solid #1a003a; }
-  .win-card .icon { font-size: 36px; margin-bottom: 16px; }
-  .win-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-  .win-card p { color: #a1a1aa; font-size: 14px; line-height: 1.6; }
+    /* ── SLIDE BASE ── */
+    .slide {
+      min-height: 100vh;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 80px clamp(32px, 8vw, 120px);
+      position: relative;
+      scroll-snap-align: start;
+      overflow: hidden;
+    }
 
-  /* SLIDE 8 — CTA */
-  .slide-cta {
-    background: radial-gradient(ellipse at 50% 30%, #1a0a00 0%, #0a0a0a 60%);
-    text-align: center;
-  }
-  .slide-cta h2 {
-    font-size: clamp(48px, 9vw, 100px);
-    font-weight: 900;
-    line-height: 1;
-    margin-bottom: 32px;
-    background: linear-gradient(135deg, #fff 20%, #f59e0b 60%, #ef4444 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .slide-cta .team {
-    font-size: 18px;
-    color: #a1a1aa;
-    margin-top: 48px;
-    font-style: italic;
-  }
-  .cta-btn {
-    display: inline-block;
-    background: linear-gradient(135deg, #f59e0b, #ef4444);
-    color: white;
-    font-size: 22px;
-    font-weight: 700;
-    padding: 20px 56px;
-    border-radius: 100px;
-    text-decoration: none;
-    margin-top: 16px;
-  }
-  .slide-num {
-    position: absolute;
-    bottom: 32px;
-    right: 48px;
-    font-size: 13px;
-    color: #333;
-    font-weight: 600;
-    letter-spacing: 2px;
-  }
-  .divider {
-    width: 80px;
-    height: 4px;
-    background: linear-gradient(90deg, #f59e0b, #ef4444);
-    border-radius: 2px;
-    margin-bottom: 32px;
-  }
-</style>
+    .slide-num {
+      position: absolute;
+      bottom: 32px;
+      right: 48px;
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 600;
+      letter-spacing: 3px;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .slide-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slide-label::before {
+      content: '';
+      width: 24px;
+      height: 2px;
+      background: var(--cyan);
+      display: inline-block;
+    }
+
+    /* ── SLIDE 1 HERO ── */
+    .slide-hero {
+      text-align: center;
+      background: radial-gradient(ellipse 100% 80% at 50% 40%, #001a20 0%, var(--bg) 70%);
+      justify-content: center;
+      gap: 0;
+      padding-top: 40px;
+      padding-bottom: 40px;
+    }
+
+    /* titolo mastodontico ITINERA */
+    .hero-mega {
+      position: relative;
+      line-height: 1;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* il testo principale */
+    .hero-mega-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(100px, 20vw, 220px);
+      font-weight: 700;
+      letter-spacing: -6px;
+      background: linear-gradient(160deg, #fff 5%, var(--cyan) 40%, var(--teal) 65%, var(--emerald) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      z-index: 2;
+      animation: hero-in 1s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    /* scritta ghost outline dietro */
+    .hero-mega-ghost {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(100px, 20vw, 220px);
+      font-weight: 700;
+      letter-spacing: -6px;
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-text-stroke: 1px rgba(6, 182, 212, .15);
+      color: transparent;
+      user-select: none;
+      transform: scale(1.04);
+      filter: blur(1px);
+      z-index: 1;
+      animation: hero-in 1.2s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    /* glow orb dietro il titolo */
+    .hero-glow-orb {
+      position: absolute;
+      width: clamp(400px, 60vw, 800px);
+      height: clamp(200px, 30vw, 400px);
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(6, 182, 212, .18) 0%, rgba(20, 184, 166, .08) 50%, transparent 70%);
+      filter: blur(40px);
+      animation: orb-pulse 4s ease-in-out infinite;
+      z-index: 0;
+    }
+
+    @keyframes hero-in {
+      from {
+        opacity: 0;
+        transform: translateY(40px) scale(.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes orb-pulse {
+
+      0%,
+      100% {
+        opacity: .6;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.08);
+      }
+    }
+
+    /* sottotitolo Play The City */
+    .hero-sub {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(16px, 3vw, 28px);
+      font-weight: 400;
+      color: transparent;
+      background: linear-gradient(90deg, var(--cyan), var(--teal), var(--emerald));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 10px;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+      animation: hero-in .9s .15s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .hero-divider {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, transparent, var(--cyan), transparent);
+      margin: 0 auto 32px;
+      animation: hero-in .8s .25s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .hero-tagline {
+      font-size: clamp(15px, 1.8vw, 19px);
+      color: var(--text-mid);
+      font-weight: 300;
+      max-width: 520px;
+      line-height: 1.8;
+      margin: 0 auto 40px;
+      animation: hero-in .8s .35s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(6, 182, 212, .08);
+      border: 1px solid rgba(6, 182, 212, .25);
+      color: var(--cyan);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 7px 18px;
+      border-radius: 100px;
+      margin-bottom: 28px;
+      backdrop-filter: blur(12px);
+      animation: hero-in .8s .45s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .hero-badge-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--cyan);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: .4;
+        transform: scale(.8);
+      }
+    }
+
+    .hero-pills {
+      display: inline-flex;
+      gap: 16px;
+      align-items: center;
+      animation: hero-in .8s .5s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .hero-pill {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-pill-sep {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      opacity: .4;
+    }
+
+    /* ── SLIDE 2 PROBLEMA ── */
+    .slide-problem {
+      background: var(--bg);
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      width: 100%;
+      max-width: 1080px;
+      margin-top: 56px;
+    }
+
+    .problem-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px 32px;
+      backdrop-filter: blur(20px);
+      transition: all .4s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .problem-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(6, 182, 212, .06) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity .4s;
+    }
+
+    .problem-card:hover {
+      border-color: rgba(6, 182, 212, .3);
+      transform: translateY(-4px);
+    }
+
+    .problem-card:hover::before {
+      opacity: 1;
+    }
+
+    .problem-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: rgba(6, 182, 212, .1);
+      border: 1px solid rgba(6, 182, 212, .2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin-bottom: 24px;
+    }
+
+    .problem-card strong {
+      display: block;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .problem-card p {
+      color: var(--text-mid);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    /* ── SLIDE 3 SOLUZIONE ── */
+    .slide-solution {
+      background: radial-gradient(ellipse 70% 60% at 30% 50%, #001a1a 0%, var(--bg) 65%);
+      text-align: center;
+    }
+
+    .solution-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(40px, 7vw, 80px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+    }
+
+    .solution-desc {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--text-mid);
+      max-width: 680px;
+      margin: 0 auto 56px;
+      line-height: 1.7;
+    }
+
+    .solution-pills {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(12px);
+      transition: all .3s;
+    }
+
+    .pill:hover {
+      border-color: rgba(74, 222, 128, .4);
+      background: rgba(74, 222, 128, .06);
+      transform: translateY(-2px);
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    /* ── SLIDE 4 COME FUNZIONA ── */
+    .slide-how {
+      background: var(--bg);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      width: 100%;
+      max-width: 1100px;
+      margin-top: 64px;
+      position: relative;
+    }
+
+    .steps-line {
+      position: absolute;
+      top: 44px;
+      left: 12.5%;
+      width: 75%;
+      height: 1px;
+      background: linear-gradient(90deg, var(--cyan), var(--teal), var(--violet), var(--emerald));
+    }
+
+    .step {
+      text-align: center;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-num {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 28px;
+      position: relative;
+    }
+
+    .step:nth-child(2) .step-num {
+      background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
+      box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
+    }
+
+    .step:nth-child(3) .step-num {
+      background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
+      box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
+    }
+
+    .step:nth-child(4) .step-num {
+      background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
+      box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
+    }
+
+    .step:nth-child(5) .step-num {
+      background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
+      box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
+    }
+
+    .step h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .step p {
+      color: var(--text-mid);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    /* ── SLIDE 5 AI ── */
+    .slide-ai {
+      background: radial-gradient(ellipse 70% 60% at 70% 50%, #08001a 0%, var(--bg) 65%);
+    }
+
+    .ai-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      max-width: 1080px;
+      width: 100%;
+      align-items: start;
+    }
+
+    .ai-left h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(36px, 5vw, 60px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 20px;
+    }
+
+    .ai-left p {
+      font-size: 18px;
+      color: var(--text-mid);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    .ai-stat-row {
+      display: flex;
+      gap: 32px;
+    }
+
+    .ai-stat {
+      text-align: left;
+    }
+
+    .ai-stat .val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--violet);
+    }
+
+    .ai-stat .lbl {
+      font-size: 13px;
+      color: var(--text-mid);
+      margin-top: 4px;
+    }
+
+    .ai-features {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .ai-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, .04) 0%, rgba(139, 92, 246, .05) 100%);
+      border: 1px solid rgba(139, 92, 246, .15);
+      border-radius: 20px;
+      padding: 24px 28px;
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      transition: all .35s;
+    }
+
+    .ai-card:hover {
+      border-color: rgba(139, 92, 246, .35);
+      transform: translateX(4px);
+    }
+
+    .ai-card .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .ai-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .ai-card p {
+      color: var(--text-mid);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .slide-demo {
+      background: var(--bg);
+    }
+
+    .demo-split {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1200px;
+      gap: 6vw;
+    }
+
+    .demo-split-left {
+      flex: 0 0 auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .demo-split-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .phone-wrap {
+      position: relative;
+    }
+
+    .phone-glow {
+      position: absolute;
+      inset: -30px;
+      border-radius: 60px;
+      background: radial-gradient(ellipse at center, rgba(6, 182, 212, .15) 0%, transparent 70%);
+      filter: blur(20px);
+    }
+
+    .phone-mockup {
+      /* Aumentato per coprire più spazio verticale come nel tuo disegno */
+      height: min(850px, 75vh);
+      aspect-ratio: 9 / 19.5;
+      border: clamp(6px, 1.5vh, 12px) solid #1a1a1a;
+      border-radius: clamp(24px, 4vh, 44px);
+      overflow: hidden;
+      position: relative;
+      background: #111;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, .8), inset 0 0 0 1px rgba(255, 255, 255, .06);
+    }
+
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 28px;
+      background: #1a1a1a;
+      border-radius: 0 0 20px 20px;
+      z-index: 2;
+    }
+
+    .phone-mockup video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .demo-steps {
+      display: flex;
+      flex-direction: column;
+      gap: min(16px, 2vh);
+      max-width: 550px;
+      margin-top: 24px;
+    }
+
+    .demo-step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--amber);
+      padding: clamp(16px, 2.5vh, 24px) 24px;
+      border-radius: 0 16px 16px 0;
+      backdrop-filter: blur(12px);
+      transition: all .3s;
+    }
+
+    .demo-step:hover {
+      border-left-color: var(--cyan);
+      background: var(--surface-hover);
+      transform: translateX(4px);
+    }
+
+    .demo-step-num {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--cyan);
+      margin-bottom: min(6px, 1vh);
+    }
+
+    .demo-step h3 {
+      font-size: clamp(16px, 2.2vh, 18px);
+      font-weight: 700;
+      margin-bottom: min(6px, 1vh);
+    }
+
+    .demo-step p {
+      color: var(--text-mid);
+      font-size: clamp(13px, 1.6vh, 14px);
+      line-height: 1.6;
+    }
+
+    /* ── SLIDE 7 MERCATO ── */
+    .slide-impact {
+      background: radial-gradient(ellipse 70% 60% at 50% 60%, #001a1a 0%, var(--bg) 65%);
+      text-align: center;
+    }
+
+    .impact-numbers {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 960px;
+      width: 100%;
+      margin-top: 56px;
+    }
+
+    .impact-num {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 48px 24px;
+      backdrop-filter: blur(20px);
+      position: relative;
+      overflow: hidden;
+      transition: all .4s;
+    }
+
+    .impact-num::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--amber), var(--red));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .4s;
+    }
+
+    .impact-num:hover {
+      border-color: rgba(6, 182, 212, .25);
+      transform: translateY(-6px);
+    }
+
+    .impact-num:hover::after {
+      transform: scaleX(1);
+    }
+
+    .impact-num .num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 64px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--cyan), var(--emerald));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .impact-num .label {
+      color: var(--text-mid);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    /* ── SLIDE 8 WIN ── */
+    .slide-win {
+      background: radial-gradient(ellipse 70% 60% at 50% 40%, #001a18 0%, var(--bg) 65%);
+      text-align: center;
+    }
+
+    .win-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1040px;
+      width: 100%;
+      margin-top: 56px;
+    }
+
+    .win-card {
+      border-radius: 24px;
+      padding: 36px 28px;
+      text-align: left;
+      backdrop-filter: blur(20px);
+      transition: all .4s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .win-card:nth-child(1) {
+      background: linear-gradient(145deg, #001a20, #002530);
+      border: 1px solid rgba(6, 182, 212, .2);
+    }
+
+    .win-card:nth-child(2) {
+      background: linear-gradient(145deg, #001a20, #002530);
+      border: 1px solid rgba(6, 182, 212, .2);
+    }
+
+    .win-card:nth-child(3) {
+      background: linear-gradient(145deg, #001a20, #002530);
+      border: 1px solid rgba(6, 182, 212, .2);
+    }
+
+    .win-card:hover {
+      transform: translateY(-6px) scale(1.01);
+    }
+
+    .win-card .win-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .win-card:nth-child(1) .win-icon {
+      background: rgba(6, 182, 212, .12);
+      border: 1px solid rgba(6, 182, 212, .2);
+    }
+
+    .win-card:nth-child(2) .win-icon {
+      background: rgba(6, 182, 212, .12);
+      border: 1px solid rgba(6, 182, 212, .2);
+    }
+
+    .win-card:nth-child(3) .win-icon {
+      background: rgba(6, 182, 212, .12);
+      border: 1px solid rgba(6, 182, 212, .2);
+    }
+
+    .win-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .win-card p {
+      color: var(--text-mid);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    /* ── SLIDE 9 CTA ── */
+    .slide-cta {
+      background: radial-gradient(ellipse 80% 70% at 50% 30%, #001a20 0%, var(--bg) 65%);
+      text-align: center;
+    }
+
+    .cta-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(56px, 11vw, 120px);
+      font-weight: 700;
+      line-height: .95;
+      letter-spacing: -4px;
+      margin-bottom: 40px;
+      background: linear-gradient(160deg, #fff 10%, var(--cyan) 50%, var(--emerald) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .cta-sub {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--text-mid);
+      max-width: 560px;
+      line-height: 1.8;
+      margin: 0 auto 52px;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--amber), #d97706);
+      color: #000;
+      font-size: 17px;
+      font-weight: 700;
+      padding: 18px 48px;
+      border-radius: 100px;
+      text-decoration: none;
+      letter-spacing: .5px;
+      transition: all .3s;
+      box-shadow: 0 12px 40px rgba(6, 182, 212, .3);
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 56px rgba(6, 182, 212, .4);
+    }
+
+    .cta-team {
+      margin-top: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .cta-team-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .cta-team-title span {
+      color: var(--cyan);
+      font-weight: 400;
+    }
+
+    .cta-team-subtitle {
+      font-size: 14px;
+      color: var(--text-dim);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    .team-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      opacity: .8;
+      box-shadow: 0 0 12px var(--cyan);
+    }
+
+    /* ── ACCENTS ── */
+    .highlight {
+      color: var(--amber);
+    }
+
+    .highlight-green {
+      color: var(--green);
+    }
+
+    .highlight-purple {
+      color: var(--purple);
+    }
+
+    h2.main-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(38px, 6vw, 72px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 16px;
+      max-width: 900px;
+    }
+
+    /* ── ANIMATIONS ── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+
+    .fade-up.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    .fade-up:nth-child(2) {
+      transition-delay: .1s;
+    }
+
+    .fade-up:nth-child(3) {
+      transition-delay: .2s;
+    }
+
+    .fade-up:nth-child(4) {
+      transition-delay: .3s;
+    }
+
+    .fade-up:nth-child(5) {
+      transition-delay: .4s;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(6, 182, 212, .3);
+      border-radius: 2px;
+    }
+
+    .lucide {
+      width: 1em;
+      height: 1em;
+      vertical-align: middle;
+      stroke-width: 2;
+    }
+  </style>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
 
-<!-- SLIDE 1: HERO -->
-<div class="slide slide-hero">
-  <div class="tag">🏆 Codemotion Hackathon 2025</div>
-  <h1>ITINERA<br>Play The City</h1>
-  <p class="subtitle">Le città non sono un museo. Sono un gioco.<br>Esplorarle non dovrebbe essere noioso.</p>
-  <div class="city-tag">📍 ROMA, ITALIA</div>
-  <div class="slide-num">01 / 08</div>
-</div>
+  <canvas id="particles-canvas"></canvas>
 
-<!-- SLIDE 2: PROBLEMA -->
-<div class="slide slide-problem">
-  <div class="slide-label">Il problema</div>
-  <h2>Milioni di persone visitano Roma.<br><span style="color:#f59e0b">Quasi nessuna la scopre davvero.</span></h2>
-  <div class="problem-grid">
-    <div class="problem-card">
-      <span class="emoji">😴</span>
-      <strong>Guida turistica = noia</strong>
-      <p>Leggere didascalie su un cartello non è un'esperienza. È un compito.</p>
-    </div>
-    <div class="problem-card">
-      <span class="emoji">🗺️</span>
-      <strong>Troppo da scegliere</strong>
-      <p>"Dove vado?" è la domanda che blocca ogni turista al mattino.</p>
-    </div>
-    <div class="problem-card">
-      <span class="emoji">📸</span>
-      <strong>Solo selfie, zero memoria</strong>
-      <p>Si fotografa tutto, si ricorda niente. Manca il legame emotivo con il luogo.</p>
-    </div>
-  </div>
-  <div class="slide-num">02 / 08</div>
-</div>
+  <!-- NAV DOTS -->
+  <nav class="nav-dots" id="navDots">
+    <div class="nav-dot active" data-index="0" data-label="Intro"></div>
+    <div class="nav-dot" data-index="1" data-label="Problema"></div>
+    <div class="nav-dot" data-index="2" data-label="Soluzione"></div>
+    <div class="nav-dot" data-index="3" data-label="Come Funziona"></div>
+    <div class="nav-dot" data-index="4" data-label="AI"></div>
+    <div class="nav-dot" data-index="5" data-label="Demo"></div>
+    <div class="nav-dot" data-index="6" data-label="Perché Noi"></div>
+    <div class="nav-dot" data-index="7" data-label="Fine"></div>
+  </nav>
 
-<!-- SLIDE 3: SOLUZIONE -->
-<div class="slide slide-solution">
-  <div class="slide-label">La soluzione</div>
-  <h2>Roma diventa un<br><span class="highlight">gioco di ruolo</span><br>nella vita reale.</h2>
-  <p class="big-desc">
-    ITINERA trasforma ogni monumento in una missione, 
-    ogni quartiere in un livello da completare, 
-    ogni storia nascosta in una ricompensa reale.
-  </p>
-  <div class="solution-pills">
-    <div class="pill">🎮 Gamification urbana</div>
-    <div class="pill">🤖 AI che personalizza tutto</div>
-    <div class="pill">📍 GPS in tempo reale</div>
-    <div class="pill">🎁 Premi reali dai partner</div>
-    <div class="pill">🎧 Narrazione vocale</div>
-  </div>
-  <div class="slide-num">03 / 08</div>
-</div>
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 1 — HERO -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide slide-hero" id="slide-0">
 
-<!-- SLIDE 4: COME FUNZIONA -->
-<div class="slide slide-how">
-  <div class="slide-label">Come funziona</div>
-  <h2>4 passi per trasformare<br>una passeggiata in un'avventura</h2>
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">🧠</div>
-      <h3>Ti conosce</h3>
-      <p>Un onboarding di 2 minuti capisce chi sei: amante dell'arte? Foodie? Avventuriero?</p>
-    </div>
-    <div class="step">
-      <div class="step-num">📍</div>
-      <h3>Ti guida</h3>
-      <p>La mappa mostra i luoghi vicini a te, filtrati per i tuoi gusti. L'AI scopre le chicche nascoste del quartiere.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">🎯</div>
-      <h3>Ti sfida</h3>
-      <p>Arrivato sul posto, una storia unica e un quiz generati dall'AI ti aspettano. Ogni risposta ti dà XP e monete.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">🎁</div>
-      <h3>Ti premia</h3>
-      <p>Le monete si riscattano da partner reali: caffè, ristoranti, esperienze. La città ti ringrazia per averla esplorata.</p>
-    </div>
-  </div>
-  <div class="slide-num">04 / 08</div>
-</div>
+    <!-- ORB glow di sfondo -->
+    <div class="hero-glow-orb"></div>
 
-<!-- SLIDE 5: AI MAGIC -->
-<div class="slide slide-ai">
-  <div class="slide-label">La magia dell'AI</div>
-  <h2>Non una guida uguale<br>per tutti. <span style="color:#a78bfa">La tua guida.</span></h2>
-  <p class="desc">Ogni utente vive Roma in modo completamente diverso, generato in tempo reale.</p>
-  <div class="ai-features">
-    <div class="ai-card">
-      <div class="icon">🗺️</div>
-      <div>
-        <h3>Mappa dinamica</h3>
-        <p>I POI cambiano in base a chi sei e dove sei. L'AI scopre luoghi mai catalogati prima nelle guide turistiche.</p>
+    <!-- TITOLO MASTODONTICO -->
+    <div class="hero-mega">
+      <span class="hero-mega-ghost" aria-hidden="true">ITINERA</span>
+      <span class="hero-mega-text">ITINERA</span>
+    </div>
+
+    <!-- SOTTOTITOLO -->
+    <p class="hero-sub">Play · The · City</p>
+
+    <!-- DIVIDER -->
+    <div class="hero-divider"></div>
+
+    <!-- TAGLINE -->
+    <p class="hero-tagline">
+      Le città non sono un museo.<br>
+      Sono un gioco.<br>
+      Esplorarle non dovrebbe essere noioso.
+    </p>
+
+    <!-- BADGE EVENTO -->
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      Segmentation Team · Codemotion Hackathon 2026
+    </div>
+
+    <!-- PILLOLE -->
+    <div class="hero-pills">
+      <div class="hero-pill"><span>Turismo intelligente</span></div>
+      <div class="hero-pill-sep"></div>
+      <div class="hero-pill"><span>Gamification urbana</span></div>
+      <div class="hero-pill-sep"></div>
+      <div class="hero-pill"><span>AI generativa</span></div>
+    </div>
+
+    <div class="slide-num">01 / 08</div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 2 — PROBLEMA -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide slide-problem" id="slide-1">
+    <div class="slide-label fade-up">Il problema</div>
+    <h2 class="main-title fade-up">
+      Milioni di persone visitano nuove città.<br>
+      <span class="highlight">Quasi nessuna le scopre davvero.</span>
+    </h2>
+    <div class="problem-grid">
+      <div class="problem-card fade-up">
+        <div class="problem-icon"><i data-lucide="frown"></i></div>
+        <strong>Guida turistica = noia</strong>
+        <p>Leggere didascalie su un cartello non è un'esperienza. È un compito.</p>
+      </div>
+      <div class="problem-card fade-up">
+        <div class="problem-icon"><i data-lucide="compass"></i></div>
+        <strong>Troppo da scegliere</strong>
+        <p>"Dove vado?" è la domanda che blocca ogni turista al mattino.</p>
+      </div>
+      <div class="problem-card fade-up">
+        <div class="problem-icon"><i data-lucide="camera-off"></i></div>
+        <strong>Solo selfie, zero memoria</strong>
+        <p>Si fotografa tutto, si ricorda niente. Manca il legame emotivo con il luogo.</p>
       </div>
     </div>
-    <div class="ai-card">
-      <div class="icon">📖</div>
-      <div>
-        <h3>Storie generate al volo</h3>
-        <p>Ogni narrazione è unica: diversa se sei un amante della storia, dell'arte o dell'avventura. E diversa la sera rispetto alla mattina.</p>
+    <div class="slide-num">02 / 08</div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 3 — SOLUZIONE -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide slide-solution" id="slide-2">
+    <div class="slide-label fade-up">La soluzione</div>
+    <h2 class="solution-title fade-up">
+      Ogni città diventa un<br>
+      <span class="highlight">gioco di ruolo</span><br>
+      nella vita reale.
+    </h2>
+    <p class="solution-desc fade-up">
+      ITINERA trasforma ogni monumento in una missione,
+      ogni quartiere in un livello da completare,
+      ogni storia nascosta in una ricompensa reale.
+    </p>
+    <div class="solution-pills fade-up">
+      <div class="pill">
+        <div class="pill-dot"></div>Gamification urbana
+      </div>
+      <div class="pill">
+        <div class="pill-dot"></div>AI che personalizza tutto
+      </div>
+      <div class="pill">
+        <div class="pill-dot"></div>GPS in tempo reale
+      </div>
+      <div class="pill">
+        <div class="pill-dot"></div>Premi reali dai partner
+      </div>
+      <div class="pill">
+        <div class="pill-dot"></div>Narrazione vocale
       </div>
     </div>
-    <div class="ai-card">
-      <div class="icon">❓</div>
-      <div>
-        <h3>Quiz impossibili da copiare</h3>
-        <p>Le sfide vengono generate in tempo reale. Non c'è un database di domande: l'AI ne crea di nuove ogni volta.</p>
+    <div class="slide-num">03 / 08</div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 4 — COME FUNZIONA -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide slide-how" id="slide-3">
+    <div class="slide-label fade-up">Come funziona</div>
+    <h2 class="main-title fade-up" style="text-align:center">
+      4 passi per trasformare<br>una passeggiata in un'avventura
+    </h2>
+    <div class="steps">
+      <div class="steps-line"></div>
+      <div class="step fade-up">
+        <div class="step-num"><i data-lucide="brain"></i></div>
+        <h3>Ti conosce</h3>
+        <p>Un onboarding di 2 minuti capisce chi sei: amante dell'arte? Foodie? Avventuriero?</p>
+      </div>
+      <div class="step fade-up">
+        <div class="step-num"><i data-lucide="map-pin"></i></div>
+        <h3>Ti guida</h3>
+        <p>La mappa mostra i luoghi vicini a te, filtrati per i tuoi gusti. L'AI scopre le chicche nascoste del
+          quartiere.</p>
+      </div>
+      <div class="step fade-up">
+        <div class="step-num"><i data-lucide="target"></i></div>
+        <h3>Ti sfida</h3>
+        <p>Arrivato sul posto, una storia unica e un quiz generati dall'AI ti aspettano. Ogni risposta ti dà XP e
+          monete.</p>
+      </div>
+      <div class="step fade-up">
+        <div class="step-num"><i data-lucide="gift"></i></div>
+        <h3>Ti premia</h3>
+        <p>Le monete si riscattano da partner reali: caffè, ristoranti, esperienze. La città ti ringrazia per averla
+          esplorata.</p>
       </div>
     </div>
-    <div class="ai-card">
-      <div class="icon">🎧</div>
-      <div>
-        <h3>Voce che racconta</h3>
-        <p>ElevenLabs legge la storia al posto tuo. Puoi camminare e ascoltare, senza guardare lo schermo.</p>
+    <div class="slide-num">04 / 08</div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 5 — AI -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide slide-ai" id="slide-4">
+    <div class="ai-layout">
+      <div class="ai-left">
+        <div class="slide-label fade-up">La magia dell'AI</div>
+        <h2 class="ai-left fade-up">
+          Non una guida uguale per tutti.<br>
+          <span class="highlight-purple">La tua guida.</span>
+        </h2>
+        <p class="fade-up">
+          Ogni utente vive la città in modo completamente diverso,
+          generato in tempo reale dall'AI in base ai suoi interessi,
+          alla sua posizione e al momento della giornata.
+        </p>
+        <div class="ai-stat-row fade-up">
+          <div class="ai-stat">
+            <div class="val">∞</div>
+            <div class="lbl">storie uniche<br>generate</div>
+          </div>
+          <div class="ai-stat">
+            <div class="val">0</div>
+            <div class="lbl">domande uguali<br>al quiz</div>
+          </div>
+          <div class="ai-stat">
+            <div class="val">100%</div>
+            <div class="lbl">esperienze<br>personalizzate</div>
+          </div>
+        </div>
+      </div>
+      <div class="ai-features">
+        <div class="ai-card fade-up">
+          <div class="icon"><i data-lucide="map"></i></div>
+          <div>
+            <h3>Mappa dinamica</h3>
+            <p>I POI cambiano in base a chi sei e dove sei. L'AI scopre luoghi mai catalogati nelle guide turistiche.
+            </p>
+          </div>
+        </div>
+        <div class="ai-card fade-up">
+          <div class="icon"><i data-lucide="book-open"></i></div>
+          <div>
+            <h3>Storie generate al volo</h3>
+            <p>Ogni narrazione è unica: diversa se sei amante della storia, dell'arte o dell'avventura. E diversa la
+              sera rispetto alla mattina.</p>
+          </div>
+        </div>
+        <div class="ai-card fade-up">
+          <div class="icon"><i data-lucide="circle-help"></i></div>
+          <div>
+            <h3>Quiz impossibili da copiare</h3>
+            <p>Le sfide vengono generate in tempo reale. Non c'è un database di domande: l'AI ne crea di nuove ogni
+              volta.</p>
+          </div>
+        </div>
+        <div class="ai-card fade-up">
+          <div class="icon"><i data-lucide="headphones"></i></div>
+          <div>
+            <h3>Voce che racconta</h3>
+            <p>ElevenLabs legge la storia al posto tuo. Puoi camminare e ascoltare, senza guardare lo schermo.</p>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="slide-num">05 / 08</div>
-</div>
+    <div class="slide-num">05 / 08</div>
+  </section>
 
-<!-- SLIDE 6: IMPATTO -->
-<div class="slide slide-impact">
-  <div class="slide-label">Il mercato</div>
-  <h2>Roma è già il laboratorio.<br><span class="highlight">Il mondo è il campo da gioco.</span></h2>
-  <p class="desc">Turismo + gamification + AI generativa: tre mercati esplosivi in uno</p>
-  <div class="impact-numbers">
-    <div class="impact-num">
-      <div class="num">35M</div>
-      <div class="label">turisti a Roma ogni anno</div>
-    </div>
-    <div class="impact-num">
-      <div class="num">4→1</div>
-      <div class="label">ore di visita media aumentano con la gamification</div>
-    </div>
-    <div class="impact-num">
-      <div class="num">∞</div>
-      <div class="label">città replicabili con lo stesso motore AI</div>
-    </div>
-  </div>
-  <div class="slide-num">06 / 08</div>
-</div>
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 6 — DEMO -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide slide-demo" id="slide-5">
+    <div class="demo-split">
 
-<!-- SLIDE 7: PERCHÉ VINCIAMO -->
-<div class="slide slide-win">
-  <div class="slide-label">Perché ITINERA vince</div>
-  <h2>Non è un'app turistica.<br>È un nuovo modo di<br><span class="highlight-green">vivere le città.</span></h2>
-  <p class="desc">
-    Non sostituiamo le guide. Non cloniamo TripAdvisor.<br>
-    Creiamo qualcosa che non è mai esistito: una città che parla con te, ti conosce e ti sorprende ogni volta.
-  </p>
-  <div class="win-grid">
-    <div class="win-card">
-      <div class="icon">🚀</div>
-      <h3>Pronto oggi</h3>
-      <p>L'app funziona ora, su Roma. Non è un prototipo: è un prodotto con mappa 3D, AI integrata e sistema di reward.</p>
-    </div>
-    <div class="win-card">
-      <div class="icon">🌍</div>
-      <h3>Scalabile ovunque</h3>
-      <p>Il motore AI non conosce confini. Firenze, Barcellona, Tokyo: basta cambiare le coordinate.</p>
-    </div>
-    <div class="win-card">
-      <div class="icon">💜</div>
-      <h3>Emozione, non feature</h3>
-      <p>Le persone non ricorderanno le notifiche push. Ricorderanno la storia sul Pantheon che li ha fatto emozionare.</p>
-    </div>
-  </div>
-  <div class="slide-num">07 / 08</div>
-</div>
+      <div class="demo-split-left fade-up">
+        <div class="phone-wrap">
+          <div class="phone-glow"></div>
+          <div class="phone-mockup">
+            <div class="phone-notch"></div>
+            <video src="prova.mp4" autoplay loop muted playsinline></video>
+          </div>
+        </div>
+      </div>
 
-<!-- SLIDE 8: CTA -->
-<div class="slide slide-cta">
-  <div class="slide-label">È ora di giocare</div>
-  <h2>Roma<br>ti aspetta.</h2>
-  <div class="divider" style="margin: 0 auto 32px;"></div>
-  <p style="font-size: 22px; color: #a1a1aa; max-width: 600px; line-height: 1.7;">
-    Ogni vicolo ha una storia.<br>
-    Ogni storia merita di essere vissuta.<br>
-    <strong style="color: white;">ITINERA la racconta per te.</strong>
-  </p>
-  <div class="team" style="margin-top: 60px; font-size: 16px;">Team ITINERA — Codemotion Hackathon 2026</div>
-  <div class="slide-num">08 / 08</div>
-</div>
+      <div class="demo-split-right">
+        <div class="slide-label fade-up">Live Demo</div>
+        <h2 class="main-title fade-up" style="text-align:left; margin-bottom: 10px;">L'app in azione</h2>
+
+        <div class="demo-steps">
+          <div class="demo-step fade-up">
+            <div class="demo-step-num">STEP 01</div>
+            <h3>Profilazione Istantanea</h3>
+            <p>Durante l'apertura, l'app identifica i tuoi interessi. Bastano pochi tap per comunicare all'AI il tuo
+              stile di viaggio.</p>
+          </div>
+          <div class="demo-step fade-up">
+            <div class="demo-step-num">STEP 02</div>
+            <h3>Navigazione Intelligente</h3>
+            <p>L'interfaccia si popola in tempo reale. I POI attorno a te non sono casuali, ma filtrati e calcolati su
+              misura per farti vivere un'avventura unica.</p>
+          </div>
+          <div class="demo-step fade-up">
+            <div class="demo-step-num">STEP 03</div>
+            <h3>Check-in e Ricompensa</h3>
+            <p>Raggiunto l'obiettivo, parte la storia vocale. Superando il quiz sblocchi monete virtuali spendibili
+              presso le attività commerciali locali.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="slide-num">06 / 08</div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 7 — PERCHÉ NOI VINCE -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide slide-win" id="slide-6">
+    <div class="slide-label fade-up">Perché ITINERA vince</div>
+    <h2 class="main-title fade-up" style="text-align:center">
+      Non è un'app turistica.<br>
+      È un nuovo modo di<br>
+      <span class="highlight">vivere le città.</span>
+    </h2>
+    <p class="fade-up" style="font-size:18px;color:var(--text-mid);max-width:700px;line-height:1.7;margin-bottom:0;">
+      Non sostituiamo le guide. Non cloniamo TripAdvisor.<br>
+      Creiamo qualcosa che non è mai esistito: una città che parla con te, ti conosce e ti sorprende ogni volta.
+    </p>
+    <div class="win-grid">
+      <div class="win-card fade-up">
+        <div class="win-icon"><i data-lucide="rocket"></i></div>
+        <h3>Pronto oggi</h3>
+        <p>L'app funziona ora, ovunque. Non è un prototipo: è un prodotto con mappa 3D, AI integrata e sistema di
+          reward.</p>
+      </div>
+      <div class="win-card fade-up">
+        <div class="win-icon"><i data-lucide="globe"></i></div>
+        <h3>Scalabile all'infinito</h3>
+        <p>Il motore AI non conosce confini. Firenze, Barcellona, Tokyo, New York: basta cambiare le coordinate.</p>
+      </div>
+      <div class="win-card fade-up">
+        <div class="win-icon"><i data-lucide="heart"></i></div>
+        <h3>Emozione, non feature</h3>
+        <p>Le persone non ricorderanno le notifiche push. Ricorderanno la storia nascosta che li ha fatti emozionare.
+        </p>
+      </div>
+    </div>
+    <div class="slide-num">07 / 08</div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 8 — CTA -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide slide-cta" id="slide-7">
+    <div class="slide-label fade-up">È ora di giocare</div>
+    <h2 class="cta-title fade-up">Il mondo<br>ti aspetta.</h2>
+    <p class="cta-sub fade-up">
+      Ogni vicolo ha una storia.<br>
+      Ogni storia merita di essere vissuta.<br>
+      <strong style="color:#fff;">ITINERA la racconta per te.</strong>
+    </p>
+    <div class="cta-team fade-up">
+      <div class="team-dot"></div>
+      <div class="cta-team-title">ITINERA <span>by</span> Segmentation Team</div>
+      <div class="cta-team-subtitle">Codemotion Hackathon 2026</div>
+      <div class="team-dot" style="margin-top: 8px;"></div>
+    </div>
+    <div class="slide-num">08 / 08</div>
+  </section>
+
+  <script>
+    // ── PARTICLES ──
+    (function () {
+      const canvas = document.getElementById('particles-canvas');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      let W, H;
+
+      function resize() {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+      }
+
+      function Particle() {
+        this.x = Math.random() * W;
+        this.y = Math.random() * H;
+        this.r = Math.random() * 1.5 + 0.3;
+        this.vx = (Math.random() - 0.5) * 0.3;
+        this.vy = (Math.random() - 0.5) * 0.3;
+        this.alpha = Math.random() * 0.5 + 0.1;
+      }
+
+      for (let i = 0; i < 120; i++) {
+        particles.push(new Particle());
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0) p.x = W;
+          if (p.x > W) p.x = 0;
+          if (p.y < 0) p.y = H;
+          if (p.y > H) p.y = 0;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(6,182,212,${p.alpha})`;
+          ctx.fill();
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // ── NAV DOTS ──
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.nav-dot');
+
+    dots.forEach(dot => {
+      dot.addEventListener('click', () => {
+        const idx = parseInt(dot.dataset.index);
+        slides[idx].scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    const ioNav = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          const idx = parseInt(id.split('-')[1]);
+          dots.forEach(d => d.classList.remove('active'));
+          if (dots[idx]) dots[idx].classList.add('active');
+        }
+      });
+    }, { threshold: 0.5 });
+
+    slides.forEach(s => ioNav.observe(s));
+
+    // ── FADE IN ANIMATIONS ──
+    const ioFade = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.fade-up').forEach(el => ioFade.observe(el));
+
+    lucide.createIcons();
+  </script>
 
 </body>
+
 </html>
