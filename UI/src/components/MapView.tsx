@@ -2,7 +2,7 @@
 // npm remove react-leaflet leaflet
 // npm install mapbox-gl react-map-gl
 
-import { useMemo, useCallback, useState, useRef } from 'react';
+import { useMemo, useCallback, useState, useRef, useEffect } from 'react';
 import Map, {
   Marker,
   Source,
@@ -19,9 +19,20 @@ interface MapViewProps {
   pois: POI[];
   profile: UserProfile;
   userLocation: { lat: number; lng: number } | null;
+  isDemoMode?: boolean;
   onPOISelect: (poi: POI) => void;
   timeOfDay: 'mattina' | 'pomeriggio' | 'sera' | 'notte';
+  onRequestDynamicPOIs?: (lat: number, lng: number) => void;
 }
+
+// Bug 03 — Geofencing: Ostiense neighborhood bounding box
+// Disabled by default — flip to true when POIs are Ostiense-only
+const OSTIENSE_BOUNDS: [[number, number], [number, number]] = [
+  [12.4650, 41.8580],
+  [12.4950, 41.8780],
+];
+const GEOFENCE_ENABLED = false;
+const MIN_ZOOM = 13;
 
 const ROME_CENTER = { lat: 41.8967, lng: 12.4822 };
 
@@ -59,6 +70,42 @@ const buildingsLayer: LayerProps = {
     'fill-extrusion-base': ['get', 'min_height'],
     'fill-extrusion-opacity': 0.82,
   },
+};
+
+// ── Cluster Layers ────────────────────────────────────────────────────────────
+const clusterCircleLayer: LayerProps = {
+  id: 'poi-clusters',
+  type: 'circle',
+  source: 'pois-source',
+  filter: ['has', 'point_count'],
+  paint: {
+    'circle-color': '#f59e0b',
+    'circle-opacity': 0.85,
+    'circle-radius': ['step', ['get', 'point_count'], 18, 5, 24, 10, 30],
+    'circle-stroke-width': 2,
+    'circle-stroke-color': '#d97706',
+  },
+};
+
+const clusterCountLayer: LayerProps = {
+  id: 'poi-cluster-count',
+  type: 'symbol',
+  source: 'pois-source',
+  filter: ['has', 'point_count'],
+  layout: {
+    'text-field': '{point_count_abbreviated}',
+    'text-font': ['DIN Pro Medium', 'Arial Unicode MS Bold'],
+    'text-size': 13,
+  },
+  paint: { 'text-color': '#ffffff' },
+};
+
+const unclusteredPointLayer: LayerProps = {
+  id: 'poi-unclustered',
+  type: 'circle',
+  source: 'pois-source',
+  filter: ['!', ['has', 'point_count']],
+  paint: { 'circle-radius': 0 },
 };
 
 // Colors per status
@@ -278,8 +325,24 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function MapView({ pois, profile, userLocation, onPOISelect, timeOfDay }: MapViewProps) {
+export default function MapView({ pois, profile, userLocation, isDemoMode, onPOISelect, timeOfDay, onRequestDynamicPOIs }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
+
+  // ── GeoJSON for clustering ──────────────────────────────────────────────────
+  const poisGeoJSON = useMemo(() => ({
+    type: 'FeatureCollection' as const,
+    features: pois.map((poi) => ({
+      type: 'Feature' as const,
+      geometry: { type: 'Point' as const, coordinates: [poi.lng, poi.lat] },
+      properties: { id: poi.id },
+    })),
+  }), [pois]);
+
+  // ── Trigger dynamic POI fetch when user moves ──────────────────────────────
+  useEffect(() => {
+    if (!userLocation || !onRequestDynamicPOIs) return;
+    onRequestDynamicPOIs(userLocation.lat, userLocation.lng);
+  }, [userLocation, onRequestDynamicPOIs]);
 
   const nearestAvailable = useMemo(() => {
     if (!userLocation) return null;
@@ -296,7 +359,7 @@ export default function MapView({ pois, profile, userLocation, onPOISelect, time
 
   // Recenter on user location when it changes
   const prevLocation = useRef<{ lat: number; lng: number } | null>(null);
-  useMemo(() => {
+  useEffect(() => {
     if (!userLocation || !mapRef.current) return;
     const prev = prevLocation.current;
     if (!prev || prev.lat !== userLocation.lat || prev.lng !== userLocation.lng) {
@@ -313,7 +376,7 @@ export default function MapView({ pois, profile, userLocation, onPOISelect, time
   const TimeIcon = TIME_LABELS[timeOfDay].icon;
 
   return (
-    <div className="relative w-full h-screen">
+    <div className="relative w-full" style={{ height: 'calc(100vh - 4rem)' }}>
       {/* Pulse animation */}
       <style>{`
         @keyframes poi-pulse {
@@ -339,9 +402,25 @@ export default function MapView({ pois, profile, userLocation, onPOISelect, time
         mapboxAccessToken={MAPBOX_TOKEN}
         attributionControl={false}
         logoPosition="bottom-right"
+        {...(GEOFENCE_ENABLED ? { maxBounds: OSTIENSE_BOUNDS } : {})}
+        minZoom={MIN_ZOOM}
       >
         {/* 3D buildings */}
         <Layer {...buildingsLayer} />
+
+        {/* Clustered POI source */}
+        <Source
+          id="pois-source"
+          type="geojson"
+          data={poisGeoJSON}
+          cluster={true}
+          clusterMaxZoom={14}
+          clusterRadius={50}
+        >
+          <Layer {...clusterCircleLayer} />
+          <Layer {...clusterCountLayer} />
+          <Layer {...unclusteredPointLayer} />
+        </Source>
 
         {/* Unlock radius circles */}
         {pois.map((poi) => (
