@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import SplashScreen from './components/Landingscreen';
 import OnboardingScreen from './components/OnboardingScreen';
 import MapView from './components/MapView';
 import MissionsScreen from './components/MissionsScreen';
@@ -9,6 +11,8 @@ import { useGameState } from './hooks/useGameState';
 import { useGeolocation, getDistanceMeters } from './hooks/useGeolocation';
 
 function App() {
+  const [splashDone, setSplashDone] = useState(false);
+
   const {
     profile,
     pois,
@@ -36,10 +40,17 @@ function App() {
     return getDistanceMeters(userLocation.lat, userLocation.lng, selectedPOI.lat, selectedPOI.lng);
   };
 
+  // 1️⃣ Splash — prima di tutto
+  if (!splashDone) {
+    return <SplashScreen onStart={() => setSplashDone(true)} />;
+  }
+
+  // 2️⃣ Onboarding — solo se non ancora completato
   if (!hasOnboarded) {
     return <OnboardingScreen onComplete={completeOnboarding} />;
   }
 
+  // 3️⃣ App principale
   return (
     <div className="min-h-screen bg-stone-50 relative">
       <div className="pb-16">
