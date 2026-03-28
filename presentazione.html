@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITINERA — Pitch Deck</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    overflow-x: hidden;
+  }
+
+  .slide {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 80px;
+    position: relative;
+    border-bottom: 1px solid #1a1a1a;
+  }
+
+  /* SLIDE 1 — HERO */
+  .slide-hero {
+    background: radial-gradient(ellipse at 50% 40%, #1a0a00 0%, #0a0a0a 70%);
+    text-align: center;
+  }
+  .slide-hero .tag {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    border-radius: 100px;
+    display: inline-block;
+    margin-bottom: 32px;
+  }
+  .slide-hero h1 {
+    font-size: clamp(60px, 10vw, 110px);
+    font-weight: 900;
+    line-height: 1;
+    background: linear-gradient(135deg, #fff 30%, #f59e0b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 24px;
+  }
+  .slide-hero .subtitle {
+    font-size: clamp(18px, 2.5vw, 26px);
+    color: #a1a1aa;
+    font-weight: 300;
+    max-width: 700px;
+    line-height: 1.6;
+    margin: 0 auto 48px;
+  }
+  .slide-hero .city-tag {
+    font-size: 16px;
+    color: #f59e0b;
+    font-weight: 600;
+    letter-spacing: 2px;
+  }
+
+  /* SLIDE 2 — PROBLEMA */
+  .slide-problem {
+    background: #0a0a0a;
+  }
+  .slide-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #f59e0b;
+    margin-bottom: 20px;
+  }
+  .slide-problem h2 {
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 900;
+    line-height: 1.1;
+    max-width: 900px;
+    margin-bottom: 60px;
+  }
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    width: 100%;
+    max-width: 1000px;
+  }
+  .problem-card {
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+  }
+  .problem-card .emoji { font-size: 48px; margin-bottom: 16px; display: block; }
+  .problem-card p { color: #a1a1aa; font-size: 16px; line-height: 1.5; }
+  .problem-card strong { color: #fff; display: block; font-size: 20px; margin-bottom: 8px; }
+
+  /* SLIDE 3 — SOLUZIONE */
+  .slide-solution {
+    background: radial-gradient(ellipse at 30% 50%, #0d1f0d 0%, #0a0a0a 60%);
+    text-align: center;
+  }
+  .slide-solution h2 {
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 900;
+    margin-bottom: 16px;
+    line-height: 1.1;
+  }
+  .slide-solution .big-desc {
+    font-size: clamp(18px, 2.2vw, 24px);
+    color: #a1a1aa;
+    max-width: 750px;
+    margin: 0 auto 60px;
+    line-height: 1.6;
+  }
+  .highlight { color: #f59e0b; }
+  .highlight-green { color: #4ade80; }
+  .solution-pills {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .pill {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 100px;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* SLIDE 4 — COME FUNZIONA */
+  .slide-how {
+    background: #0a0a0a;
+  }
+  .slide-how h2 {
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 900;
+    margin-bottom: 60px;
+    text-align: center;
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    width: 100%;
+    max-width: 1100px;
+    position: relative;
+  }
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: 40px;
+    left: 10%;
+    width: 80%;
+    height: 2px;
+    background: linear-gradient(90deg, #f59e0b, #ef4444, #8b5cf6, #4ade80);
+  }
+  .step {
+    text-align: center;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+  }
+  .step-num {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 24px;
+    border: 3px solid;
+  }
+  .step:nth-child(1) .step-num { background: #1a1000; border-color: #f59e0b; }
+  .step:nth-child(2) .step-num { background: #1a0a0a; border-color: #ef4444; }
+  .step:nth-child(3) .step-num { background: #100a1a; border-color: #8b5cf6; }
+  .step:nth-child(4) .step-num { background: #001a0a; border-color: #4ade80; }
+  .step h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+  .step p { color: #a1a1aa; font-size: 14px; line-height: 1.6; }
+
+  /* SLIDE 5 — MAGIA AI */
+  .slide-ai {
+    background: radial-gradient(ellipse at 70% 50%, #0d0a1a 0%, #0a0a0a 60%);
+  }
+  .slide-ai h2 {
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 900;
+    margin-bottom: 16px;
+    max-width: 800px;
+  }
+  .slide-ai .desc {
+    font-size: 20px;
+    color: #a1a1aa;
+    margin-bottom: 60px;
+    max-width: 700px;
+  }
+  .ai-features {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    max-width: 900px;
+    width: 100%;
+  }
+  .ai-card {
+    background: linear-gradient(135deg, #111 0%, #0d0a1a 100%);
+    border: 1px solid #2a2040;
+    border-radius: 20px;
+    padding: 32px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .ai-card .icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  .ai-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .ai-card p { color: #a1a1aa; font-size: 14px; line-height: 1.6; }
+
+  /* SLIDE 6 — IMPATTO */
+  .slide-impact {
+    background: radial-gradient(ellipse at 50% 50%, #1a0f00 0%, #0a0a0a 70%);
+    text-align: center;
+  }
+  .slide-impact h2 {
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 900;
+    margin-bottom: 16px;
+  }
+  .slide-impact .desc {
+    font-size: 20px;
+    color: #a1a1aa;
+    margin-bottom: 60px;
+  }
+  .impact-numbers {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    max-width: 900px;
+    width: 100%;
+  }
+  .impact-num {
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 24px;
+    padding: 40px 24px;
+  }
+  .impact-num .num {
+    font-size: 56px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .impact-num .label { color: #a1a1aa; font-size: 16px; }
+
+  /* SLIDE 7 — WIN */
+  .slide-win {
+    background: radial-gradient(ellipse at 50% 40%, #0f1a05 0%, #0a0a0a 60%);
+    text-align: center;
+  }
+  .slide-win h2 {
+    font-size: clamp(36px, 6vw, 80px);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 32px;
+  }
+  .slide-win .desc {
+    font-size: clamp(18px, 2vw, 22px);
+    color: #a1a1aa;
+    max-width: 800px;
+    line-height: 1.7;
+    margin: 0 auto 60px;
+  }
+  .win-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1000px;
+    width: 100%;
+  }
+  .win-card {
+    border-radius: 20px;
+    padding: 32px 24px;
+    text-align: left;
+  }
+  .win-card:nth-child(1) { background: linear-gradient(135deg, #1a1200, #2a1f00); border: 1px solid #3a2f00; }
+  .win-card:nth-child(2) { background: linear-gradient(135deg, #001a0a, #002a12); border: 1px solid #003a1a; }
+  .win-card:nth-child(3) { background: linear-gradient(135deg, #0a001a, #12002a); border: 1px solid #1a003a; }
+  .win-card .icon { font-size: 36px; margin-bottom: 16px; }
+  .win-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .win-card p { color: #a1a1aa; font-size: 14px; line-height: 1.6; }
+
+  /* SLIDE 8 — CTA */
+  .slide-cta {
+    background: radial-gradient(ellipse at 50% 30%, #1a0a00 0%, #0a0a0a 60%);
+    text-align: center;
+  }
+  .slide-cta h2 {
+    font-size: clamp(48px, 9vw, 100px);
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 32px;
+    background: linear-gradient(135deg, #fff 20%, #f59e0b 60%, #ef4444 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .slide-cta .team {
+    font-size: 18px;
+    color: #a1a1aa;
+    margin-top: 48px;
+    font-style: italic;
+  }
+  .cta-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white;
+    font-size: 22px;
+    font-weight: 700;
+    padding: 20px 56px;
+    border-radius: 100px;
+    text-decoration: none;
+    margin-top: 16px;
+  }
+  .slide-num {
+    position: absolute;
+    bottom: 32px;
+    right: 48px;
+    font-size: 13px;
+    color: #333;
+    font-weight: 600;
+    letter-spacing: 2px;
+  }
+  .divider {
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #f59e0b, #ef4444);
+    border-radius: 2px;
+    margin-bottom: 32px;
+  }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: HERO -->
+<div class="slide slide-hero">
+  <div class="tag">🏆 Codemotion Hackathon 2025</div>
+  <h1>ITINERA<br>Play The City</h1>
+  <p class="subtitle">Le città non sono un museo. Sono un gioco.<br>Esplorarle non dovrebbe essere noioso.</p>
+  <div class="city-tag">📍 ROMA, ITALIA</div>
+  <div class="slide-num">01 / 08</div>
+</div>
+
+<!-- SLIDE 2: PROBLEMA -->
+<div class="slide slide-problem">
+  <div class="slide-label">Il problema</div>
+  <h2>Milioni di persone visitano Roma.<br><span style="color:#f59e0b">Quasi nessuna la scopre davvero.</span></h2>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <span class="emoji">😴</span>
+      <strong>Guida turistica = noia</strong>
+      <p>Leggere didascalie su un cartello non è un'esperienza. È un compito.</p>
+    </div>
+    <div class="problem-card">
+      <span class="emoji">🗺️</span>
+      <strong>Troppo da scegliere</strong>
+      <p>"Dove vado?" è la domanda che blocca ogni turista al mattino.</p>
+    </div>
+    <div class="problem-card">
+      <span class="emoji">📸</span>
+      <strong>Solo selfie, zero memoria</strong>
+      <p>Si fotografa tutto, si ricorda niente. Manca il legame emotivo con il luogo.</p>
+    </div>
+  </div>
+  <div class="slide-num">02 / 08</div>
+</div>
+
+<!-- SLIDE 3: SOLUZIONE -->
+<div class="slide slide-solution">
+  <div class="slide-label">La soluzione</div>
+  <h2>Roma diventa un<br><span class="highlight">gioco di ruolo</span><br>nella vita reale.</h2>
+  <p class="big-desc">
+    ITINERA trasforma ogni monumento in una missione, 
+    ogni quartiere in un livello da completare, 
+    ogni storia nascosta in una ricompensa reale.
+  </p>
+  <div class="solution-pills">
+    <div class="pill">🎮 Gamification urbana</div>
+    <div class="pill">🤖 AI che personalizza tutto</div>
+    <div class="pill">📍 GPS in tempo reale</div>
+    <div class="pill">🎁 Premi reali dai partner</div>
+    <div class="pill">🎧 Narrazione vocale</div>
+  </div>
+  <div class="slide-num">03 / 08</div>
+</div>
+
+<!-- SLIDE 4: COME FUNZIONA -->
+<div class="slide slide-how">
+  <div class="slide-label">Come funziona</div>
+  <h2>4 passi per trasformare<br>una passeggiata in un'avventura</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">🧠</div>
+      <h3>Ti conosce</h3>
+      <p>Un onboarding di 2 minuti capisce chi sei: amante dell'arte? Foodie? Avventuriero?</p>
+    </div>
+    <div class="step">
+      <div class="step-num">📍</div>
+      <h3>Ti guida</h3>
+      <p>La mappa mostra i luoghi vicini a te, filtrati per i tuoi gusti. L'AI scopre le chicche nascoste del quartiere.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">🎯</div>
+      <h3>Ti sfida</h3>
+      <p>Arrivato sul posto, una storia unica e un quiz generati dall'AI ti aspettano. Ogni risposta ti dà XP e monete.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">🎁</div>
+      <h3>Ti premia</h3>
+      <p>Le monete si riscattano da partner reali: caffè, ristoranti, esperienze. La città ti ringrazia per averla esplorata.</p>
+    </div>
+  </div>
+  <div class="slide-num">04 / 08</div>
+</div>
+
+<!-- SLIDE 5: AI MAGIC -->
+<div class="slide slide-ai">
+  <div class="slide-label">La magia dell'AI</div>
+  <h2>Non una guida uguale<br>per tutti. <span style="color:#a78bfa">La tua guida.</span></h2>
+  <p class="desc">Ogni utente vive Roma in modo completamente diverso, generato in tempo reale.</p>
+  <div class="ai-features">
+    <div class="ai-card">
+      <div class="icon">🗺️</div>
+      <div>
+        <h3>Mappa dinamica</h3>
+        <p>I POI cambiano in base a chi sei e dove sei. L'AI scopre luoghi mai catalogati prima nelle guide turistiche.</p>
+      </div>
+    </div>
+    <div class="ai-card">
+      <div class="icon">📖</div>
+      <div>
+        <h3>Storie generate al volo</h3>
+        <p>Ogni narrazione è unica: diversa se sei un amante della storia, dell'arte o dell'avventura. E diversa la sera rispetto alla mattina.</p>
+      </div>
+    </div>
+    <div class="ai-card">
+      <div class="icon">❓</div>
+      <div>
+        <h3>Quiz impossibili da copiare</h3>
+        <p>Le sfide vengono generate in tempo reale. Non c'è un database di domande: l'AI ne crea di nuove ogni volta.</p>
+      </div>
+    </div>
+    <div class="ai-card">
+      <div class="icon">🎧</div>
+      <div>
+        <h3>Voce che racconta</h3>
+        <p>ElevenLabs legge la storia al posto tuo. Puoi camminare e ascoltare, senza guardare lo schermo.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">05 / 08</div>
+</div>
+
+<!-- SLIDE 6: IMPATTO -->
+<div class="slide slide-impact">
+  <div class="slide-label">Il mercato</div>
+  <h2>Roma è già il laboratorio.<br><span class="highlight">Il mondo è il campo da gioco.</span></h2>
+  <p class="desc">Turismo + gamification + AI generativa: tre mercati esplosivi in uno</p>
+  <div class="impact-numbers">
+    <div class="impact-num">
+      <div class="num">35M</div>
+      <div class="label">turisti a Roma ogni anno</div>
+    </div>
+    <div class="impact-num">
+      <div class="num">4→1</div>
+      <div class="label">ore di visita media aumentano con la gamification</div>
+    </div>
+    <div class="impact-num">
+      <div class="num">∞</div>
+      <div class="label">città replicabili con lo stesso motore AI</div>
+    </div>
+  </div>
+  <div class="slide-num">06 / 08</div>
+</div>
+
+<!-- SLIDE 7: PERCHÉ VINCIAMO -->
+<div class="slide slide-win">
+  <div class="slide-label">Perché ITINERA vince</div>
+  <h2>Non è un'app turistica.<br>È un nuovo modo di<br><span class="highlight-green">vivere le città.</span></h2>
+  <p class="desc">
+    Non sostituiamo le guide. Non cloniamo TripAdvisor.<br>
+    Creiamo qualcosa che non è mai esistito: una città che parla con te, ti conosce e ti sorprende ogni volta.
+  </p>
+  <div class="win-grid">
+    <div class="win-card">
+      <div class="icon">🚀</div>
+      <h3>Pronto oggi</h3>
+      <p>L'app funziona ora, su Roma. Non è un prototipo: è un prodotto con mappa 3D, AI integrata e sistema di reward.</p>
+    </div>
+    <div class="win-card">
+      <div class="icon">🌍</div>
+      <h3>Scalabile ovunque</h3>
+      <p>Il motore AI non conosce confini. Firenze, Barcellona, Tokyo: basta cambiare le coordinate.</p>
+    </div>
+    <div class="win-card">
+      <div class="icon">💜</div>
+      <h3>Emozione, non feature</h3>
+      <p>Le persone non ricorderanno le notifiche push. Ricorderanno la storia sul Pantheon che li ha fatto emozionare.</p>
+    </div>
+  </div>
+  <div class="slide-num">07 / 08</div>
+</div>
+
+<!-- SLIDE 8: CTA -->
+<div class="slide slide-cta">
+  <div class="slide-label">È ora di giocare</div>
+  <h2>Roma<br>ti aspetta.</h2>
+  <div class="divider" style="margin: 0 auto 32px;"></div>
+  <p style="font-size: 22px; color: #a1a1aa; max-width: 600px; line-height: 1.7;">
+    Ogni vicolo ha una storia.<br>
+    Ogni storia merita di essere vissuta.<br>
+    <strong style="color: white;">ITINERA la racconta per te.</strong>
+  </p>
+  <div class="team" style="margin-top: 60px; font-size: 16px;">Team ITINERA — Codemotion Hackathon 2026</div>
+  <div class="slide-num">08 / 08</div>
+</div>
+
+</body>
+</html>
