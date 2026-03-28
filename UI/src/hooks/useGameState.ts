@@ -201,6 +201,13 @@ export function useGameState() {
 
   const completePOI = useCallback(
     (poiId: string) => {
+      // BUG 6 FIX: prevent double-completion — if already completed, do nothing.
+      // This blocks infinite XP/coin farming by re-opening the same POI.
+      if (profile.completedPOIs.includes(poiId)) {
+        console.warn(`[completePOI] POI ${poiId} already completed — skipping.`);
+        return;
+      }
+
       setProfile((prev) => ({
         ...prev,
         completedPOIs: [...prev.completedPOIs, poiId],
@@ -240,7 +247,7 @@ export function useGameState() {
       setSelectedPOI(null);
       setActiveChallenge(null);
     },
-    [pois, profile.completedPOIs.length, addXP, addCoins]
+    [pois, profile.completedPOIs, addXP, addCoins]
   );
 
   const completeChallenge = useCallback(
