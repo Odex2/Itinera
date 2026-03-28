@@ -11,7 +11,7 @@ interface GeolocationState {
 
 // Demo locations — add any POI coordinates here for easy hackathon testing
 const DEMO_LOCATIONS: Record<string, { lat: number; lng: number; label: string }> = {
-  gazometro:      { lat: 41.8647, lng: 12.4763, label: 'Gazometro (venue)' },
+  gazometro:      { lat: 41.86957167289657, lng: 12.47498410826282, label: 'Gazometro (venue)' },
   colosseo:       { lat: 41.8902, lng: 12.4922, label: 'Colosseo' },
   fontana_trevi:  { lat: 41.9009, lng: 12.4833, label: 'Fontana di Trevi' },
   pantheon:       { lat: 41.8986, lng: 12.4769, label: 'Pantheon' },
