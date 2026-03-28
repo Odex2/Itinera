@@ -29,7 +29,9 @@ aiRouter.post('/narration', async (req: Request, res: Response) => {
 
     res.json(result);
   } catch (err) {
-    console.error('[AI /narration]', err);
+    const error = err instanceof Error ? err : new Error(String(err));
+    console.error('[AI /narration] ❌ Regolo API Error:', error.message);
+    console.error('[AI /narration] Stack:', error.stack);
     res.status(500).json({ error: 'Failed to generate narration' });
   }
 });

@@ -29,8 +29,13 @@ export async function generateStructured<T>(
   userMessage: string,
 ): Promise<T> {
   if (!config.regaloApiKey) {
+    console.error('\n🚨🚨🚨 [REGOLO] REGOLO_API_KEY is MISSING from process.env!');
+    console.error('[REGOLO] The .env file is gitignored — did you forget to recreate it after pulling?');
+    console.error('[REGOLO] Expected at: server/.env with REGOLO_API_KEY=sk-...\n');
     throw new Error('REGOLO_API_KEY is not configured in server environment');
   }
+
+  console.log(`[REGOLO] Calling ${REGOLO_MODEL} — prompt length: ${systemPrompt.length + userMessage.length} chars`);
 
   const messages: RegoloMessage[] = [
     { role: 'system', content: systemPrompt },
@@ -52,8 +57,11 @@ export async function generateStructured<T>(
 
   if (!res.ok) {
     const body = await res.text().catch(() => '');
+    console.error(`[REGOLO] ❌ HTTP ${res.status} from Regolo.ai:`, body.slice(0, 500));
     throw new Error(`Regolo.ai API error ${res.status}: ${body}`);
   }
+
+  console.log('[REGOLO] ✅ Response received successfully');
 
   const data = (await res.json()) as RegoloResponse;
 
