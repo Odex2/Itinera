@@ -15,7 +15,7 @@ export default function Navigation({ currentScreen, onNavigate }: NavigationProp
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 shadow-lg z-30">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_8px_30px_rgb(6,182,212,0.12)] z-30">
       <div className="flex items-center justify-around px-2 py-1">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -28,19 +28,19 @@ export default function Navigation({ currentScreen, onNavigate }: NavigationProp
               className={`
                 flex flex-col items-center justify-center gap-0.5 py-2 px-4 rounded-xl
                 transition-all duration-200
-                ${isActive ? 'bg-amber-50' : 'hover:bg-stone-50'}
+                ${isActive ? 'bg-cyan-50' : 'hover:bg-slate-50'}
               `}
             >
               <Icon
                 className={`
                   w-5 h-5 transition-colors duration-200
-                  ${isActive ? 'text-amber-600' : 'text-stone-400'}
+                  ${isActive ? 'text-cyan-600' : 'text-slate-400'}
                 `}
               />
               <span
                 className={`
                   text-[10px] font-semibold transition-colors duration-200
-                  ${isActive ? 'text-amber-600' : 'text-stone-400'}
+                  ${isActive ? 'text-cyan-600' : 'text-slate-400'}
                 `}
               >
                 {item.label}
