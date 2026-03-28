@@ -44,20 +44,22 @@ TIPI DI SFIDA — usa una MIX di questi:
 1. QUIZ (scelta multipla): domanda con 4 opzioni, una corretta.
    → options: ["A","B","C","D"], correctAnswer: 0-3
 
-2. COUNTDOWN (conta / osserva, input libero): l'utente guarda e conta. NON dare opzioni.
+2. COUNTDOWN (conta / osserva, input libero): l'utente guarda e conta.
    → options: [], correctAnswer: <numero intero>, timeLimit: 10-20 secondi
-   Esempio: "Conta i gradini della rampa principale. Hai 15 secondi."
+   ⚠️  USA QUESTO TIPO SOLO SE conosci il numero con certezza assoluta (es. colonne Pantheon=16, gradini Campidoglio=124).
+   Se non sei sicuro al 100%, usa quiz a scelta multipla invece.
+   Esempio valido: "Conta le colonne della facciata. Hai 15 secondi."
+   Esempio NON valido: "Conta gli anelli" (se non ne sei certo documentatamente)
 
-3. OBSERVATION (cerca / trova, input libero o opzioni): l'utente cerca un dettaglio fisico.
-   → Può avere options (se è una scelta) o options:[] con correctAnswer numerico se deve contare.
-   Esempio senza opzioni: "Quante finestre ha la facciata nord? Hai 20 secondi."
-   Esempio con opzioni: "Quale dei seguenti simboli è nascosto sulla colonna di sinistra?"
-
+3. OBSERVATION (cerca / trova, preferibilmente scelta multipla): l'utente cerca un dettaglio fisico.
+   → Usa PREFERIBILMENTE options con 4 scelte. Se usi options:[] il numero DEVE essere un fatto documentato.
+   Esempio con opzioni: "Quale dei seguenti simboli è inciso sulla colonna? A) aquila B) lupa C) croce D) spiga"
 4. CHOICE (narrativa): l'utente sceglie un percorso, non c'è risposta giusta.
    → options: 3 scelte narrative, correctAnswer: -1 (sempre "corretto")
 
 REGOLE:
-- Per COUNTDOWN e OBSERVATION che richiedono conteggio: options DEVE essere [] e correctAnswer DEVE essere il numero atteso.
+- Per COUNTDOWN: usa options=[] e correctAnswer=<numero> SOLO SE sei assolutamente certo del numero (es. elementi architettonici documentati). In caso di dubbio, converti in quiz a scelta multipla.
+- Per OBSERVATION: usa SEMPRE opzioni multiple (4 scelte), mai input libero.
 - Domande NON banali: no "In che anno è stato costruito?", no "Chi lo ha progettato?" salvo se l'anno/il nome sia controintuitivo.
 - Almeno una sfida deve richiedere di MUOVERSI fisicamente (camminare, girare attorno, toccare, cercare).
 - Personalizza il TONO in base agli interessi: se l'utente ama l'enogastronomia, collega la domanda al cibo/vino locale; se ama lo sport, usa metafore sportive; se ama l'arte, chiedi di osservare stili architettonici.
@@ -97,7 +99,23 @@ OBBLIGATORIO:
 - Almeno una sfida deve richiedere azione fisica sul posto.
 - Ogni sfida deve sembrare scritta su misura per questo utente, non copiata da Wikipedia.`;
 
-  const raw = await generateStructured<GeneratedChallenge[]>(SYSTEM_PROMPT, userMessage);
+  // Pass high temperature for creative variety + a random seed string
+  // so the model explores different angles even for the same POI
+  const ANGLES = [
+    'prospettiva storica e politica',
+    'dettagli architettonici e materiali',
+    'curiosità umane e aneddoti personali',
+    'connessioni con la vita quotidiana romana',
+    'paradossi e contraddizioni del luogo',
+    'dimensioni, misure e numeri sorprendenti',
+    'confronto prima e dopo nel tempo',
+    'leggende urbane e misteri irrisolti',
+  ];
+  const angle = ANGLES[Math.floor(Math.random() * ANGLES.length)];
+  const seed = Math.random().toString(36).slice(2, 8);
+  const variedMessage = userMessage + `\n\nANGOLO CREATIVO PER QUESTA SESSIONE [${seed}]: Privilegia sfide con angolazione "${angle}". Genera domande che nessuno si aspetterebbe su questo luogo.`;
+
+  const raw = await generateStructured<GeneratedChallenge[]>(SYSTEM_PROMPT, variedMessage, 0.9);
 
   // Normalize: ensure correctAnswer=-1 for 'choice' type,
   // and that free-input challenges have empty options array
