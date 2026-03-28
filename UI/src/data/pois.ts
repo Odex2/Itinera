@@ -267,8 +267,8 @@ export const romePOIs: POI[] = [
       "Il Gazometro di Roma, costruito nel 1937, era un impianto per lo stoccaggio del gas. Dismesso negli anni '60, la sua struttura metallica a traliccio e' diventata uno dei simboli piu fotografati della Roma moderna. Alto 90 metri, domina il quartiere Ostiense.",
     hiddenFact:
       "Il Gazometro ha una struttura telescopica a 7 livelli che poteva espandersi verticalmente come un telescopio per contenere quantita diverse di gas. Ogni livello scorreva dentro quello sottostante. E' uno dei pochi al mondo ancora in piedi con questa architettura.",
-    lat: 41.8647,
-    lng: 12.4763,
+    lat: 41.86957167289657,
+    lng: 12.47498410826282,
     category: 'cultura',
     importanceScore: 78,
     imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Gazometro_ostiense_051208-01.jpg/800px-Gazometro_ostiense_051208-01.jpg',
