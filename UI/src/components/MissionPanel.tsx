@@ -5,8 +5,10 @@ import {
   AlertTriangle, Volume2, VolumeX, Loader2, Sparkles,
 } from 'lucide-react';
 import type { POI, Challenge, UserProfile } from '../types';
-import { fetchNarration, fetchChallenges, fetchTTS } from '../services/api';
+import { fetchNarration, fetchChallenges } from '../services/api';
 import type { GeneratedChallenge, NarrationResult } from '../services/api';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 interface MissionPanelProps {
   poi: POI;
@@ -330,10 +332,166 @@ function ChoiceChallenge({ challenge, onAnswer }: { challenge: Challenge | Gener
   );
 }
 
+// ── BUG 5 FIX: Free-input challenge ──────────────────────────────────────────
+// Used when a challenge has no options array (e.g. "Conta gli archi, Hai 20 secondi!").
+// Renders a numeric input field + optional countdown timer.
+// Validation: exact match OR ±1 tolerance for count-type questions.
+
+function FreeInputChallenge({
+  challenge,
+  onAnswer,
+}: {
+  challenge: Challenge | GeneratedChallenge;
+  onAnswer: (correct: boolean) => void;
+}) {
+  const totalTime = (challenge as Challenge).timeLimit ?? null;
+  const [timeLeft, setTimeLeft] = useState<number | null>(totalTime);
+  const [value, setValue] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Start countdown if challenge has a time limit
+  useEffect(() => {
+    if (totalTime === null) return;
+    intervalRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev === null || prev <= 1) {
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [totalTime]);
+
+  // Auto-fail when timer hits 0
+  useEffect(() => {
+    if (timeLeft === 0 && !submitted) {
+      setSubmitted(true);
+      setIsCorrect(false);
+      setTimeout(() => onAnswer(false), 1500);
+    }
+  }, [timeLeft, submitted, onAnswer]);
+
+  const handleSubmit = () => {
+    if (!value.trim() || submitted) return;
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    setSubmitted(true);
+
+    const userNum = parseInt(value.trim(), 10);
+    const raw = challenge.correctAnswer;
+
+    // Coerce to number regardless of whether it arrived as string or number
+    const expected = typeof raw === 'string' ? parseInt(raw, 10) : raw;
+
+    let correct = false;
+    if (!isNaN(userNum) && typeof expected === 'number' && !isNaN(expected)) {
+      // ±1 tolerance for counting challenges (easy off-by-one forgiveness)
+      correct = Math.abs(userNum - expected) <= 1;
+    } else {
+      // fallback: loose string comparison
+      correct = value.trim().toLowerCase() === String(raw ?? '').toLowerCase();
+    }
+
+    setIsCorrect(correct);
+    setTimeout(() => onAnswer(correct), 1500);
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Countdown timer if present */}
+      {timeLeft !== null && (
+        <div className="flex justify-center">
+          <CountdownCircle timeLeft={timeLeft} totalTime={totalTime!} />
+        </div>
+      )}
+
+      {/* Observation prompt */}
+      <div className="flex items-start gap-2 p-3 bg-cyan-50 rounded-xl border border-cyan-200">
+        <Eye className="w-5 h-5 text-cyan-600 mt-0.5 shrink-0" />
+        <p className="text-slate-700 text-sm">Osserva attentamente, poi inserisci la tua risposta qui sotto.</p>
+      </div>
+
+      <p className="text-slate-800 font-medium text-base leading-relaxed">{challenge.question}</p>
+
+      {/* Hint toggle */}
+      {challenge.hint && !showHint && !submitted && (
+        <button onClick={() => setShowHint(true)} className="flex items-center gap-2 text-cyan-600 hover:text-cyan-700 text-sm font-medium">
+          <HelpCircle className="w-4 h-4" /> Mostra suggerimento
+        </button>
+      )}
+      {showHint && challenge.hint && (
+        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-600 text-sm">
+          <span className="font-medium text-slate-700">Suggerimento:</span> {challenge.hint}
+        </div>
+      )}
+
+      {/* Numeric input */}
+      {!submitted ? (
+        <div className="space-y-3">
+          <input
+            type="number"
+            inputMode="numeric"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+            placeholder="Inserisci il numero..."
+            disabled={timeLeft === 0}
+            autoFocus
+            className="w-full px-4 py-4 rounded-xl border-2 border-slate-200 focus:border-cyan-500 focus:outline-none text-slate-800 text-center text-2xl font-bold tracking-widest transition-colors"
+          />
+          <button
+            onClick={handleSubmit}
+            disabled={!value.trim() || timeLeft === 0}
+            className="w-full py-3 rounded-xl font-semibold text-white bg-cyan-600 hover:bg-cyan-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all"
+          >
+            Conferma risposta
+          </button>
+        </div>
+      ) : (
+        <div className={`p-4 rounded-xl text-center space-y-1.5 ${
+          timeLeft === 0 ? 'bg-red-50 text-red-700'
+          : isCorrect ? 'bg-green-50 text-green-700'
+          : 'bg-orange-50 text-orange-700'
+        }`}>
+          <p className="font-semibold text-base">
+            {timeLeft === 0
+              ? 'Tempo scaduto!'
+              : isCorrect
+              ? '✓ Giusto! Ottimo spirito di osservazione!'
+              : (() => {
+                  const raw = challenge.correctAnswer;
+                  const num = typeof raw === 'string' ? parseInt(raw, 10) : raw;
+                  return typeof num === 'number' && !isNaN(num)
+                    ? `Quasi! La risposta esatta era ${num}.`
+                    : 'Non esattamente — riprova la prossima volta!';
+                })()}
+          </p>
+          {!isCorrect && timeLeft !== 0 && value && (
+            <p className="text-sm opacity-80">Hai risposto: {value}</p>
+          )}
+          {/* Show the description as a reveal/explanation only after answering */}
+          {challenge.description && (
+            <p className="text-sm opacity-90 mt-1 italic">{challenge.description}</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Voice Button ──────────────────────────────────────────────────────────────
+// BUG 1 FIX: previously used fetchTTS() from api.ts which parsed the binary
+// audio response as JSON, causing a silent failure.
+// Now uses a direct fetch → blob → object URL pipeline.
 
 function VoiceButton({
-  text, voiceStyle, disabled,
+  text,
+  voiceStyle,
+  disabled,
 }: {
   text: string;
   voiceStyle?: 'enthusiastic' | 'mysterious' | 'calm';
@@ -342,8 +500,10 @@ function VoiceButton({
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const blobUrlRef = useRef<string | null>(null);
 
   const toggle = async () => {
+    // Stop playback
     if (playing && audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -351,23 +511,44 @@ function VoiceButton({
       return;
     }
     if (loading || disabled) return;
+
     setLoading(true);
     try {
-      const url = await fetchTTS(text, voiceStyle ?? 'calm');
+      // BUG 1 FIX: fetch binary audio directly and convert to a blob URL
+      const res = await fetch(`${API_BASE}/api/voice/tts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text.slice(0, 2000), voiceStyle: voiceStyle ?? 'calm' }),
+      });
+
+      if (!res.ok) throw new Error(`TTS error ${res.status}`);
+
+      const blob = await res.blob();
+      // Revoke previous object URL to avoid memory leaks
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+      const url = URL.createObjectURL(blob);
+      blobUrlRef.current = url;
+
       const audio = new Audio(url);
       audioRef.current = audio;
       audio.onended = () => setPlaying(false);
+      audio.onerror = () => { setPlaying(false); setLoading(false); };
+
       await audio.play();
       setPlaying(true);
-    } catch {
-      // voice not available — fail silently
+    } catch (err) {
+      console.warn('[VoiceButton] TTS unavailable:', err);
+      // voice not available — fail silently, button returns to idle state
     } finally {
       setLoading(false);
     }
   };
 
-  // cleanup on unmount
-  useEffect(() => () => { audioRef.current?.pause(); }, []);
+  // Cleanup on unmount
+  useEffect(() => () => {
+    audioRef.current?.pause();
+    if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+  }, []);
 
   return (
     <button
@@ -396,7 +577,11 @@ export default function MissionPanel({
   poi, profile, timeOfDay,
   onClose, onCompleteChallenge, onCompletePOI, userDistance,
 }: MissionPanelProps) {
-  const [activeTab, setActiveTab] = useState<Tab>('storia');
+  // BUG 6 FIX: if the POI is already completed, open directly on the
+  // "completato" tab so the user can't re-do challenges and farm rewards.
+  const [activeTab, setActiveTab] = useState<Tab>(
+    poi.status === 'completed' ? 'completato' : 'storia'
+  );
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
   const [challengeResults, setChallengeResults] = useState<boolean[]>([]);
   const [totalXpEarned, setTotalXpEarned] = useState(0);
@@ -411,6 +596,9 @@ export default function MissionPanel({
   const tooFar =
     userDistance !== null && poi.unlockDistance > 0 && userDistance > poi.unlockDistance;
 
+  // BUG 6 FIX: if completed, never allow switching to the sfida tab.
+  const alreadyCompleted = poi.status === 'completed';
+
   useEffect(() => {
     requestAnimationFrame(() => setIsVisible(true));
   }, []);
@@ -418,6 +606,7 @@ export default function MissionPanel({
   // ── Fetch AI narration on mount ──
   useEffect(() => {
     let cancelled = false;
+    console.log('[MissionPanel] 🎯 Fetching dynamic narration for:', poi.id, poi.name);
     setAiNarrationLoading(true);
     fetchNarration({
       poiName: poi.name,
@@ -427,16 +616,26 @@ export default function MissionPanel({
       category: poi.category,
       personality: profile.personalityScores,
       timeOfDay,
+      userInterests: profile.interests,
     })
-      .then((result) => { if (!cancelled) setAiNarration(result); })
-      .catch(() => { /* silent fallback to static content */ })
+      .then((result) => {
+        if (!cancelled) {
+          console.log('[MissionPanel] ✅ AI narration received for:', poi.name);
+          setAiNarration(result);
+        }
+      })
+      .catch((err) => {
+        console.error('[MissionPanel] ❌ AI narration FAILED for:', poi.name, err);
+        // Fallback: UI will show static DB content
+      })
       .finally(() => { if (!cancelled) setAiNarrationLoading(false); });
     return () => { cancelled = true; };
   }, [poi.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Fetch AI challenges when sfida tab opens ──
   useEffect(() => {
-    if (activeTab !== 'sfida' || aiChallenges !== null || tooFar) return;
+    // BUG 6 FIX: never fetch challenges for already-completed POIs
+    if (activeTab !== 'sfida' || aiChallenges !== null || tooFar || alreadyCompleted) return;
     let cancelled = false;
     setAiChallengesLoading(true);
     fetchChallenges({
@@ -465,6 +664,12 @@ export default function MissionPanel({
 
   const handleChallengeAnswer = useCallback(
     (correct: boolean) => {
+      // BUG 6 FIX: never award XP/coins for a POI that's already completed
+      if (alreadyCompleted) {
+        handleClose();
+        return;
+      }
+
       const challenge = activeChallenges[currentChallengeIndex];
       const xp = correct ? challenge.xpBonus : Math.floor(challenge.xpBonus * 0.2);
       setChallengeResults((prev) => [...prev, correct]);
@@ -479,7 +684,7 @@ export default function MissionPanel({
         }
       }, 1800);
     },
-    [currentChallengeIndex, activeChallenges, onCompleteChallenge, onCompletePOI, poi.id],
+    [currentChallengeIndex, activeChallenges, onCompleteChallenge, onCompletePOI, poi.id, alreadyCompleted, handleClose],
   );
 
   const currentChallenge = activeChallenges[currentChallengeIndex] as (Challenge | GeneratedChallenge) | undefined;
@@ -487,13 +692,24 @@ export default function MissionPanel({
   const renderChallenge = () => {
     if (aiChallengesLoading) return <ChallengeSkeleton />;
     if (!currentChallenge) return null;
+
     const props = { key: currentChallengeIndex, challenge: currentChallenge, onAnswer: handleChallengeAnswer };
+
+    // BUG 5 FIX: if the challenge has no options (e.g. a "count and observe" prompt),
+    // fall back to FreeInputChallenge instead of rendering an empty options list.
+    const hasOptions = (currentChallenge.options?.length ?? 0) > 0;
+
     switch (currentChallenge.type) {
-      case 'quiz':        return <QuizChallenge {...props} />;
-      case 'countdown':   return <CountdownChallenge {...props} />;
-      case 'observation': return <ObservationChallenge {...props} />;
-      case 'choice':      return <ChoiceChallenge {...props} />;
-      default:            return null;
+      case 'quiz':
+        return hasOptions ? <QuizChallenge {...props} /> : <FreeInputChallenge {...props} />;
+      case 'countdown':
+        return hasOptions ? <CountdownChallenge {...props} /> : <FreeInputChallenge {...props} />;
+      case 'observation':
+        return hasOptions ? <ObservationChallenge {...props} /> : <FreeInputChallenge {...props} />;
+      case 'choice':
+        return hasOptions ? <ChoiceChallenge {...props} /> : <FreeInputChallenge {...props} />;
+      default:
+        return null;
     }
   };
 
@@ -560,9 +776,30 @@ export default function MissionPanel({
 
           {/* Tabs */}
           <div className="flex gap-1 mb-5 bg-slate-100 p-1 rounded-xl">
-            <TabButton active={activeTab === 'storia'} onClick={() => setActiveTab('storia')} icon={<BookOpen className="w-4 h-4" />} label="La Storia" />
-            <TabButton active={activeTab === 'sfida'} onClick={() => !tooFar && setActiveTab('sfida')} icon={<Target className="w-4 h-4" />} label="La Sfida" disabled={tooFar} />
-            <TabButton active={activeTab === 'completato'} onClick={() => activeTab === 'completato' && setActiveTab('completato')} icon={<Trophy className="w-4 h-4" />} label="Completato" disabled={activeTab !== 'completato'} />
+            {/* Storia: always readable, even after completion */}
+            <TabButton
+              active={activeTab === 'storia'}
+              onClick={() => setActiveTab('storia')}
+              icon={<BookOpen className="w-4 h-4" />}
+              label="La Storia"
+              disabled={false}
+            />
+            {/* Sfida: blocked when completed OR too far */}
+            <TabButton
+              active={activeTab === 'sfida'}
+              onClick={() => !tooFar && !alreadyCompleted && setActiveTab('sfida')}
+              icon={<Target className="w-4 h-4" />}
+              label="La Sfida"
+              disabled={tooFar || alreadyCompleted}
+            />
+            {/* Completato: visible only once done */}
+            <TabButton
+              active={activeTab === 'completato'}
+              onClick={() => alreadyCompleted && setActiveTab('completato')}
+              icon={<Trophy className="w-4 h-4" />}
+              label="Completato"
+              disabled={!alreadyCompleted && activeTab !== 'completato'}
+            />
           </div>
 
           {/* ── Storia Tab ─────────────────────────────────────────────────── */}
@@ -572,14 +809,16 @@ export default function MissionPanel({
               <div className="flex items-center justify-between">
                 {aiNarration ? (
                   <span className="inline-flex items-center gap-1 text-xs font-medium text-violet-700 bg-violet-50 px-2 py-0.5 rounded-full">
-                    <Sparkles className="w-3 h-3" />Narrazione personalizzata
+                    <Sparkles className="w-3 h-3" />Generata in tempo reale da AI
                   </span>
                 ) : aiNarrationLoading ? (
                   <span className="inline-flex items-center gap-1 text-xs text-slate-400">
-                    <Loader2 className="w-3 h-3 animate-spin" />Generazione in corso...
+                    <Loader2 className="w-3 h-3 animate-spin" />Generazione storia in corso...
                   </span>
                 ) : (
-                  <span className="text-xs text-slate-400">Contenuto statico</span>
+                  <span className="inline-flex items-center gap-1 text-xs text-slate-400">
+                    Contenuto dal database
+                  </span>
                 )}
                 <VoiceButton text={narrationText} voiceStyle={voiceStyle} disabled={aiNarrationLoading} />
               </div>
@@ -608,7 +847,7 @@ export default function MissionPanel({
                 )}
               </div>
 
-              {!tooFar && (
+              {!tooFar && !alreadyCompleted && (
                 <button onClick={() => setActiveTab('sfida')}
                   className="w-full py-3 rounded-xl font-semibold text-white bg-cyan-600 hover:bg-cyan-700 transition-colors flex items-center justify-center gap-2">
                   Inizia la sfida <ChevronRight className="w-5 h-5" />
@@ -618,7 +857,7 @@ export default function MissionPanel({
           )}
 
           {/* ── Sfida Tab ──────────────────────────────────────────────────── */}
-          {activeTab === 'sfida' && !tooFar && (
+          {activeTab === 'sfida' && !tooFar && !alreadyCompleted && (
             <div className="space-y-4">
               {/* AI badge */}
               {aiChallenges && aiChallenges.length > 0 && (
@@ -671,22 +910,25 @@ export default function MissionPanel({
                 <h3 className="text-lg font-bold text-slate-900">Missione completata!</h3>
                 <p className="text-slate-500 text-sm mt-1">Hai completato tutte le sfide di questo luogo.</p>
               </div>
-              <div className="flex justify-center gap-6">
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 text-cyan-600">
-                    <Award className="w-5 h-5" />
-                    <span className="text-2xl font-bold">{totalXpEarned + poi.xpReward}</span>
+              {/* BUG 6 FIX: only show XP earned for freshly completed POIs, not replays */}
+              {!alreadyCompleted && (
+                <div className="flex justify-center gap-6">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-1 text-cyan-600">
+                      <Award className="w-5 h-5" />
+                      <span className="text-2xl font-bold">{totalXpEarned + poi.xpReward}</span>
+                    </div>
+                    <span className="text-xs text-slate-500">XP guadagnati</span>
                   </div>
-                  <span className="text-xs text-slate-500">XP guadagnati</span>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 text-cyan-600">
-                    <Coins className="w-5 h-5" />
-                    <span className="text-2xl font-bold">{poi.coinReward}</span>
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-1 text-cyan-600">
+                      <Coins className="w-5 h-5" />
+                      <span className="text-2xl font-bold">{poi.coinReward}</span>
+                    </div>
+                    <span className="text-xs text-slate-500">Monete</span>
                   </div>
-                  <span className="text-xs text-slate-500">Monete</span>
                 </div>
-              </div>
+              )}
               {challengeResults.length > 0 && (
                 <div className="space-y-1.5">
                   {challengeResults.map((correct, idx) => (

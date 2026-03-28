@@ -17,6 +17,7 @@ import type { UserProfile, Badge, InterestCategory } from '../types';
 interface ProfileScreenProps {
   profile: UserProfile;
   badges: Badge[];
+  totalPOICount?: number;
 }
 
 const LEVEL_TITLES: { max: number; title: string }[] = [
@@ -169,13 +170,14 @@ function getBadgeColorClasses(color: string, unlocked: boolean) {
   return colors[color] || colors.amber;
 }
 
-export default function ProfileScreen({ profile, badges }: ProfileScreenProps) {
+export default function ProfileScreen({ profile, badges, totalPOICount }: ProfileScreenProps) {
   const xpInCurrentLevel = profile.xp % XP_PER_LEVEL;
   const xpProgressPercent = (xpInCurrentLevel / XP_PER_LEVEL) * 100;
   const levelTitle = getLevelTitle(profile.level);
   const dominantTrait = getDominantTrait(profile.personalityScores);
 
-  const totalPOIs = profile.visitedPOIs.length + profile.completedPOIs.length;
+  const completedCount = profile.completedPOIs.length;
+  const totalPOIs = totalPOICount ?? 0;
   const quizCount = profile.quizResults.length;
 
   const personalityEntries = Object.entries(profile.personalityScores) as [string, number][];
@@ -236,9 +238,9 @@ export default function ProfileScreen({ profile, badges }: ProfileScreenProps) {
                 <Map className="w-5 h-5 text-cyan-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-slate-800">{profile.completedPOIs.length}</p>
+            <p className="text-2xl font-bold text-slate-800">{completedCount}</p>
             <p className="text-xs text-slate-500 mt-0.5">
-              Luoghi visitati (su {totalPOIs > 0 ? totalPOIs : '--'})
+              Luoghi visitati{totalPOIs > 0 ? ` (su ${totalPOIs})` : ''}
             </p>
           </div>
 

@@ -58,6 +58,12 @@ export interface OnboardingOption {
   personalityBoost: Partial<PersonalityScores>;
 }
 
+export interface POINarration {
+  narration: string;
+  hiddenFact: string;
+  voiceStyle: 'enthusiastic' | 'mysterious' | 'calm';
+}
+
 export interface POI {
   id: string;
   name: string;
@@ -76,6 +82,10 @@ export interface POI {
   coinReward: number;
   bestTime: 'mattina' | 'pomeriggio' | 'sera' | 'tramonto' | 'any';
   source: string;
+  /** AI-generated narration from the dialogueWriter agent */
+  aiNarration?: POINarration;
+  /** True while the narration is being generated server-side */
+  isGeneratingNarration?: boolean;
 }
 
 export interface Challenge {
