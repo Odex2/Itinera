@@ -444,35 +444,35 @@ export default function MapView({ pois, profile, userLocation, isDemoMode, onPOI
       {/* ── Top Bar Overlay ── */}
       <div className="absolute top-0 left-0 right-0 z-[1000] pointer-events-none">
         <div className="mx-3 mt-3 pointer-events-auto">
-          <div className="bg-stone-900/90 backdrop-blur-md rounded-2xl px-4 py-3 shadow-lg border border-stone-700/50">
+          <div className="bg-slate-900/90 backdrop-blur-md rounded-xl px-4 py-3 shadow-[0_8px_30px_rgb(6,182,212,0.12)] border border-slate-700/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-amber-400" />
+                <MapPin className="w-5 h-5 text-cyan-400" />
                 <span className="text-white font-bold text-lg tracking-wide">Roma</span>
-                <div className="flex items-center gap-1 ml-2 px-2 py-0.5 bg-stone-800 rounded-full">
-                  <TimeIcon className="w-3.5 h-3.5 text-amber-300" />
-                  <span className="text-amber-200 text-xs font-medium">
+                <div className="flex items-center gap-1 ml-2 px-2 py-0.5 bg-slate-800 rounded-full">
+                  <TimeIcon className="w-3.5 h-3.5 text-cyan-300" />
+                  <span className="text-cyan-200 text-xs font-medium">
                     {TIME_LABELS[timeOfDay].label}
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 bg-amber-500/20 px-3 py-1 rounded-full">
-                <Coins className="w-4 h-4 text-amber-400" />
-                <span className="text-amber-300 font-bold text-sm">{profile.coins}</span>
+              <div className="flex items-center gap-1.5 bg-cyan-500/20 px-3 py-1 rounded-full">
+                <Coins className="w-4 h-4 text-cyan-400" />
+                <span className="text-cyan-300 font-bold text-sm">{profile.coins}</span>
               </div>
             </div>
             <div className="mt-2 flex items-center gap-3">
               <div className="flex items-center gap-1.5">
-                <Star className="w-4 h-4 text-amber-400" />
-                <span className="text-amber-200 text-xs font-semibold">Lv. {profile.level}</span>
+                <Star className="w-4 h-4 text-cyan-400" />
+                <span className="text-cyan-200 text-xs font-semibold">Lv. {profile.level}</span>
               </div>
-              <div className="flex-1 h-2 bg-stone-700 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full transition-all duration-500"
                   style={{ width: `${xpProgress}%` }}
                 />
               </div>
-              <span className="text-stone-400 text-xs">
+              <span className="text-slate-400 text-xs">
                 {profile.xp}/{xpForCurrentLevel} XP
               </span>
             </div>
@@ -484,43 +484,43 @@ export default function MapView({ pois, profile, userLocation, isDemoMode, onPOI
       <div className="absolute bottom-0 left-0 right-0 z-[1000] pointer-events-none">
         <div className="mx-3 mb-6 pointer-events-auto">
           {nearestAvailable ? (
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-stone-200">
+            <div className="bg-white/95 backdrop-blur-md backdrop-blur-md rounded-xl p-4 shadow-xl border border-slate-200">
               <div className="flex items-center gap-1.5 mb-2">
-                <Navigation className="w-3.5 h-3.5 text-amber-600" />
-                <span className="text-amber-700 text-xs font-bold uppercase tracking-wider">
+                <Navigation className="w-3.5 h-3.5 text-cyan-600" />
+                <span className="text-cyan-700 text-xs font-bold uppercase tracking-wider">
                   Prossima Tappa
                 </span>
               </div>
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-stone-900 font-bold text-base truncate">
+                  <h3 className="text-slate-900 font-bold text-base truncate">
                     {nearestAvailable.poi.name}
                   </h3>
-                  <p className="text-stone-500 text-sm">
+                  <p className="text-slate-500 text-sm">
                     {CATEGORY_LABELS[nearestAvailable.poi.category] || nearestAvailable.poi.category}
                   </p>
                   <div className="flex items-center gap-3 mt-1.5">
-                    <span className="text-stone-600 text-xs">
+                    <span className="text-slate-600 text-xs">
                       {userLocation
                         ? formatDistance(nearestAvailable.distance)
                         : 'GPS non disponibile'}
                     </span>
-                    <span className="text-amber-500 text-sm tracking-wide">
+                    <span className="text-cyan-500 text-sm tracking-wide">
                       {renderImportanceStars(nearestAvailable.poi.importanceScore)}
                     </span>
                   </div>
                 </div>
                 <button
                   onClick={() => onPOISelect(nearestAvailable.poi)}
-                  className="ml-3 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold text-sm rounded-xl shadow-md hover:from-amber-600 hover:to-amber-700 active:scale-95 transition-all"
+                  className="ml-3 px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-bold text-sm rounded-xl shadow-md shadow-cyan-900/10 hover:from-cyan-600 hover:to-cyan-700 active:scale-95 transition-all"
                 >
                   Esplora
                 </button>
               </div>
             </div>
           ) : (
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-stone-200 text-center">
-              <p className="text-stone-500 text-sm">
+            <div className="bg-white/95 backdrop-blur-md backdrop-blur-md rounded-xl p-4 shadow-xl border border-slate-200 text-center">
+              <p className="text-slate-500 text-sm">
                 {userLocation
                   ? 'Nessun punto di interesse disponibile nelle vicinanze.'
                   : 'Attiva il GPS per scoprire i punti di interesse.'}

@@ -33,6 +33,8 @@ const initialBadges: Badge[] = [
 function createInitialProfile(): UserProfile {
   return {
     id: crypto.randomUUID(),
+    username: '',
+    age: 0,
     answers: [],
     dietaryPreferences: [],
     interests: [],
@@ -164,6 +166,10 @@ export function useGameState() {
     },
     []
   );
+
+  const updateProfileBasic = useCallback((username: string, age: number) => {
+    setProfile(prev => ({ ...prev, username, age }));
+  }, []);
 
   const addXP = useCallback((amount: number) => {
     setProfile((prev) => {
@@ -311,6 +317,7 @@ export function useGameState() {
     setCurrentScreen,
     setSelectedPOI,
     setActiveChallenge,
+    updateProfileBasic,
     completeOnboarding,
     completePOI,
     completeChallenge,
