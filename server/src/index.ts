@@ -5,6 +5,7 @@ import { aiRouter } from './routes/ai.js';
 import { weatherRouter } from './routes/weather.js';
 import { voiceRouter } from './routes/voice.js';
 import { discoverRouter } from './routes/discover.js';
+import { diagnosticsRouter } from './routes/diagnostics.js';
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use('/api/ai', aiRouter);
 app.use('/api/ai', discoverRouter);
 app.use('/api/weather', weatherRouter);
 app.use('/api/voice', voiceRouter);
+app.use('/api', diagnosticsRouter);
 
 app.listen(config.port, () => {
   console.log(`Play The City server running on http://localhost:${config.port}`);
