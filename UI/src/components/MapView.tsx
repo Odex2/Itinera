@@ -23,6 +23,7 @@ interface MapViewProps {
   onPOISelect: (poi: POI) => void;
   timeOfDay: 'mattina' | 'pomeriggio' | 'sera' | 'notte';
   onRequestDynamicPOIs?: (lat: number, lng: number) => void;
+  hideBottomCard?: boolean;
 }
 
 // Bug 03 — Geofencing: Ostiense neighborhood bounding box
@@ -325,7 +326,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function MapView({ pois, profile, userLocation, isDemoMode, onPOISelect, timeOfDay, onRequestDynamicPOIs }: MapViewProps) {
+export default function MapView({ pois, profile, userLocation, isDemoMode, onPOISelect, timeOfDay, onRequestDynamicPOIs, hideBottomCard }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
 
   // ── GeoJSON for clustering ──────────────────────────────────────────────────
@@ -481,7 +482,8 @@ export default function MapView({ pois, profile, userLocation, isDemoMode, onPOI
       </div>
 
       {/* ── Bottom Card Overlay ── */}
-      <div className="absolute bottom-0 left-0 right-0 z-[1000] pointer-events-none">
+      {!hideBottomCard && (
+      <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none">
         <div className="mx-3 mb-6 pointer-events-auto">
           {nearestAvailable ? (
             <div className="bg-white/95 backdrop-blur-md backdrop-blur-md rounded-xl p-4 shadow-xl border border-slate-200">
@@ -529,6 +531,7 @@ export default function MapView({ pois, profile, userLocation, isDemoMode, onPOI
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }

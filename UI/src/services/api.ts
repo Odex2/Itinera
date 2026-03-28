@@ -81,6 +81,7 @@ export async function fetchNarration(params: {
   category: string;
   personality: PersonalityScores;
   timeOfDay: string;
+  userInterests?: string[];
 }): Promise<NarrationResult> {
   return post<NarrationResult>('/api/ai/narration', params);
 }

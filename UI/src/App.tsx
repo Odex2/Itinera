@@ -31,6 +31,8 @@ function App() {
     claimReward,
     getTimeOptimizedRewards,
     updateProfileBasic,
+    fetchDynamicPOIs,
+    getVisiblePOIs,
   } = useGameState();
 
   const geo = useGeolocation();
@@ -69,12 +71,14 @@ function App() {
       <div className="pb-16">
         {currentScreen === 'map' && (
           <MapView
-            pois={pois}
+            pois={userLocation ? getVisiblePOIs(userLocation.lat, userLocation.lng) : pois}
             profile={profile}
             userLocation={userLocation}
             isDemoMode={geo.isDemoMode}
             onPOISelect={setSelectedPOI}
             timeOfDay={timeOfDay}
+            onRequestDynamicPOIs={fetchDynamicPOIs}
+            hideBottomCard={!!selectedPOI}
           />
         )}
         {currentScreen === 'missions' && (
@@ -89,7 +93,7 @@ function App() {
           />
         )}
         {currentScreen === 'profile' && (
-          <ProfileScreen profile={profile} badges={badges} />
+          <ProfileScreen profile={profile} badges={badges} totalPOICount={pois.length} />
         )}
       </div>
       <Navigation currentScreen={currentScreen} onNavigate={setCurrentScreen} />

@@ -22,6 +22,7 @@ interface NarrationInput {
   category: string;
   personality: PersonalityScores;
   timeOfDay: string;
+  userInterests?: string[];
 }
 
 function getDominantTrait(scores: PersonalityScores): string {
@@ -56,6 +57,10 @@ Rispondi SOLO con un oggetto JSON con campi: narration, hiddenFact, voiceStyle.`
 export async function generateNarration(input: NarrationInput): Promise<NarrationResult> {
   const dominant = getDominantTrait(input.personality);
 
+  const interestsLine = input.userInterests?.length
+    ? `INTERESSI UTENTE: ${input.userInterests.join(', ')}`
+    : '';
+
   const userMessage = `Genera una narrazione personalizzata per:
 
 LUOGO: ${input.poiName}
@@ -65,8 +70,11 @@ CURIOSITA NOTA: ${input.hiddenFact}
 MOMENTO: ${input.timeOfDay}
 PERSONALITA DOMINANTE: ${dominant}
 SCORES: relax=${input.personality.relax}, divertimento=${input.personality.divertimento}, cultura=${input.personality.cultura}, avventura=${input.personality.avventura}, socialita=${input.personality.socialita}
+${interestsLine}
 
-Crea una narrazione che si adatti alla personalita "${dominant}" e al momento "${input.timeOfDay}". Includi un fatto nascosto DIVERSO e ancora piu sorprendente rispetto a quello gia noto.`;
+Crea una narrazione che si adatti alla personalita "${dominant}" e al momento "${input.timeOfDay}".
+${input.userInterests?.length ? `IMPORTANTE: L'utente e interessato a ${input.userInterests.join(', ')}. Cerca di collegare la narrazione e la curiosita nascosta ai suoi interessi. Ad esempio, se ama la musica, racconta aspetti musicali del luogo; se ama l'enogastronomia, parla di tradizioni culinarie legate al posto.` : ''}
+Includi un fatto nascosto DIVERSO e ancora piu sorprendente rispetto a quello gia noto.`;
 
   return generateStructured<NarrationResult>(SYSTEM_PROMPT, userMessage);
 }
