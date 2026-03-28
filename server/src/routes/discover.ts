@@ -6,12 +6,74 @@ import { synthesizeSpeech } from '../services/elevenlabs.js';
 import { transcribeAudio } from '../services/whisper.js';
 import { filterOpenPOIs } from '../utils/timeFilter.js';
 import { filterUncompletedPOIs, inMemoryStore } from '../utils/completedChallenges.js';
-import { fetchOverpassPOIs } from '../services/overpass.js';
+import { fetchOverpassPOIs, type OverpassElement } from '../services/overpass.js';
 import { config } from '../config.js';
 
 export const discoverRouter = Router();
 
-// ── POST /api/ai/discover-pois (Bug 02 & 12) ───────────────────
+// ── BUG 4 FIX: helpers to convert Overpass bar elements into the DiscoveredPOI format ──
+
+/**
+ * Converts an Overpass element (bar/pub/cafe) to a DiscoveredPOI shape.
+ * Returns null if the element lacks coordinates or a name.
+ */
+function overpassToPOI(el: OverpassElement): DiscoveredPOI | null {
+  const lat = el.lat ?? el.center?.lat;
+  const lon = el.lon ?? el.center?.lon;
+  const name = el.tags?.name;
+
+  if (!lat || !lon || !name) return null;
+
+  const amenity = el.tags?.amenity ?? 'bar';
+  const partnerType = amenity === 'pub' ? 'pub' : amenity === 'cafe' ? 'caffè' : 'bar';
+  const opening = el.tags?.opening_hours ?? '';
+  const openingNote = opening ? ` Orari: ${opening}.` : '';
+
+  return {
+    id: `osm-${el.id}`,
+    name,
+    description: `${partnerType.charAt(0).toUpperCase() + partnerType.slice(1)} nelle vicinanze.${openingNote}`,
+    lat,
+    lng: lon,
+    category: 'enogastronomia',
+    importanceScore: 42,   // below AI-discovered gems, above nothing
+    unlockDistance: 50,    // must be nearby to unlock
+    xpReward: 60,
+    source: 'openstreetmap',
+  };
+}
+
+interface DiscoveredPOI {
+  id: string;
+  name: string;
+  description: string;
+  lat: number;
+  lng: number;
+  category: string;
+  importanceScore: number;
+  unlockDistance: number;
+  xpReward: number;
+  source?: string;
+}
+
+/**
+ * Builds a rough bounding box around a lat/lng point for an 800m radius.
+ */
+function buildBbox(lat: number, lng: number, radiusMeters = 800) {
+  const latDelta = radiusMeters / 111320;
+  const lngDelta = radiusMeters / (111320 * Math.cos((lat * Math.PI) / 180));
+  return {
+    south: lat - latDelta,
+    north: lat + latDelta,
+    west: lng - lngDelta,
+    east: lng + lngDelta,
+  };
+}
+
+// ── POST /api/ai/discover-pois ─────────────────────────────────
+// BUG 4 FIX: now runs BOTH the AI discovery agent AND the Overpass API
+// in parallel, then merges and deduplicates the results.
+// The AI agent finds hidden cultural gems; Overpass finds real nearby bars.
 
 discoverRouter.post('/discover-pois', async (req: Request, res: Response) => {
   try {
@@ -22,7 +84,31 @@ discoverRouter.post('/discover-pois', async (req: Request, res: Response) => {
       return;
     }
 
-    const pois = await discoverPOIs({ lat, lng, interests });
+    const bbox = buildBbox(lat, lng, 800);
+
+    // Run AI discovery + Overpass bar lookup in parallel
+    const [aiPois, overpassElements] = await Promise.allSettled([
+      discoverPOIs({ lat, lng, interests }),
+      fetchOverpassPOIs(bbox.south, bbox.west, bbox.north, bbox.east),
+    ]);
+
+    // Collect AI-discovered POIs
+    const pois: DiscoveredPOI[] = aiPois.status === 'fulfilled' ? aiPois.value : [];
+
+    // Convert and merge Overpass bars (skip if Overpass failed)
+    if (overpassElements.status === 'fulfilled') {
+      const existingIds = new Set(pois.map((p) => p.id));
+
+      // Limit to 5 nearest bars to avoid flooding the map
+      const bars = overpassElements.value
+        .map(overpassToPOI)
+        .filter((p): p is DiscoveredPOI => p !== null)
+        .filter((p) => !existingIds.has(p.id))
+        .slice(0, 5);
+
+      pois.push(...bars);
+    }
+
     res.json({ pois });
   } catch (err) {
     console.error('[AI /discover-pois]', err);
@@ -30,7 +116,7 @@ discoverRouter.post('/discover-pois', async (req: Request, res: Response) => {
   }
 });
 
-// ── POST /api/ai/spoken-challenge (Bug 04a + 04b) ──────────────
+// ── POST /api/ai/spoken-challenge ─────────────────────────────
 
 discoverRouter.post('/spoken-challenge', async (req: Request, res: Response) => {
   try {
@@ -46,7 +132,6 @@ discoverRouter.post('/spoken-challenge', async (req: Request, res: Response) => 
       return;
     }
 
-    // 1. Generate the challenge text via the Dialogue agent
     const challenge = await generateSpokenChallenge({
       poiName,
       poiDescription: poiDescription || '',
@@ -56,11 +141,8 @@ discoverRouter.post('/spoken-challenge', async (req: Request, res: Response) => 
       lng: lng || 0,
     });
 
-    // 2. Synthesize the question to speech via ElevenLabs
     const audioBuffer = await synthesizeSpeech(challenge.question, challenge.voiceStyle);
 
-    // 3. Return challenge metadata + audio as base64
-    // (base64 avoids multipart complexity; frontend decodes to audio)
     res.json({
       challenge: {
         question: challenge.question,
@@ -82,13 +164,11 @@ discoverRouter.post('/spoken-challenge', async (req: Request, res: Response) => 
   }
 });
 
-// ── POST /api/ai/answer-challenge (Bug 04c) ────────────────────
+// ── POST /api/ai/answer-challenge ─────────────────────────────
 
 discoverRouter.post('/answer-challenge', async (req: Request, res: Response) => {
   try {
     const { challengeQuestion, correctAnswer, acceptableKeywords } = req.body;
-
-    // Audio file expected as base64 in req.body.audio
     const audioBase64: string | undefined = req.body.audio;
     const audioFilename: string = req.body.audioFilename || 'recording.webm';
 
@@ -102,17 +182,14 @@ discoverRouter.post('/answer-challenge', async (req: Request, res: Response) => 
       return;
     }
 
-    // 1. Decode audio and transcribe with Whisper
     const audioBuffer = Buffer.from(audioBase64, 'base64');
     const transcript = await transcribeAudio(audioBuffer, audioFilename);
 
-    // 2. Quick keyword check (fast path before AI validation)
     const normalizedTranscript = transcript.toLowerCase().trim();
     const keywordMatch = acceptableKeywords?.some((kw: string) =>
       normalizedTranscript.includes(kw.toLowerCase()),
     );
 
-    // 3. AI-powered validation for nuanced answers
     const validation = await validateAnswer({
       challengeQuestion,
       challengeType: 'voice',
@@ -122,23 +199,19 @@ discoverRouter.post('/answer-challenge', async (req: Request, res: Response) => 
         : '',
     });
 
-    // Boost confidence if keywords matched
     if (keywordMatch && !validation.correct) {
       validation.correct = true;
       validation.xpAwarded = Math.max(validation.xpAwarded, 40);
     }
 
-    res.json({
-      transcript,
-      ...validation,
-    });
+    res.json({ transcript, ...validation });
   } catch (err) {
     console.error('[AI /answer-challenge]', err);
     res.status(500).json({ error: 'Failed to process voice answer' });
   }
 });
 
-// ── POST /api/ai/filter-open (Bug 05) ──────────────────────────
+// ── POST /api/ai/filter-open ───────────────────────────────────
 
 discoverRouter.post('/filter-open', async (req: Request, res: Response) => {
   try {
@@ -155,7 +228,7 @@ discoverRouter.post('/filter-open', async (req: Request, res: Response) => {
   }
 });
 
-// ── GET /api/ai/overpass (Bug 06) ───────────────────────────────
+// ── GET /api/ai/overpass ───────────────────────────────────────
 
 discoverRouter.get('/overpass', async (req: Request, res: Response) => {
   try {
@@ -177,7 +250,7 @@ discoverRouter.get('/overpass', async (req: Request, res: Response) => {
   }
 });
 
-// ── POST /api/ai/uncompleted (Bug 09) ──────────────────────────
+// ── POST /api/ai/uncompleted ───────────────────────────────────
 
 discoverRouter.post('/uncompleted', async (req: Request, res: Response) => {
   try {
@@ -196,7 +269,7 @@ discoverRouter.post('/uncompleted', async (req: Request, res: Response) => {
   }
 });
 
-// ── POST /api/ai/mark-completed (Bug 09 companion) ─────────────
+// ── POST /api/ai/mark-completed ───────────────────────────────
 
 discoverRouter.post('/mark-completed', async (req: Request, res: Response) => {
   try {

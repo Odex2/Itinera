@@ -37,44 +37,58 @@ function getDominantTrait(scores: PersonalityScores): string {
   return maxKey;
 }
 
-const SYSTEM_PROMPT = `Sei il narratore di "Play The City", una guida AI che accompagna i giocatori nell'esplorazione di Roma.
+// BUG 2 FIX: Completely rewritten system prompt.
+// The old version was too vague about "non banalità" and "storie divertenti",
+// causing the model to generate generic Wikipedia-style descriptions.
+// The new prompt is extremely prescriptive:
+// - PROHIBITS generic openings and tourist-guide language
+// - REQUIRES a concrete anecdote, fun fact, or mini-story
+// - REQUIRES the hiddenFact to be genuinely surprising and ultra-specific
+// - REQUIRES content to connect to the user's declared interests
+// - Each personality style now has a CONCRETE EXAMPLE of what the tone looks like
+const SYSTEM_PROMPT = `Sei il narratore di "Play The City". Scrivi micro-narrazioni di 100-140 parole in italiano, in seconda persona ("Ti trovi...").
 
-Il tuo compito e creare micro-narrazioni personalizzate in seconda persona ("Ti trovi davanti a...") che:
-- Siano coinvolgenti e immersive (max 150 parole)
-- Si adattino alla personalita del giocatore
-- Includano un fatto nascosto sorprendente e poco conosciuto
-- Tengano conto del momento della giornata
+REGOLE ASSOLUTE:
+1. VIETATO iniziare con "Questo luogo...", "Qui si trova...", "Siamo davanti a...", "Benvenuto..." o qualsiasi apertura da guida turistica.
+2. VIETATO descrivere il luogo in modo generico o didascalico.
+3. OBBLIGATORIO iniziare con un aneddoto, una scena concreta, una domanda retorica o un dettaglio assurdo/curioso.
+4. L'hidden fact deve essere SPECIFICO e VERIFICABILE — un numero preciso, una data, un nome, una misura, un paradosso storico. MAI una generalità.
+5. Collega SEMPRE la narrazione agli interessi dell'utente in modo esplicito e creativo.
 
-STILI per personalita dominante:
-- relax: tono calmo, poetico, contemplativo
-- divertimento: tono leggero, spiritoso, con battute
-- cultura: tono colto, ricco di riferimenti storici e dettagli
-- avventura: tono epico, misterioso, pieno di suspense
-- socialita: tono caldo, che invita a condividere e interagire
+STILI per personalità dominante — segui ESATTAMENTE il tono indicato:
 
-Rispondi SOLO con un oggetto JSON con campi: narration, hiddenFact, voiceStyle.`;
+relax → Rallenta il ritmo. Usa frasi brevi, atmosferiche. Es: "Il silenzio qui ha un peso diverso. Chiudi gli occhi un secondo..."
+divertimento → Spiritoso, con una battuta o una situazione assurda. Es: "Quindi 80.000 persone urlavano qui ogni domenica. Il tuo stadio preferito si sente in colpa."
+cultura → Denso di dettagli precisi, date, nomi, numeri. Es: "Nel 125 d.C., mentre Adriano supervisionava i lavori, l'oculus pesava già 4.535 tonnellate — senza una sola vite."
+avventura → Epico, cinematografico, misterioso. Es: "C'è qualcosa di nascosto qui che quasi nessuno nota. Preparati a cercarlo."
+socialita → Caldo, che include il lettore in un "noi". Es: "Ogni anno 3 milioni di persone fanno la stessa cosa che stai per fare tu. La differenza è che tu sai il perché."
+
+Rispondi SOLO con JSON: { "narration": "...", "hiddenFact": "...", "voiceStyle": "enthusiastic"|"mysterious"|"calm" }`;
 
 export async function generateNarration(input: NarrationInput): Promise<NarrationResult> {
   const dominant = getDominantTrait(input.personality);
 
-  const interestsLine = input.userInterests?.length
-    ? `INTERESSI UTENTE: ${input.userInterests.join(', ')}`
+  // Build a rich interest-connection prompt
+  const interestLine = input.userInterests?.length
+    ? `INTERESSI DICHIARATI: ${input.userInterests.join(', ')}.\nOBBLIGATORIO: trova un collegamento ESPLICITO tra ${input.poiName} e almeno uno di questi interessi. Non accennarlo — costruisci la narrazione attorno a quel collegamento.`
     : '';
 
-  const userMessage = `Genera una narrazione personalizzata per:
+  const userMessage = `Genera una narrazione personalizzata.
 
 LUOGO: ${input.poiName}
 CATEGORIA: ${input.category}
-STORIA: ${input.shortStory}
-CURIOSITA NOTA: ${input.hiddenFact}
-MOMENTO: ${input.timeOfDay}
-PERSONALITA DOMINANTE: ${dominant}
-SCORES: relax=${input.personality.relax}, divertimento=${input.personality.divertimento}, cultura=${input.personality.cultura}, avventura=${input.personality.avventura}, socialita=${input.personality.socialita}
-${interestsLine}
+STORIA NOTA: ${input.shortStory}
+CURIOSITÀ GIÀ NOTA (NON RIPETERE QUESTA): ${input.hiddenFact}
+MOMENTO DELLA GIORNATA: ${input.timeOfDay}
+PERSONALITÀ DOMINANTE: ${dominant}
+SCORES COMPLETI: relax=${input.personality.relax}, divertimento=${input.personality.divertimento}, cultura=${input.personality.cultura}, avventura=${input.personality.avventura}, socialita=${input.personality.socialita}
+${interestLine}
 
-Crea una narrazione che si adatti alla personalita "${dominant}" e al momento "${input.timeOfDay}".
-${input.userInterests?.length ? `IMPORTANTE: L'utente e interessato a ${input.userInterests.join(', ')}. Cerca di collegare la narrazione e la curiosita nascosta ai suoi interessi. Ad esempio, se ama la musica, racconta aspetti musicali del luogo; se ama l'enogastronomia, parla di tradizioni culinarie legate al posto.` : ''}
-Includi un fatto nascosto DIVERSO e ancora piu sorprendente rispetto a quello gia noto.`;
+IMPORTANTE:
+- La curiosità nascosta (hiddenFact) DEVE essere diversa e più sorprendente di quella già nota.
+- Deve contenere almeno un dato preciso (numero, anno, misura, nome, paradosso).
+- La narrazione deve essere nel tono "${dominant}": segui ESATTAMENTE le istruzioni di stile.
+- È ${input.timeOfDay}: usa questo per creare atmosfera (luce, folla, temperatura, rumori del momento).`;
 
   return generateStructured<NarrationResult>(SYSTEM_PROMPT, userMessage);
 }
