@@ -1,52 +1,91 @@
-import { useState } from 'react';
 import OnboardingScreen from './components/OnboardingScreen';
 import MapView from './components/MapView';
 import MissionsScreen from './components/MissionsScreen';
-import BadgesScreen from './components/BadgesScreen';
+import ShopScreen from './components/ShopScreen';
+import ProfileScreen from './components/ProfileScreen';
 import Navigation from './components/Navigation';
 import MissionPanel from './components/MissionPanel';
-
-type Screen = 'onboarding' | 'map' | 'missions' | 'badges';
+import { useGameState } from './hooks/useGameState';
+import { useGeolocation, getDistanceMeters } from './hooks/useGeolocation';
 
 function App() {
-    const [currentScreen, setCurrentScreen] = useState<Screen>('onboarding');
-    const [hasOnboarded, setHasOnboarded] = useState(false);
-    const [selectedMission, setSelectedMission] = useState<number | null>(null);
+  const {
+    profile,
+    pois,
+    rewards,
+    badges,
+    currentScreen,
+    selectedPOI,
+    hasOnboarded,
+    timeOfDay,
+    setCurrentScreen,
+    setSelectedPOI,
+    completeOnboarding,
+    completePOI,
+    completeChallenge,
+    claimReward,
+    getTimeOptimizedRewards,
+  } = useGameState();
 
-    const handleOnboardingComplete = () => {
-        setHasOnboarded(true);
-        setCurrentScreen('map');
-    };
+  const geo = useGeolocation();
+  const userLocation =
+    geo.lat !== null && geo.lng !== null ? { lat: geo.lat, lng: geo.lng } : null;
 
-    const handleMissionSelect = (missionId: number) => {
-        setSelectedMission(missionId);
-    };
-
-    const handleMissionClose = () => {
-        setSelectedMission(null);
-    };
-
-    if (!hasOnboarded) {
-        return <OnboardingScreen onComplete={handleOnboardingComplete} />;
-    }
-
-    return (
-        <div className="min-h-screen bg-gray-50 relative">
-            <div className="pb-20">
-                {currentScreen === 'map' && (
-                    <MapView onMissionSelect={handleMissionSelect} />
-                )}
-                {currentScreen === 'missions' && <MissionsScreen />}
-                {currentScreen === 'badges' && <BadgesScreen />}
-            </div>
-
-            <Navigation currentScreen={currentScreen} onNavigate={setCurrentScreen} />
-
-            {selectedMission !== null && (
-                <MissionPanel missionId={selectedMission} onClose={handleMissionClose} />
-            )}
-        </div>
+  const getUserDistanceToPOI = () => {
+    if (!selectedPOI || !userLocation) return null;
+    return getDistanceMeters(
+      userLocation.lat,
+      userLocation.lng,
+      selectedPOI.lat,
+      selectedPOI.lng
     );
+  };
+
+  if (!hasOnboarded) {
+    return <OnboardingScreen onComplete={completeOnboarding} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-stone-50 relative">
+      <div className="pb-16">
+        {currentScreen === 'map' && (
+          <MapView
+            pois={pois}
+            profile={profile}
+            userLocation={userLocation}
+            onPOISelect={setSelectedPOI}
+            timeOfDay={timeOfDay}
+          />
+        )}
+        {currentScreen === 'missions' && (
+          <MissionsScreen pois={pois} onPOISelect={setSelectedPOI} />
+        )}
+        {currentScreen === 'shop' && (
+          <ShopScreen
+            rewards={getTimeOptimizedRewards()}
+            profile={profile}
+            onClaimReward={claimReward}
+            timeOfDay={timeOfDay}
+          />
+        )}
+        {currentScreen === 'profile' && (
+          <ProfileScreen profile={profile} badges={badges} />
+        )}
+      </div>
+
+      <Navigation currentScreen={currentScreen} onNavigate={setCurrentScreen} />
+
+      {selectedPOI && (
+        <MissionPanel
+          poi={selectedPOI}
+          onClose={() => setSelectedPOI(null)}
+          onCompleteChallenge={completeChallenge}
+          onCompletePOI={completePOI}
+          userDistance={getUserDistanceToPOI()}
+        />
+      )}
+    </div>
+  );
 }
 
 export default App;
