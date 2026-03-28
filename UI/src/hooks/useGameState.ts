@@ -12,6 +12,7 @@ import {
 } from '../types';
 import { romePOIs } from '../data/pois';
 import { rewards as initialRewards } from '../data/rewards';
+import { onboardingQuestions } from '../data/onboardingQuestions';
 
 const XP_PER_LEVEL = 300;
 
@@ -76,9 +77,14 @@ export function useGameState() {
       });
 
       answers.forEach((answer) => {
-        const opt = answer;
-        if (opt.categories) {
-          // personality boosts are accumulated from the onboarding questions data
+        const question = onboardingQuestions.find((q) => q.id === answer.questionId);
+        if (question) {
+          const option = question.options.find((o) => o.id === answer.answerId);
+          if (option?.personalityBoost) {
+            for (const [trait, boost] of Object.entries(option.personalityBoost)) {
+              personality[trait as keyof PersonalityScores] += boost as number;
+            }
+          }
         }
       });
 
