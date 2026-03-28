@@ -81,6 +81,7 @@ export async function fetchNarration(params: {
   category: string;
   personality: PersonalityScores;
   timeOfDay: string;
+  userInterests?: string[];
 }): Promise<NarrationResult> {
   return post<NarrationResult>('/api/ai/narration', params);
 }
@@ -113,6 +114,29 @@ export async function validateChallengeAnswer(params: {
   return post<ValidationResult>('/api/ai/validate', params);
 }
 
+// ─── Discovery Endpoints (Phase 2) ────────────────────────────────────────
+
+export interface DiscoveredPOI {
+  id: string;
+  name: string;
+  description: string;
+  lat: number;
+  lng: number;
+  category: string;
+  importanceScore: number;
+  unlockDistance: number;
+  xpReward: number;
+}
+
+export async function fetchDiscoverPOIs(params: {
+  lat: number;
+  lng: number;
+  interests: string[];
+}): Promise<DiscoveredPOI[]> {
+  const result = await post<{ pois: DiscoveredPOI[] }>('/api/ai/discover-pois', params);
+  return result.pois;
+}
+
 // ─── Weather Endpoint ─────────────────────────────────────────────────────────
 
 /**
@@ -123,6 +147,48 @@ export async function fetchWeather(lat = 41.8967, lng = 12.4822): Promise<Weathe
     lat: lat.toString(),
     lng: lng.toString(),
   });
+}
+
+/**
+ * Fetch a spoken trivia challenge with TTS audio.
+ */
+export async function fetchSpokenChallenge(params: {
+  poiName: string;
+  poiDescription?: string;
+  category?: string;
+  profileTag: string;
+  lat?: number;
+  lng?: number;
+}): Promise<{
+  challenge: {
+    question: string;
+    correctAnswer: string;
+    acceptableKeywords: string[];
+    difficulty: string;
+    xpBonus: number;
+    voiceStyle: string;
+  };
+  audio: { base64: string; mimeType: string; byteLength: number };
+}> {
+  return post('/api/ai/spoken-challenge', params);
+}
+
+/**
+ * Submit a voice answer for evaluation.
+ */
+export async function submitVoiceAnswer(params: {
+  challengeQuestion: string;
+  correctAnswer: string;
+  acceptableKeywords: string[];
+  audio: string; // base64
+  audioFilename?: string;
+}): Promise<{
+  transcript: string;
+  correct: boolean;
+  explanation: string;
+  xpAwarded: number;
+}> {
+  return post('/api/ai/answer-challenge', params);
 }
 
 // ─── Voice Endpoint ───────────────────────────────────────────────────────────

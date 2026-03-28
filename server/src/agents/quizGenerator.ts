@@ -4,8 +4,8 @@ interface GeneratedChallenge {
   type: 'quiz' | 'countdown' | 'observation' | 'choice';
   question: string;
   description?: string;
-  options: string[];
-  correctAnswer: number;
+  options: string[];       // empty array [] for free-input challenges (countdown/observation)
+  correctAnswer: number;   // for multiple-choice: index 0-3; for free-input: the numeric answer
   timeLimit?: number;
   hint?: string;
   difficulty: 'facile' | 'medio' | 'difficile';
@@ -23,44 +23,93 @@ interface QuizGeneratorInput {
   difficulty?: string;
 }
 
-const SYSTEM_PROMPT = `Sei il Quiz Master di "Play The City", un gioco di esplorazione urbana a Roma.
+// BUG 3 FIX: Completely rewritten prompt.
+// Problems with the old version:
+// 1. It generated the same 4 quiz options even for "count the arches" challenges,
+//    which should have a free numeric answer.
+// 2. It wasn't truly customized on user interests — it just listed them.
+// 3. It never generated challenges that required physical interaction (walk around,
+//    find the hidden detail, etc.).
+//
+// New prompt:
+// - Explicitly supports two challenge modes: multiple-choice (options array with 4 items)
+//   and free-input (options = [], correctAnswer = the numeric answer).
+// - Forces at least one "do something physical" challenge per set.
+// - Requires interest-tailored framing (a history buff gets different phrasing than a foodie).
+// - Requires counting/observation challenges to use free-input mode.
+const SYSTEM_PROMPT = `Sei il Quiz Master di "Play The City", gioco di esplorazione urbana a Roma.
 
-Il tuo compito e generare sfide interattive e coinvolgenti basate su luoghi reali.
+TIPI DI SFIDA — usa una MIX di questi:
 
-REGOLE FONDAMENTALI:
-1. Le domande devono richiedere INFERENZA e RAGIONAMENTO, non semplice memoria
-2. Se un fatto dice "la colonna e di Traiano", NON chiedere "di chi e la colonna?"
-3. Mescola i tipi: quiz (scelta multipla), countdown (a tempo), observation (osservazione del luogo)
-4. Le risposte sbagliate devono essere plausibili, non ovviamente false
-5. Includi curiosita sorprendenti e poco conosciute
-6. Il tono deve essere avventuroso e coinvolgente, come un game master
-7. La lingua e l'italiano
+1. QUIZ (scelta multipla): domanda con 4 opzioni, una corretta.
+   → options: ["A","B","C","D"], correctAnswer: 0-3
 
-Per ogni sfida, specifica:
-- type: "quiz" | "countdown" | "observation" | "choice"
-- question: la domanda
-- description: contesto narrativo (opzionale)
-- options: 4 opzioni di risposta
-- correctAnswer: indice (0-3) della risposta corretta
-- timeLimit: secondi (solo per countdown, tipicamente 15-30)
-- hint: suggerimento (opzionale, per observation)
-- difficulty: "facile" | "medio" | "difficile"
-- xpBonus: punti (facile: 20-30, medio: 40-60, difficile: 70-100)
+2. COUNTDOWN (conta / osserva, input libero): l'utente guarda e conta. NON dare opzioni.
+   → options: [], correctAnswer: <numero intero>, timeLimit: 10-20 secondi
+   Esempio: "Conta i gradini della rampa principale. Hai 15 secondi."
 
-Rispondi SOLO con un array JSON valido.`;
+3. OBSERVATION (cerca / trova, input libero o opzioni): l'utente cerca un dettaglio fisico.
+   → Può avere options (se è una scelta) o options:[] con correctAnswer numerico se deve contare.
+   Esempio senza opzioni: "Quante finestre ha la facciata nord? Hai 20 secondi."
+   Esempio con opzioni: "Quale dei seguenti simboli è nascosto sulla colonna di sinistra?"
+
+4. CHOICE (narrativa): l'utente sceglie un percorso, non c'è risposta giusta.
+   → options: 3 scelte narrative, correctAnswer: -1 (sempre "corretto")
+
+REGOLE:
+- Per COUNTDOWN e OBSERVATION che richiedono conteggio: options DEVE essere [] e correctAnswer DEVE essere il numero atteso.
+- Domande NON banali: no "In che anno è stato costruito?", no "Chi lo ha progettato?" salvo se l'anno/il nome sia controintuitivo.
+- Almeno una sfida deve richiedere di MUOVERSI fisicamente (camminare, girare attorno, toccare, cercare).
+- Personalizza il TONO in base agli interessi: se l'utente ama l'enogastronomia, collega la domanda al cibo/vino locale; se ama lo sport, usa metafore sportive; se ama l'arte, chiedi di osservare stili architettonici.
+- Le opzioni sbagliate devono essere plausibili, non ridicole.
+- xpBonus: facile=20-30, medio=40-60, difficile=70-120
+
+Rispondi SOLO con un array JSON valido. Nessun testo aggiuntivo.`;
 
 export async function generateQuiz(input: QuizGeneratorInput): Promise<GeneratedChallenge[]> {
-  const userMessage = `Genera ${input.count} sfide per il seguente punto di interesse:
+  const interestContext = input.userInterests?.length
+    ? `INTERESSI UTENTE: ${input.userInterests.join(', ')}.
+Usa questi interessi per personalizzare il TONO e il COLLEGAMENTO delle sfide. Ad esempio:
+- enogastronomia → collega al cibo/vino/taverne storiche legate al luogo
+- arte → chiedi di osservare stile architettonico, simboli, materiali
+- sport → usa metafore di gara, sfida fisica, record
+- storia → vai sul paradosso storico, l'ironia, il retroscena scomodo
+- shopping → collega ai materiali, ai commerci storici del luogo`
+    : '';
+
+  const diffContext = input.difficulty
+    ? `DIFFICOLTÀ PREFERITA: ${input.difficulty}. Tendenza verso questa difficoltà, ma puoi variare.`
+    : '';
+
+  const userMessage = `Genera ${input.count} sfide per:
 
 LUOGO: ${input.poiName}
 CATEGORIA: ${input.category}
 DESCRIZIONE: ${input.poiDescription}
 STORIA: ${input.shortStory}
-CURIOSITA NASCOSTA: ${input.hiddenFact}
-${input.userInterests ? `INTERESSI UTENTE: ${input.userInterests.join(', ')}` : ''}
-${input.difficulty ? `DIFFICOLTA PREFERITA: ${input.difficulty}` : ''}
+CURIOSITÀ NASCOSTA: ${input.hiddenFact}
+${interestContext}
+${diffContext}
 
-Genera un mix di tipi diversi (almeno 1 quiz e 1 di altro tipo). Le domande devono essere stimolanti e non banali.`;
+OBBLIGATORIO:
+- Genera un MIX di tipi (almeno 1 quiz E almeno 1 tra countdown/observation).
+- Se generi un countdown o observation che richiede CONTEGGIO: usa options=[] e correctAnswer=<numero>.
+- Almeno una sfida deve richiedere azione fisica sul posto.
+- Ogni sfida deve sembrare scritta su misura per questo utente, non copiata da Wikipedia.`;
 
-  return generateStructured<GeneratedChallenge[]>(SYSTEM_PROMPT, userMessage);
+  const raw = await generateStructured<GeneratedChallenge[]>(SYSTEM_PROMPT, userMessage);
+
+  // Normalize: ensure correctAnswer=-1 for 'choice' type,
+  // and that free-input challenges have empty options array
+  return raw.map((c) => {
+    if (c.type === 'choice') {
+      return { ...c, options: c.options ?? [], correctAnswer: -1 };
+    }
+    // If it's countdown/observation with numeric answer already, keep it
+    return {
+      ...c,
+      options: c.options ?? [],
+      correctAnswer: c.correctAnswer ?? 0,
+    };
+  });
 }
