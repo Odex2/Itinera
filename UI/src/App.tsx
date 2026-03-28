@@ -5,6 +5,7 @@ import MapView from './components/MapView';
 import MissionsScreen from './components/MissionsScreen';
 import ShopScreen from './components/ShopScreen';
 import ProfileScreen from './components/ProfileScreen';
+import ProfileSetupScreen from './components/ProfileSetupScreen';
 import Navigation from './components/Navigation';
 import MissionPanel from './components/MissionPanel';
 import { useGameState } from './hooks/useGameState';
@@ -29,6 +30,7 @@ function App() {
     completeChallenge,
     claimReward,
     getTimeOptimizedRewards,
+    updateProfileBasic,
   } = useGameState();
 
   const geo = useGeolocation();
@@ -45,14 +47,25 @@ function App() {
     return <SplashScreen onStart={() => setSplashDone(true)} />;
   }
 
-  // 2️⃣ Onboarding — solo se non ancora completato
+  // 2️⃣ Profile Setup -- prima dell'onboarding
+  if (!profile.username) {
+    return (
+      <ProfileSetupScreen
+        onComplete={(username, age) => {
+          updateProfileBasic(username, age);
+        }}
+      />
+    );
+  }
+
+  // 3️⃣ Onboarding — solo se non ancora completato
   if (!hasOnboarded) {
     return <OnboardingScreen onComplete={completeOnboarding} />;
   }
 
-  // 3️⃣ App principale
+  // 4️⃣ App principale
   return (
-    <div className="min-h-screen bg-stone-50 relative">
+    <div className="min-h-screen bg-slate-50 relative">
       <div className="pb-16">
         {currentScreen === 'map' && (
           <MapView
@@ -79,7 +92,6 @@ function App() {
           <ProfileScreen profile={profile} badges={badges} />
         )}
       </div>
-
       <Navigation currentScreen={currentScreen} onNavigate={setCurrentScreen} />
 
       {selectedPOI && (
