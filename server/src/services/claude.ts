@@ -9,7 +9,6 @@ const client = new OpenAI({
 export async function generateStructured<T>(
   systemPrompt: string,
   userMessage: string,
-  temperature?: number,
 ): Promise<T> {
   // BUG FIX: 'system' is NOT a top-level parameter in chat.completions.create.
   // The system prompt must go inside the messages array as role:'system'.
@@ -18,7 +17,6 @@ export async function generateStructured<T>(
   const response = await client.chat.completions.create({
     model: 'Llama-3.3-70B-Instruct',
     max_tokens: 2048,
-    temperature: temperature ?? 0.85, // high temp = varied output, avoids deterministic repeats
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userMessage },
