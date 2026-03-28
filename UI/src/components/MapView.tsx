@@ -28,7 +28,7 @@ const ROME_CENTER = { lat: 41.8967, lng: 12.4822 };
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string;
 
 // Minimal flat style — closest to Pokémon GO aesthetic
-const MAP_STYLE = 'mapbox://styles/mapbox/light-v11';
+const MAP_STYLE = 'mapbox://styles/mapbox/streets-v12';
 
 const TIME_LABELS: Record<MapViewProps['timeOfDay'], { label: string; icon: typeof Sun }> = {
   mattina: { label: 'Mattina', icon: Sun },
@@ -328,8 +328,8 @@ export default function MapView({ pois, profile, userLocation, onPOISelect, time
       <Map
         ref={mapRef}
         initialViewState={{
-          longitude: ROME_CENTER.lng,
-          latitude: ROME_CENTER.lat,
+          longitude: userLocation?.lng ?? ROME_CENTER.lng,
+          latitude: userLocation?.lat ?? ROME_CENTER.lat,
           zoom: 15.5,
           pitch: 45,
           bearing: -17.6,
