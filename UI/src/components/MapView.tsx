@@ -333,8 +333,30 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function MapView({ pois, profile, userLocation, isDemoMode, onPOISelect, timeOfDay, onRequestDynamicPOIs, hideBottomCard }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
 
-  // BUG 7 FIX: track current zoom to toggle marker vs cluster rendering
-  const [mapZoom, setMapZoom] = useState(15.5);
+  // Track which POI IDs are NOT inside a cluster bubble.
+  // Queried from the Mapbox source after each idle event so only
+  // truly-unclustered points get a React marker (clustered ones are
+  // already represented by the orange count bubble from clusterCircleLayer).
+  const [unclusteredIds, setUnclusteredIds] = useState<Set<string>>(
+    () => new Set(pois.map((p) => p.id)),
+  );
+
+  const updateUnclusteredIds = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    try {
+      const features = map.querySourceFeatures('pois-source', {
+        filter: ['!', ['has', 'point_count']],
+      });
+      const ids = new Set(
+        features.map((f) => String(f.properties?.id)).filter(Boolean),
+      );
+      setUnclusteredIds(ids);
+    } catch {
+      // Source not yet ready — show all markers as safe fallback
+      setUnclusteredIds(new Set(pois.map((p) => p.id)));
+    }
+  }, [pois]);
 
   // ── GeoJSON for clustering ──────────────────────────────────────────────────
   const poisGeoJSON = useMemo(() => ({
@@ -383,10 +405,7 @@ export default function MapView({ pois, profile, userLocation, isDemoMode, onPOI
   const xpProgress = xpForCurrentLevel > 0 ? Math.min((profile.xp / xpForCurrentLevel) * 100, 100) : 0;
   const TimeIcon = TIME_LABELS[timeOfDay].icon;
 
-  // BUG 7 FIX: individual markers are only visible when zoom > CLUSTER_MAX_ZOOM.
-  // At lower zoom levels, Mapbox clusters the points into orange circles with counts.
-  // Rendering both simultaneously caused double-markers on top of cluster bubbles.
-  const showIndividualMarkers = mapZoom > CLUSTER_MAX_ZOOM;
+
 
   return (
     <div className="relative w-full" style={{ height: 'calc(100vh - 4rem)' }}>
@@ -417,8 +436,8 @@ export default function MapView({ pois, profile, userLocation, isDemoMode, onPOI
         logoPosition="bottom-right"
         {...(GEOFENCE_ENABLED ? { maxBounds: OSTIENSE_BOUNDS } : {})}
         minZoom={MIN_ZOOM}
-        // BUG 7 FIX: keep zoom state in sync so we can toggle marker visibility
-        onZoom={(evt) => setMapZoom(evt.viewState.zoom)}
+        onLoad={updateUnclusteredIds}
+        onIdle={updateUnclusteredIds}
       >
         {/* 3D buildings */}
         <Layer {...buildingsLayer} />
@@ -445,13 +464,8 @@ export default function MapView({ pois, profile, userLocation, isDemoMode, onPOI
         {/* User dot */}
         {userLocation && <UserDot location={userLocation} />}
 
-        {/*
-          BUG 7 FIX: POI markers are only rendered when zoomed in past the
-          cluster threshold. At lower zoom, the Mapbox cluster layers above
-          already show orange bubbles with counts — rendering React markers
-          on top caused ghost-markers inside/behind the cluster circles.
-        */}
-        {showIndividualMarkers && pois.map((poi) => (
+        {/* Only render React markers for POIs that are not inside a cluster bubble */}
+        {pois.filter((poi) => unclusteredIds.has(poi.id)).map((poi) => (
           <POIMarker
             key={poi.id}
             poi={poi}
