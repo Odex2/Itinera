@@ -14,7 +14,7 @@ import { romePOIs } from '../data/pois';
 import { rewards as initialRewards } from '../data/rewards';
 
 import { getDistanceMeters } from './useGeolocation';
-import { fetchDiscoverPOIs, DiscoveredPOI } from '../services/api';
+import { fetchDiscoverPOIs, DiscoveredPOI, fetchNarration } from '../services/api';
 
 const XP_PER_LEVEL = 300;
 const DYNAMIC_FETCH_THRESHOLD = 500;
@@ -326,6 +326,73 @@ export function useGameState() {
       });
   }, [rewards, profile.interests, profile.coins]);
 
+  // ── Dynamic Narration fetcher (calls /api/ai/narration → Regolo.ai) ──────
+  const fetchDynamicNarration = useCallback(
+    async (
+      poiId: string,
+      userParams?: {
+        personality?: typeof profile.personalityScores;
+        interests?: typeof profile.interests;
+        currentTimeOfDay?: string;
+      },
+    ) => {
+      const poi = pois.find((p) => p.id === poiId);
+      if (!poi) {
+        console.error(`[fetchDynamicNarration] POI not found: ${poiId}`);
+        return;
+      }
+
+      // Skip if already generated or currently generating
+      if (poi.aiNarration || poi.isGeneratingNarration) return;
+
+      // Set loading flag (immutable update)
+      setPois((prev) =>
+        prev.map((p) =>
+          p.id === poiId ? { ...p, isGeneratingNarration: true } : p,
+        ),
+      );
+
+      try {
+        const result = await fetchNarration({
+          poiName: poi.name,
+          poiDescription: poi.description,
+          shortStory: poi.shortStory,
+          hiddenFact: poi.hiddenFact,
+          category: poi.category,
+          personality: userParams?.personality ?? profile.personalityScores,
+          timeOfDay: userParams?.currentTimeOfDay ?? timeOfDay,
+          userInterests: userParams?.interests ?? profile.interests,
+        });
+
+        // Patch POI with AI narration (immutable update)
+        setPois((prev) =>
+          prev.map((p) =>
+            p.id === poiId
+              ? {
+                  ...p,
+                  aiNarration: {
+                    narration: result.narration,
+                    hiddenFact: result.hiddenFact,
+                    voiceStyle: result.voiceStyle,
+                  },
+                  isGeneratingNarration: false,
+                }
+              : p,
+          ),
+        );
+      } catch (err) {
+        console.error(`[fetchDynamicNarration] Failed for "${poi.name}":`, err);
+        // Clear loading flag on error — UI will fallback to static content
+        setPois((prev) =>
+          prev.map((p) =>
+            p.id === poiId ? { ...p, isGeneratingNarration: false } : p,
+          ),
+        );
+      }
+    },
+    [pois, profile.personalityScores, profile.interests, timeOfDay],
+  );
+
   return {
     profile,
     pois,
@@ -348,6 +415,7 @@ export function useGameState() {
     addXP,
     addCoins,
     fetchDynamicPOIs,
+    fetchDynamicNarration,
     scorePOI,
     getVisiblePOIs,
   };

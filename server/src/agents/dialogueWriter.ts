@@ -1,4 +1,8 @@
-import { generateStructured } from '../services/claude.js';
+// dialogueWriter — generates personalized POI narrations via Regolo.ai
+// SECURITY: All LLM calls go through the server. The Regolo API key is NEVER
+// exposed to the Vite frontend.
+
+import { generateStructured } from '../services/regolo.js';
 
 interface PersonalityScores {
   relax: number;
@@ -37,23 +41,17 @@ function getDominantTrait(scores: PersonalityScores): string {
   return maxKey;
 }
 
-// BUG 2 FIX: Completely rewritten system prompt.
-// The old version was too vague about "non banalità" and "storie divertenti",
-// causing the model to generate generic Wikipedia-style descriptions.
-// The new prompt is extremely prescriptive:
-// - PROHIBITS generic openings and tourist-guide language
-// - REQUIRES a concrete anecdote, fun fact, or mini-story
-// - REQUIRES the hiddenFact to be genuinely surprising and ultra-specific
-// - REQUIRES content to connect to the user's declared interests
-// - Each personality style now has a CONCRETE EXAMPLE of what the tone looks like
+// System prompt — demands INEDITA (unpublished, unique) content.
+// Explicitly forbids generic tourist-guide encyclopedia entries.
 const SYSTEM_PROMPT = `Sei il narratore di "Play The City". Scrivi micro-narrazioni di 100-140 parole in italiano, in seconda persona ("Ti trovi...").
 
 REGOLE ASSOLUTE:
 1. VIETATO iniziare con "Questo luogo...", "Qui si trova...", "Siamo davanti a...", "Benvenuto..." o qualsiasi apertura da guida turistica.
-2. VIETATO descrivere il luogo in modo generico o didascalico.
+2. VIETATO descrivere il luogo in modo generico o didascalico. NIENTE contenuti da enciclopedia o Wikipedia.
 3. OBBLIGATORIO iniziare con un aneddoto, una scena concreta, una domanda retorica o un dettaglio assurdo/curioso.
-4. L'hidden fact deve essere SPECIFICO e VERIFICABILE — un numero preciso, una data, un nome, una misura, un paradosso storico. MAI una generalità.
+4. L'hidden fact DEVE essere INEDITO — una curiosità mai pubblicata su guide turistiche, blog di viaggio o pagine Wikipedia. Deve essere SPECIFICO e VERIFICABILE: un numero preciso, una data, un nome, una misura, un paradosso storico. MAI una generalità.
 5. Collega SEMPRE la narrazione agli interessi dell'utente in modo esplicito e creativo.
+6. Ogni narrazione deve essere UNICA e NON RIPETIBILE — come se fosse scritta da uno storyteller locale che conosce segreti che nessun turista troverà online.
 
 STILI per personalità dominante — segui ESATTAMENTE il tono indicato:
 
@@ -73,22 +71,24 @@ export async function generateNarration(input: NarrationInput): Promise<Narratio
     ? `INTERESSI DICHIARATI: ${input.userInterests.join(', ')}.\nOBBLIGATORIO: trova un collegamento ESPLICITO tra ${input.poiName} e almeno uno di questi interessi. Non accennarlo — costruisci la narrazione attorno a quel collegamento.`
     : '';
 
-  const userMessage = `Genera una narrazione personalizzata.
+  const userMessage = `Genera una narrazione personalizzata INEDITA e UNICA. Non ripetere mai contenuti enciclopedici.
 
 LUOGO: ${input.poiName}
 CATEGORIA: ${input.category}
-STORIA NOTA: ${input.shortStory}
-CURIOSITÀ GIÀ NOTA (NON RIPETERE QUESTA): ${input.hiddenFact}
+DESCRIZIONE: ${input.poiDescription}
+STORIA NOTA (NON RIPETERE QUESTA): ${input.shortStory}
+CURIOSITÀ GIÀ NOTA (NON RIPETERE QUESTA, INVENTA UNA NUOVA): ${input.hiddenFact}
 MOMENTO DELLA GIORNATA: ${input.timeOfDay}
 PERSONALITÀ DOMINANTE: ${dominant}
 SCORES COMPLETI: relax=${input.personality.relax}, divertimento=${input.personality.divertimento}, cultura=${input.personality.cultura}, avventura=${input.personality.avventura}, socialita=${input.personality.socialita}
 ${interestLine}
 
 IMPORTANTE:
-- La curiosità nascosta (hiddenFact) DEVE essere diversa e più sorprendente di quella già nota.
+- La curiosità nascosta (hiddenFact) DEVE essere INEDITA: un fatto che non si trova su Wikipedia, guide turistiche o blog di viaggio. Deve essere sorprendente e iperspecifica.
 - Deve contenere almeno un dato preciso (numero, anno, misura, nome, paradosso).
 - La narrazione deve essere nel tono "${dominant}": segui ESATTAMENTE le istruzioni di stile.
-- È ${input.timeOfDay}: usa questo per creare atmosfera (luce, folla, temperatura, rumori del momento).`;
+- È ${input.timeOfDay}: usa questo per creare atmosfera (luce, folla, temperatura, rumori del momento).
+- NON generare contenuto generico da enciclopedia. Questa è una storia UNICA che potrebbe raccontare solo un abitante del quartiere.`;
 
   return generateStructured<NarrationResult>(SYSTEM_PROMPT, userMessage);
 }

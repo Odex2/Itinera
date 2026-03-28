@@ -800,14 +800,16 @@ export default function MissionPanel({
               <div className="flex items-center justify-between">
                 {aiNarration ? (
                   <span className="inline-flex items-center gap-1 text-xs font-medium text-violet-700 bg-violet-50 px-2 py-0.5 rounded-full">
-                    <Sparkles className="w-3 h-3" />Narrazione personalizzata
+                    <Sparkles className="w-3 h-3" />Generata in tempo reale da AI
                   </span>
                 ) : aiNarrationLoading ? (
                   <span className="inline-flex items-center gap-1 text-xs text-slate-400">
-                    <Loader2 className="w-3 h-3 animate-spin" />Generazione in corso...
+                    <Loader2 className="w-3 h-3 animate-spin" />Generazione storia in corso...
                   </span>
                 ) : (
-                  <span className="text-xs text-slate-400">Contenuto statico</span>
+                  <span className="inline-flex items-center gap-1 text-xs text-slate-400">
+                    Contenuto dal database
+                  </span>
                 )}
                 <VoiceButton text={narrationText} voiceStyle={voiceStyle} disabled={aiNarrationLoading} />
               </div>
