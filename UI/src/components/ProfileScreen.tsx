@@ -49,7 +49,7 @@ const PERSONALITY_LABELS: Record<string, string> = {
 
 const PERSONALITY_COLORS: Record<string, string> = {
   relax: 'bg-teal-500',
-  divertimento: 'bg-amber-500',
+  divertimento: 'bg-cyan-500',
   cultura: 'bg-violet-500',
   avventura: 'bg-red-500',
   socialita: 'bg-sky-500',
@@ -108,10 +108,10 @@ function getBadgeIcon(iconName: string) {
 function getBadgeColorClasses(color: string, unlocked: boolean) {
   if (!unlocked) {
     return {
-      bg: 'bg-gray-100',
-      text: 'text-gray-400',
-      progress: 'bg-gray-300',
-      border: 'border-gray-200',
+      bg: 'bg-slate-100',
+      text: 'text-slate-400',
+      progress: 'bg-slate-300',
+      border: 'border-slate-200',
     };
   }
 
@@ -123,10 +123,10 @@ function getBadgeColorClasses(color: string, unlocked: boolean) {
       border: 'border-blue-300',
     },
     orange: {
-      bg: 'bg-orange-50',
-      text: 'text-orange-600',
-      progress: 'bg-orange-500',
-      border: 'border-orange-300',
+      bg: 'bg-sky-50',
+      text: 'text-sky-600',
+      progress: 'bg-sky-500',
+      border: 'border-sky-300',
     },
     green: {
       bg: 'bg-green-50',
@@ -142,8 +142,8 @@ function getBadgeColorClasses(color: string, unlocked: boolean) {
     },
     yellow: {
       bg: 'bg-yellow-50',
-      text: 'text-yellow-600',
-      progress: 'bg-yellow-500',
+      text: 'text-blue-600',
+      progress: 'bg-blue-500',
       border: 'border-yellow-300',
     },
     red: {
@@ -159,10 +159,10 @@ function getBadgeColorClasses(color: string, unlocked: boolean) {
       border: 'border-purple-300',
     },
     amber: {
-      bg: 'bg-amber-50',
-      text: 'text-amber-600',
-      progress: 'bg-amber-500',
-      border: 'border-amber-300',
+      bg: 'bg-cyan-50',
+      text: 'text-cyan-600',
+      progress: 'bg-cyan-500',
+      border: 'border-cyan-300',
     },
   };
 
@@ -182,15 +182,15 @@ export default function ProfileScreen({ profile, badges }: ProfileScreenProps) {
   const maxPersonalityScore = Math.max(...personalityEntries.map(([, v]) => v), 1);
 
   return (
-    <div className="min-h-screen bg-stone-50 pb-24">
+    <div className="min-h-screen bg-slate-50 pb-24">
       {/* Profile Header */}
-      <div className="bg-gradient-to-br from-amber-600 via-amber-500 to-stone-500 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-5 rounded-full -mr-20 -mt-20" />
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-5 rounded-full -ml-16 -mb-16" />
+      <div className="bg-gradient-to-br from-cyan-600 via-cyan-500 to-slate-500 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-40 h-40 bg-white/95 backdrop-blur-md opacity-5 rounded-full -mr-20 -mt-20" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/95 backdrop-blur-md opacity-5 rounded-full -ml-16 -mb-16" />
 
         <div className="relative z-10 px-5 pt-8 pb-6">
           <div className="flex items-center gap-4 mb-5">
-            <div className="w-20 h-20 rounded-2xl bg-white bg-opacity-20 backdrop-blur-sm flex items-center justify-center border border-white border-opacity-30">
+            <div className="w-20 h-20 rounded-xl bg-white/95 backdrop-blur-md bg-opacity-20 backdrop-blur-sm flex items-center justify-center border border-white border-opacity-30">
               <span className="text-3xl font-black text-white">{profile.level}</span>
             </div>
             <div className="flex-1">
@@ -210,16 +210,16 @@ export default function ProfileScreen({ profile, badges }: ProfileScreenProps) {
                 {xpInCurrentLevel} / {XP_PER_LEVEL} XP
               </span>
             </div>
-            <div className="bg-white bg-opacity-20 rounded-full h-3 backdrop-blur-sm">
+            <div className="bg-white/95 backdrop-blur-md bg-opacity-20 rounded-full h-3 backdrop-blur-sm">
               <div
-                className="bg-white h-3 rounded-full transition-all duration-700 ease-out"
+                className="bg-white/95 backdrop-blur-md h-3 rounded-full transition-all duration-700 ease-out"
                 style={{ width: `${xpProgressPercent}%` }}
               />
             </div>
           </div>
 
           {/* Coins */}
-          <div className="flex items-center gap-2 bg-white bg-opacity-15 rounded-xl px-4 py-2.5 backdrop-blur-sm w-fit">
+          <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md bg-opacity-15 rounded-xl px-4 py-2.5 backdrop-blur-sm w-fit">
             <Coins className="w-5 h-5 text-yellow-200" />
             <span className="text-white font-bold text-lg">{profile.coins}</span>
             <span className="text-white text-opacity-70 text-sm">monete</span>
@@ -230,54 +230,54 @@ export default function ProfileScreen({ profile, badges }: ProfileScreenProps) {
       {/* Stats Grid */}
       <div className="px-4 -mt-0">
         <div className="grid grid-cols-2 gap-3 mt-5">
-          <div className="bg-white rounded-2xl shadow-sm p-4 border border-stone-100">
+          <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-sm shadow-cyan-900/5 p-4 border border-slate-100">
             <div className="flex items-center gap-2 mb-2">
-              <div className="bg-amber-50 p-2 rounded-lg">
-                <Map className="w-5 h-5 text-amber-600" />
+              <div className="bg-cyan-50 p-2 rounded-lg">
+                <Map className="w-5 h-5 text-cyan-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-stone-800">{profile.completedPOIs.length}</p>
-            <p className="text-xs text-stone-500 mt-0.5">
+            <p className="text-2xl font-bold text-slate-800">{profile.completedPOIs.length}</p>
+            <p className="text-xs text-slate-500 mt-0.5">
               Luoghi visitati (su {totalPOIs > 0 ? totalPOIs : '--'})
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm p-4 border border-stone-100">
+          <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-sm shadow-cyan-900/5 p-4 border border-slate-100">
             <div className="flex items-center gap-2 mb-2">
               <div className="bg-violet-50 p-2 rounded-lg">
                 <Brain className="w-5 h-5 text-violet-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-stone-800">{quizCount}</p>
-            <p className="text-xs text-stone-500 mt-0.5">Quiz completati</p>
+            <p className="text-2xl font-bold text-slate-800">{quizCount}</p>
+            <p className="text-xs text-slate-500 mt-0.5">Quiz completati</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm p-4 border border-stone-100">
+          <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-sm shadow-cyan-900/5 p-4 border border-slate-100">
             <div className="flex items-center gap-2 mb-2">
               <div className="bg-emerald-50 p-2 rounded-lg">
                 <Trophy className="w-5 h-5 text-emerald-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-stone-800">{profile.totalXp}</p>
-            <p className="text-xs text-stone-500 mt-0.5">Punti totali</p>
+            <p className="text-2xl font-bold text-slate-800">{profile.totalXp}</p>
+            <p className="text-xs text-slate-500 mt-0.5">Punti totali</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm p-4 border border-stone-100">
+          <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-sm shadow-cyan-900/5 p-4 border border-slate-100">
             <div className="flex items-center gap-2 mb-2">
               <div className="bg-yellow-50 p-2 rounded-lg">
-                <Coins className="w-5 h-5 text-yellow-600" />
+                <Coins className="w-5 h-5 text-blue-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-stone-800">{profile.coins}</p>
-            <p className="text-xs text-stone-500 mt-0.5">Monete guadagnate</p>
+            <p className="text-2xl font-bold text-slate-800">{profile.coins}</p>
+            <p className="text-xs text-slate-500 mt-0.5">Monete guadagnate</p>
           </div>
         </div>
       </div>
 
       {/* Personality Profile */}
       <div className="px-4 mt-6">
-        <div className="bg-white rounded-2xl shadow-sm p-5 border border-stone-100">
-          <h2 className="text-lg font-bold text-stone-800 mb-4">Il tuo profilo esploratore</h2>
+        <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-sm shadow-cyan-900/5 p-5 border border-slate-100">
+          <h2 className="text-lg font-bold text-slate-800 mb-4">Il tuo profilo esploratore</h2>
 
           <div className="space-y-3">
             {personalityEntries.map(([key, value]) => {
@@ -285,14 +285,14 @@ export default function ProfileScreen({ profile, badges }: ProfileScreenProps) {
               return (
                 <div key={key}>
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-stone-700 font-medium">
+                    <span className="text-slate-700 font-medium">
                       {PERSONALITY_LABELS[key] || key}
                     </span>
-                    <span className="text-stone-500">{percentage}%</span>
+                    <span className="text-slate-500">{percentage}%</span>
                   </div>
-                  <div className="bg-stone-100 rounded-full h-2.5">
+                  <div className="bg-slate-100 rounded-full h-2.5">
                     <div
-                      className={`${PERSONALITY_COLORS[key] || 'bg-stone-400'} h-2.5 rounded-full transition-all duration-700 ease-out`}
+                      className={`${PERSONALITY_COLORS[key] || 'bg-slate-400'} h-2.5 rounded-full transition-all duration-700 ease-out`}
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
@@ -301,8 +301,8 @@ export default function ProfileScreen({ profile, badges }: ProfileScreenProps) {
             })}
           </div>
 
-          <div className="mt-4 bg-stone-50 rounded-xl p-3.5">
-            <p className="text-sm text-stone-600 leading-relaxed">
+          <div className="mt-4 bg-slate-50 rounded-xl p-3.5">
+            <p className="text-sm text-slate-600 leading-relaxed">
               {DOMINANT_TRAIT_DESCRIPTIONS[dominantTrait] ||
                 'Continua a esplorare per definire il tuo profilo.'}
             </p>
@@ -312,7 +312,7 @@ export default function ProfileScreen({ profile, badges }: ProfileScreenProps) {
 
       {/* Badges */}
       <div className="px-4 mt-6">
-        <h2 className="text-lg font-bold text-stone-800 mb-3">Badge</h2>
+        <h2 className="text-lg font-bold text-slate-800 mb-3">Badge</h2>
 
         <div className="grid grid-cols-3 gap-3">
           {badges.map((badge) => {
@@ -325,12 +325,12 @@ export default function ProfileScreen({ profile, badges }: ProfileScreenProps) {
               <div
                 key={badge.id}
                 className={`
-                  bg-white rounded-2xl shadow-sm p-3 text-center transition-all duration-200
+                  bg-white/95 backdrop-blur-md rounded-xl shadow-sm shadow-cyan-900/5 p-3 text-center transition-all duration-200
                   border
                   ${
                     badge.unlocked
-                      ? `${colors.border} shadow-md ring-1 ring-opacity-30 ring-amber-300`
-                      : 'border-stone-100'
+                      ? `${colors.border} shadow-md shadow-cyan-900/10 ring-1 ring-opacity-30 ring-cyan-300`
+                      : 'border-slate-100'
                   }
                 `}
               >
@@ -340,24 +340,24 @@ export default function ProfileScreen({ profile, badges }: ProfileScreenProps) {
                   >
                     <Icon className={`w-6 h-6 ${colors.text}`} />
                     {!badge.unlocked && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-60 rounded-xl">
-                        <Lock className="w-4 h-4 text-gray-400" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-white/95 backdrop-blur-md bg-opacity-60 rounded-xl">
+                        <Lock className="w-4 h-4 text-slate-400" />
                       </div>
                     )}
                   </div>
                 </div>
                 <h3
-                  className={`text-xs font-bold mb-1.5 ${badge.unlocked ? 'text-stone-800' : 'text-stone-400'}`}
+                  className={`text-xs font-bold mb-1.5 ${badge.unlocked ? 'text-slate-800' : 'text-slate-400'}`}
                 >
                   {badge.name}
                 </h3>
-                <div className="bg-stone-100 rounded-full h-1.5 mb-1">
+                <div className="bg-slate-100 rounded-full h-1.5 mb-1">
                   <div
                     className={`${colors.progress} h-1.5 rounded-full transition-all duration-500`}
                     style={{ width: `${Math.min(progressPercent, 100)}%` }}
                   />
                 </div>
-                <p className={`text-xs ${badge.unlocked ? 'text-stone-500' : 'text-stone-400'}`}>
+                <p className={`text-xs ${badge.unlocked ? 'text-slate-500' : 'text-slate-400'}`}>
                   {badge.progress}/{badge.requirement}
                 </p>
               </div>
@@ -369,12 +369,12 @@ export default function ProfileScreen({ profile, badges }: ProfileScreenProps) {
       {/* Interests */}
       {profile.interests.length > 0 && (
         <div className="px-4 mt-6">
-          <h2 className="text-lg font-bold text-stone-800 mb-3">I tuoi interessi</h2>
+          <h2 className="text-lg font-bold text-slate-800 mb-3">I tuoi interessi</h2>
           <div className="flex flex-wrap gap-2">
             {profile.interests.map((interest) => (
               <span
                 key={interest}
-                className="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-full text-sm font-medium"
+                className="bg-cyan-50 text-cyan-700 border border-cyan-200 px-3 py-1.5 rounded-full text-sm font-medium"
               >
                 {INTEREST_LABELS[interest] || interest}
               </span>

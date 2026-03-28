@@ -189,25 +189,6 @@ const SLIDER_MIDDLE = [null, <Map key="1" size={54} color="#0891b2" strokeWidth=
 
 // ── Sub-components ────────────────────────────────────────────────────────
 
-function XPBadge({ step }: { step: number }) {
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 5,
-      background: 'linear-gradient(135deg, #ecfeff, #cffafe)',
-      border: '1.5px solid rgba(6,182,212,0.25)',
-      borderRadius: 100, padding: '5px 12px',
-    }}>
-      <Zap size={11} color="#0891b2" fill="#0891b2" />
-      <span style={{
-        fontFamily: '"DM Mono", monospace', fontSize: 11, fontWeight: 500,
-        color: '#0891b2', letterSpacing: '0.04em',
-      }}>
-        {step * 20} XP
-      </span>
-    </div>
-  );
-}
-
 function StepDots({ current, total }: { current: number; total: number }) {
   return (
     <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
@@ -503,8 +484,6 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
   const [sliderValues, setSliderValues] = useState<Record<string, number>>({ q2: 3, q4: 3 });
   const [dietary, setDietary] = useState<string[]>([]);
   const [exiting, setExiting] = useState(false);
-  const [xpFlash, setXpFlash] = useState(false);
-  const [xpOut, setXpOut] = useState(false);
 
   useEffect(() => {
     const tag = document.createElement('style');
@@ -547,11 +526,6 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
       setTimeout(() => onComplete(answers, dietary), 450);
       return;
     }
-    // XP flash
-    setXpFlash(true);
-    setXpOut(false);
-    setTimeout(() => setXpOut(true), 700);
-    setTimeout(() => setXpFlash(false), 1100);
     goTo(step + 1, 'forward');
   }, [canAdvance, isDietaryStep, step, goTo, cardAnswers, sliderValues, dietary, onComplete]);
 
@@ -621,31 +595,6 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
         pointerEvents: 'none', zIndex: 0,
       }} />
 
-      {/* XP pop badge */}
-      {xpFlash && (
-        <div style={{
-          position: 'fixed', top: '44%', left: '50%',
-          zIndex: 200, pointerEvents: 'none',
-          animation: xpOut
-            ? 'ob-badge-out 0.35s ease forwards'
-            : 'ob-badge-pop 0.45s cubic-bezier(0.34,1.56,0.64,1) both',
-        }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #06b6d4, #0284c7)',
-            borderRadius: 18, padding: '14px 26px',
-            boxShadow: '0 16px 50px rgba(6,182,212,0.45)',
-            display: 'flex', alignItems: 'center', gap: 10,
-          }}>
-            <Zap size={18} color="white" fill="white" />
-            <span style={{
-              fontFamily: '"Plus Jakarta Sans", sans-serif',
-              fontWeight: 800, fontSize: 17, color: 'white', letterSpacing: '-0.02em',
-            }}>
-              +20 XP
-            </span>
-          </div>
-        </div>
-      )}
 
       {/* ── Header ── */}
       <div style={{
@@ -660,7 +609,6 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
           justifyContent: 'space-between', marginBottom: 11,
         }}>
           <StepDots current={step} total={TOTAL_STEPS} />
-          <XPBadge step={step} />
         </div>
         <div style={{ height: 3, background: '#e8f0f8', borderRadius: 2, overflow: 'hidden' }}>
           <div style={{
@@ -721,7 +669,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
               fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: 13,
               color: '#94a3b8', marginTop: 10, marginBottom: 0,
             }}>
-              6 step · guadagna XP · sblocca esperienze
+              6 step · sblocca esperienze
             </p>
             <div style={{
               width: 40, height: 3, borderRadius: 2,

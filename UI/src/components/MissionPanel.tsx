@@ -22,7 +22,7 @@ type Tab = 'storia' | 'sfida' | 'completato';
 
 const difficultyConfig: Record<Challenge['difficulty'], { label: string; color: string; bg: string }> = {
   facile:   { label: 'Facile',   color: 'text-green-700', bg: 'bg-green-100' },
-  medio:    { label: 'Medio',    color: 'text-amber-700', bg: 'bg-amber-100' },
+  medio:    { label: 'Medio',    color: 'text-cyan-700', bg: 'bg-cyan-100' },
   difficile:{ label: 'Difficile',color: 'text-red-700',   bg: 'bg-red-100'   },
 };
 
@@ -37,7 +37,7 @@ const categoryLabels: Record<string, string> = {
 
 function Skeleton({ className }: { className?: string }) {
   return (
-    <div className={`animate-pulse bg-stone-200 rounded-lg ${className ?? ''}`} />
+    <div className={`animate-pulse bg-slate-200 rounded-lg ${className ?? ''}`} />
   );
 }
 
@@ -86,7 +86,7 @@ function CountdownCircle({ timeLeft, totalTime }: { timeLeft: number; totalTime:
           className="transition-all duration-1000 ease-linear"
         />
       </svg>
-      <span className={`absolute text-2xl font-bold ${urgent ? 'text-red-600' : 'text-amber-700'}`}>
+      <span className={`absolute text-2xl font-bold ${urgent ? 'text-red-600' : 'text-cyan-700'}`}>
         {timeLeft}
       </span>
     </div>
@@ -107,24 +107,24 @@ function QuizChallenge({ challenge, onAnswer }: { challenge: Challenge | Generat
 
   return (
     <div className="space-y-4">
-      <p className="text-stone-800 font-medium text-base leading-relaxed">{challenge.question}</p>
+      <p className="text-slate-800 font-medium text-base leading-relaxed">{challenge.question}</p>
       <div className="space-y-2">
         {challenge.options?.map((option, idx) => {
-          let style = 'border-stone-200 bg-white hover:border-amber-400';
+          let style = 'border-slate-200 bg-white/95 backdrop-blur-md hover:border-cyan-400';
           if (submitted) {
             if (idx === challenge.correctAnswer) style = 'border-green-500 bg-green-50 ring-2 ring-green-300';
             else if (idx === selected) style = 'border-red-500 bg-red-50 ring-2 ring-red-300';
-            else style = 'border-stone-200 bg-stone-50 opacity-50';
-          } else if (idx === selected) style = 'border-amber-500 bg-amber-50 ring-2 ring-amber-300';
+            else style = 'border-slate-200 bg-slate-50 opacity-50';
+          } else if (idx === selected) style = 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-300';
 
           return (
             <button key={idx} disabled={submitted} onClick={() => setSelected(idx)}
               className={`w-full text-left p-3 rounded-xl border-2 transition-all duration-200 ${style}`}>
               <div className="flex items-center gap-3">
-                <span className="w-7 h-7 rounded-full bg-stone-100 flex items-center justify-center text-sm font-semibold text-stone-600 shrink-0">
+                <span className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-sm font-semibold text-slate-600 shrink-0">
                   {String.fromCharCode(65 + idx)}
                 </span>
-                <span className="text-stone-700 text-sm">{option}</span>
+                <span className="text-slate-700 text-sm">{option}</span>
                 {submitted && idx === challenge.correctAnswer && <CheckCircle className="w-5 h-5 text-green-600 ml-auto shrink-0" />}
                 {submitted && idx === selected && idx !== challenge.correctAnswer && <XCircle className="w-5 h-5 text-red-600 ml-auto shrink-0" />}
               </div>
@@ -134,7 +134,7 @@ function QuizChallenge({ challenge, onAnswer }: { challenge: Challenge | Generat
       </div>
       {!submitted && (
         <button onClick={handleSubmit} disabled={selected === null}
-          className="w-full py-3 rounded-xl font-semibold text-white bg-amber-600 hover:bg-amber-700 disabled:bg-stone-300 disabled:cursor-not-allowed transition-all">
+          className="w-full py-3 rounded-xl font-semibold text-white bg-cyan-600 hover:bg-cyan-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all">
           Conferma risposta
         </button>
       )}
@@ -180,23 +180,23 @@ function CountdownChallenge({ challenge, onAnswer }: { challenge: Challenge | Ge
   return (
     <div className="space-y-4">
       <div className="flex justify-center"><CountdownCircle timeLeft={timeLeft} totalTime={totalTime} /></div>
-      <p className="text-stone-800 font-medium text-base leading-relaxed text-center">{challenge.question}</p>
+      <p className="text-slate-800 font-medium text-base leading-relaxed text-center">{challenge.question}</p>
       <div className="space-y-2">
         {challenge.options?.map((option, idx) => {
-          let style = 'border-stone-200 bg-white hover:border-amber-400';
+          let style = 'border-slate-200 bg-white/95 backdrop-blur-md hover:border-cyan-400';
           if (submitted) {
             if (idx === challenge.correctAnswer) style = 'border-green-500 bg-green-50 ring-2 ring-green-300';
             else if (idx === selected) style = 'border-red-500 bg-red-50 ring-2 ring-red-300';
-            else style = 'border-stone-200 bg-stone-50 opacity-50';
-          } else if (idx === selected) style = 'border-amber-500 bg-amber-50 ring-2 ring-amber-300';
+            else style = 'border-slate-200 bg-slate-50 opacity-50';
+          } else if (idx === selected) style = 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-300';
           return (
             <button key={idx} disabled={submitted || timeLeft === 0} onClick={() => setSelected(idx)}
               className={`w-full text-left p-3 rounded-xl border-2 transition-all duration-200 ${style}`}>
               <div className="flex items-center gap-3">
-                <span className="w-7 h-7 rounded-full bg-stone-100 flex items-center justify-center text-sm font-semibold text-stone-600 shrink-0">
+                <span className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-sm font-semibold text-slate-600 shrink-0">
                   {String.fromCharCode(65 + idx)}
                 </span>
-                <span className="text-stone-700 text-sm">{option}</span>
+                <span className="text-slate-700 text-sm">{option}</span>
               </div>
             </button>
           );
@@ -204,7 +204,7 @@ function CountdownChallenge({ challenge, onAnswer }: { challenge: Challenge | Ge
       </div>
       {!submitted && timeLeft > 0 && (
         <button onClick={handleSubmit} disabled={selected === null}
-          className="w-full py-3 rounded-xl font-semibold text-white bg-amber-600 hover:bg-amber-700 disabled:bg-stone-300 disabled:cursor-not-allowed transition-all">
+          className="w-full py-3 rounded-xl font-semibold text-white bg-cyan-600 hover:bg-cyan-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all">
           Conferma risposta
         </button>
       )}
@@ -232,38 +232,38 @@ function ObservationChallenge({ challenge, onAnswer }: { challenge: Challenge | 
 
   return (
     <div className="space-y-4">
-      <div className="flex items-start gap-2 p-3 bg-amber-50 rounded-xl border border-amber-200">
-        <Eye className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
-        <p className="text-stone-700 text-sm">Osserva attentamente il luogo intorno a te per rispondere.</p>
+      <div className="flex items-start gap-2 p-3 bg-cyan-50 rounded-xl border border-cyan-200">
+        <Eye className="w-5 h-5 text-cyan-600 mt-0.5 shrink-0" />
+        <p className="text-slate-700 text-sm">Osserva attentamente il luogo intorno a te per rispondere.</p>
       </div>
-      {challenge.description && <p className="text-stone-600 text-sm italic">{challenge.description}</p>}
-      <p className="text-stone-800 font-medium text-base leading-relaxed">{challenge.question}</p>
+      {challenge.description && <p className="text-slate-600 text-sm italic">{challenge.description}</p>}
+      <p className="text-slate-800 font-medium text-base leading-relaxed">{challenge.question}</p>
       {challenge.hint && !showHint && (
-        <button onClick={() => setShowHint(true)} className="flex items-center gap-2 text-amber-600 hover:text-amber-700 text-sm font-medium">
+        <button onClick={() => setShowHint(true)} className="flex items-center gap-2 text-cyan-600 hover:text-cyan-700 text-sm font-medium">
           <HelpCircle className="w-4 h-4" /> Mostra suggerimento
         </button>
       )}
       {showHint && challenge.hint && (
-        <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 text-stone-600 text-sm">
-          <span className="font-medium text-stone-700">Suggerimento:</span> {challenge.hint}
+        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-600 text-sm">
+          <span className="font-medium text-slate-700">Suggerimento:</span> {challenge.hint}
         </div>
       )}
       <div className="space-y-2">
         {challenge.options?.map((option, idx) => {
-          let style = 'border-stone-200 bg-white hover:border-amber-400';
+          let style = 'border-slate-200 bg-white/95 backdrop-blur-md hover:border-cyan-400';
           if (submitted) {
             if (idx === challenge.correctAnswer) style = 'border-green-500 bg-green-50 ring-2 ring-green-300';
             else if (idx === selected) style = 'border-red-500 bg-red-50 ring-2 ring-red-300';
-            else style = 'border-stone-200 bg-stone-50 opacity-50';
-          } else if (idx === selected) style = 'border-amber-500 bg-amber-50 ring-2 ring-amber-300';
+            else style = 'border-slate-200 bg-slate-50 opacity-50';
+          } else if (idx === selected) style = 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-300';
           return (
             <button key={idx} disabled={submitted} onClick={() => setSelected(idx)}
               className={`w-full text-left p-3 rounded-xl border-2 transition-all duration-200 ${style}`}>
               <div className="flex items-center gap-3">
-                <span className="w-7 h-7 rounded-full bg-stone-100 flex items-center justify-center text-sm font-semibold text-stone-600 shrink-0">
+                <span className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-sm font-semibold text-slate-600 shrink-0">
                   {String.fromCharCode(65 + idx)}
                 </span>
-                <span className="text-stone-700 text-sm">{option}</span>
+                <span className="text-slate-700 text-sm">{option}</span>
                 {submitted && idx === challenge.correctAnswer && <CheckCircle className="w-5 h-5 text-green-600 ml-auto shrink-0" />}
                 {submitted && idx === selected && idx !== challenge.correctAnswer && <XCircle className="w-5 h-5 text-red-600 ml-auto shrink-0" />}
               </div>
@@ -273,7 +273,7 @@ function ObservationChallenge({ challenge, onAnswer }: { challenge: Challenge | 
       </div>
       {!submitted && (
         <button onClick={handleSubmit} disabled={selected === null}
-          className="w-full py-3 rounded-xl font-semibold text-white bg-amber-600 hover:bg-amber-700 disabled:bg-stone-300 disabled:cursor-not-allowed transition-all">
+          className="w-full py-3 rounded-xl font-semibold text-white bg-cyan-600 hover:bg-cyan-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all">
           Conferma risposta
         </button>
       )}
@@ -300,30 +300,30 @@ function ChoiceChallenge({ challenge, onAnswer }: { challenge: Challenge | Gener
 
   return (
     <div className="space-y-4">
-      {challenge.description && <p className="text-stone-600 text-sm italic leading-relaxed">{challenge.description}</p>}
-      <p className="text-stone-800 font-medium text-base leading-relaxed">{challenge.question}</p>
+      {challenge.description && <p className="text-slate-600 text-sm italic leading-relaxed">{challenge.description}</p>}
+      <p className="text-slate-800 font-medium text-base leading-relaxed">{challenge.question}</p>
       <div className="space-y-2">
         {challenge.options?.map((option, idx) => (
           <button key={idx} disabled={confirmed} onClick={() => setSelected(idx)}
             className={`w-full text-left p-3 rounded-xl border-2 transition-all duration-200 ${
-              confirmed && idx === selected ? 'border-amber-500 bg-amber-50 ring-2 ring-amber-300'
-              : confirmed ? 'border-stone-200 bg-stone-50 opacity-50'
-              : idx === selected ? 'border-amber-500 bg-amber-50 ring-2 ring-amber-300'
-              : 'border-stone-200 bg-white hover:border-amber-400'
+              confirmed && idx === selected ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-300'
+              : confirmed ? 'border-slate-200 bg-slate-50 opacity-50'
+              : idx === selected ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-300'
+              : 'border-slate-200 bg-white/95 backdrop-blur-md hover:border-cyan-400'
             }`}>
-            <span className="text-stone-700 text-sm">{option}</span>
+            <span className="text-slate-700 text-sm">{option}</span>
           </button>
         ))}
       </div>
       {!confirmed && (
         <button onClick={handleConfirm} disabled={selected === null}
-          className="w-full py-3 rounded-xl font-semibold text-white bg-amber-600 hover:bg-amber-700 disabled:bg-stone-300 disabled:cursor-not-allowed transition-all">
+          className="w-full py-3 rounded-xl font-semibold text-white bg-cyan-600 hover:bg-cyan-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all">
           Conferma scelta
         </button>
       )}
       {confirmed && (
-        <div className="p-4 bg-amber-50 rounded-xl border border-amber-200">
-          <p className="text-amber-800 font-medium text-sm">La tua scelta è stata registrata nel tuo profilo esploratore.</p>
+        <div className="p-4 bg-cyan-50 rounded-xl border border-cyan-200">
+          <p className="text-cyan-800 font-medium text-sm">La tua scelta è stata registrata nel tuo profilo esploratore.</p>
         </div>
       )}
     </div>
@@ -375,7 +375,7 @@ function VoiceButton({
       disabled={disabled}
       title={playing ? 'Interrompi narrazione' : 'Ascolta la storia'}
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
-        playing ? 'bg-amber-600 text-white' : 'bg-stone-100 text-stone-600 hover:bg-amber-50 hover:text-amber-700'
+        playing ? 'bg-cyan-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-cyan-50 hover:text-cyan-700'
       } disabled:opacity-40 disabled:cursor-not-allowed`}
     >
       {loading ? (
@@ -513,17 +513,17 @@ export default function MissionPanel({
 
       {/* Panel */}
       <div
-        className={`relative w-full max-w-lg bg-white rounded-t-3xl shadow-2xl transform transition-transform duration-300 ease-out ${isVisible ? 'translate-y-0' : 'translate-y-full'}`}
+        className={`relative w-full max-w-lg bg-white/95 backdrop-blur-md rounded-t-xl shadow-2xl transform transition-transform duration-300 ease-out ${isVisible ? 'translate-y-0' : 'translate-y-full'}`}
         style={{ maxHeight: '90vh' }}
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 bg-stone-300 rounded-full" />
+          <div className="w-10 h-1 bg-slate-300 rounded-full" />
         </div>
 
         {/* Close button */}
-        <button onClick={handleClose} className="absolute top-3 right-4 p-1.5 rounded-full bg-stone-100 hover:bg-stone-200 transition-colors">
-          <X className="w-5 h-5 text-stone-500" />
+        <button onClick={handleClose} className="absolute top-3 right-4 p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors">
+          <X className="w-5 h-5 text-slate-500" />
         </button>
 
         {/* Scrollable content */}
@@ -531,26 +531,26 @@ export default function MissionPanel({
 
           {/* POI Header */}
           <div className="mb-4">
-            <h2 className="text-xl font-bold text-stone-900 pr-8">{poi.name}</h2>
+            <h2 className="text-xl font-bold text-slate-900 pr-8">{poi.name}</h2>
             <div className="flex flex-wrap items-center gap-2 mt-1.5">
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-full">
                 <MapPin className="w-3 h-3" />{categoryLabels[poi.category] ?? poi.category}
               </span>
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-stone-600 bg-stone-100 px-2 py-0.5 rounded-full">
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
                 <Star className="w-3 h-3" />Importanza {poi.importanceScore}/100
               </span>
-              {poi.source && <span className="text-xs text-stone-400">Fonte: {poi.source}</span>}
+              {poi.source && <span className="text-xs text-slate-400">Fonte: {poi.source}</span>}
             </div>
           </div>
 
           {/* Too far warning */}
           {tooFar && (
-            <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+            <div className="mb-4 p-4 bg-cyan-50 border border-cyan-200 rounded-xl">
               <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+                <AlertTriangle className="w-5 h-5 text-cyan-600 mt-0.5 shrink-0" />
                 <div>
-                  <p className="font-semibold text-amber-800 text-sm">Avvicinati al luogo</p>
-                  <p className="text-amber-700 text-xs mt-1">
+                  <p className="font-semibold text-cyan-800 text-sm">Avvicinati al luogo</p>
+                  <p className="text-cyan-700 text-xs mt-1">
                     Sei a {Math.round(userDistance!)}m. Devi essere entro {poi.unlockDistance}m per iniziare la sfida.
                   </p>
                 </div>
@@ -559,7 +559,7 @@ export default function MissionPanel({
           )}
 
           {/* Tabs */}
-          <div className="flex gap-1 mb-5 bg-stone-100 p-1 rounded-xl">
+          <div className="flex gap-1 mb-5 bg-slate-100 p-1 rounded-xl">
             <TabButton active={activeTab === 'storia'} onClick={() => setActiveTab('storia')} icon={<BookOpen className="w-4 h-4" />} label="La Storia" />
             <TabButton active={activeTab === 'sfida'} onClick={() => !tooFar && setActiveTab('sfida')} icon={<Target className="w-4 h-4" />} label="La Sfida" disabled={tooFar} />
             <TabButton active={activeTab === 'completato'} onClick={() => activeTab === 'completato' && setActiveTab('completato')} icon={<Trophy className="w-4 h-4" />} label="Completato" disabled={activeTab !== 'completato'} />
@@ -575,34 +575,34 @@ export default function MissionPanel({
                     <Sparkles className="w-3 h-3" />Narrazione personalizzata
                   </span>
                 ) : aiNarrationLoading ? (
-                  <span className="inline-flex items-center gap-1 text-xs text-stone-400">
+                  <span className="inline-flex items-center gap-1 text-xs text-slate-400">
                     <Loader2 className="w-3 h-3 animate-spin" />Generazione in corso...
                   </span>
                 ) : (
-                  <span className="text-xs text-stone-400">Contenuto statico</span>
+                  <span className="text-xs text-slate-400">Contenuto statico</span>
                 )}
                 <VoiceButton text={narrationText} voiceStyle={voiceStyle} disabled={aiNarrationLoading} />
               </div>
 
               {/* Story text */}
               <div>
-                <h3 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-2">La storia</h3>
+                <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">La storia</h3>
                 {aiNarrationLoading ? (
                   <NarrationSkeleton />
                 ) : (
-                  <p className="text-stone-700 text-sm leading-relaxed transition-all duration-500">
+                  <p className="text-slate-700 text-sm leading-relaxed transition-all duration-500">
                     {aiNarration?.narration ?? poi.shortStory}
                   </p>
                 )}
               </div>
 
               {/* Hidden fact */}
-              <div className="p-4 bg-amber-50/60 border border-amber-100 rounded-2xl">
-                <h4 className="text-sm font-semibold text-amber-800 mb-1.5">Curiosità nascosta</h4>
+              <div className="p-4 bg-cyan-50/60 border border-cyan-100 rounded-xl">
+                <h4 className="text-sm font-semibold text-cyan-800 mb-1.5">Curiosità nascosta</h4>
                 {aiNarrationLoading ? (
                   <NarrationSkeleton />
                 ) : (
-                  <p className="text-stone-700 text-sm leading-relaxed transition-all duration-500">
+                  <p className="text-slate-700 text-sm leading-relaxed transition-all duration-500">
                     {aiNarration?.hiddenFact ?? poi.hiddenFact}
                   </p>
                 )}
@@ -610,7 +610,7 @@ export default function MissionPanel({
 
               {!tooFar && (
                 <button onClick={() => setActiveTab('sfida')}
-                  className="w-full py-3 rounded-xl font-semibold text-white bg-amber-600 hover:bg-amber-700 transition-colors flex items-center justify-center gap-2">
+                  className="w-full py-3 rounded-xl font-semibold text-white bg-cyan-600 hover:bg-cyan-700 transition-colors flex items-center justify-center gap-2">
                   Inizia la sfida <ChevronRight className="w-5 h-5" />
                 </button>
               )}
@@ -630,11 +630,11 @@ export default function MissionPanel({
               {/* Challenge progress */}
               {activeChallenges.length > 1 && !aiChallengesLoading && (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-stone-500">
+                  <span className="text-xs font-medium text-slate-500">
                     Sfida {currentChallengeIndex + 1} di {activeChallenges.length}
                   </span>
-                  <div className="flex-1 h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-amber-500 rounded-full transition-all duration-500"
+                  <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-cyan-500 rounded-full transition-all duration-500"
                       style={{ width: `${((currentChallengeIndex + 1) / activeChallenges.length) * 100}%` }} />
                   </div>
                 </div>
@@ -647,11 +647,11 @@ export default function MissionPanel({
                     {diffBadge.label}
                   </span>
                   {currentChallenge?.type === 'countdown' && (
-                    <span className="inline-flex items-center gap-1 text-xs text-stone-500">
+                    <span className="inline-flex items-center gap-1 text-xs text-slate-500">
                       <Clock className="w-3 h-3" />{(currentChallenge as Challenge).timeLimit ?? 30}s
                     </span>
                   )}
-                  <span className="ml-auto text-xs text-amber-600 font-medium">
+                  <span className="ml-auto text-xs text-cyan-600 font-medium">
                     +{currentChallenge?.xpBonus} XP
                   </span>
                 </div>
@@ -668,23 +668,23 @@ export default function MissionPanel({
                 <CheckCircle className="w-9 h-9 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-stone-900">Missione completata!</h3>
-                <p className="text-stone-500 text-sm mt-1">Hai completato tutte le sfide di questo luogo.</p>
+                <h3 className="text-lg font-bold text-slate-900">Missione completata!</h3>
+                <p className="text-slate-500 text-sm mt-1">Hai completato tutte le sfide di questo luogo.</p>
               </div>
               <div className="flex justify-center gap-6">
                 <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 text-amber-600">
+                  <div className="flex items-center justify-center gap-1 text-cyan-600">
                     <Award className="w-5 h-5" />
                     <span className="text-2xl font-bold">{totalXpEarned + poi.xpReward}</span>
                   </div>
-                  <span className="text-xs text-stone-500">XP guadagnati</span>
+                  <span className="text-xs text-slate-500">XP guadagnati</span>
                 </div>
                 <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 text-amber-600">
+                  <div className="flex items-center justify-center gap-1 text-cyan-600">
                     <Coins className="w-5 h-5" />
                     <span className="text-2xl font-bold">{poi.coinReward}</span>
                   </div>
-                  <span className="text-xs text-stone-500">Monete</span>
+                  <span className="text-xs text-slate-500">Monete</span>
                 </div>
               </div>
               {challengeResults.length > 0 && (
@@ -697,7 +697,7 @@ export default function MissionPanel({
                   ))}
                 </div>
               )}
-              <button onClick={handleClose} className="w-full py-3 rounded-xl font-semibold text-white bg-amber-600 hover:bg-amber-700 transition-colors">
+              <button onClick={handleClose} className="w-full py-3 rounded-xl font-semibold text-white bg-cyan-600 hover:bg-cyan-700 transition-colors">
                 Chiudi
               </button>
             </div>
@@ -716,9 +716,9 @@ function TabButton({ active, onClick, icon, label, disabled }: {
   return (
     <button onClick={onClick} disabled={disabled}
       className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
-        active ? 'bg-white text-amber-700 shadow-sm'
-        : disabled ? 'text-stone-300 cursor-not-allowed'
-        : 'text-stone-500 hover:text-stone-700'
+        active ? 'bg-white/95 backdrop-blur-md text-cyan-700 shadow-sm shadow-cyan-900/5'
+        : disabled ? 'text-slate-300 cursor-not-allowed'
+        : 'text-slate-500 hover:text-slate-700'
       }`}>
       {icon}{label}
     </button>

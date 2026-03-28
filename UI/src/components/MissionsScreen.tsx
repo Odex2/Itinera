@@ -25,16 +25,16 @@ export default function MissionsScreen({ pois, onPOISelect }: MissionsScreenProp
   const total = pois.length;
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      <div className="bg-gradient-to-r from-stone-800 to-amber-900 text-white shadow-md">
+    <div className="min-h-screen bg-slate-50">
+      <div className="bg-gradient-to-r from-slate-800 to-amber-900 text-white shadow-md shadow-cyan-900/10">
         <div className="px-4 py-6">
           <h1 className="text-2xl font-bold mb-1">Le tue Missioni</h1>
-          <p className="text-stone-300 text-sm">
+          <p className="text-slate-300 text-sm">
             {completed}/{total} completate -- Completa missioni per sbloccare nuovi luoghi
           </p>
-          <div className="mt-3 bg-white/20 rounded-full h-2">
+          <div className="mt-3 bg-white/95 backdrop-blur-md/20 rounded-full h-2">
             <div
-              className="bg-amber-400 h-2 rounded-full transition-all duration-500"
+              className="bg-cyan-400 h-2 rounded-full transition-all duration-500"
               style={{ width: `${(completed / total) * 100}%` }}
             />
           </div>
@@ -47,8 +47,8 @@ export default function MissionsScreen({ pois, onPOISelect }: MissionsScreenProp
             key={poi.id}
             onClick={() => poi.status !== 'locked' && onPOISelect(poi)}
             className={`
-              bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-200
-              ${poi.status !== 'locked' ? 'hover:shadow-lg cursor-pointer active:scale-[0.98]' : 'opacity-60'}
+              bg-white/95 backdrop-blur-md rounded-xl shadow-md shadow-cyan-900/10 overflow-hidden transition-all duration-200
+              ${poi.status !== 'locked' ? 'hover:shadow-[0_8px_30px_rgb(6,182,212,0.12)] cursor-pointer active:scale-[0.98]' : 'opacity-60'}
             `}
           >
             <div className="p-4">
@@ -59,32 +59,32 @@ export default function MissionsScreen({ pois, onPOISelect }: MissionsScreenProp
                     ${poi.status === 'completed'
                       ? 'bg-green-100'
                       : poi.status === 'available' || poi.status === 'active'
-                        ? 'bg-amber-100'
-                        : 'bg-stone-100'
+                        ? 'bg-cyan-100'
+                        : 'bg-slate-100'
                     }
                   `}
                 >
                   {poi.status === 'completed' && <CheckCircle2 className="w-5 h-5 text-green-600" />}
-                  {(poi.status === 'available' || poi.status === 'active') && <Target className="w-5 h-5 text-amber-600" />}
-                  {poi.status === 'locked' && <Lock className="w-5 h-5 text-stone-400" />}
+                  {(poi.status === 'available' || poi.status === 'active') && <Target className="w-5 h-5 text-cyan-600" />}
+                  {poi.status === 'locked' && <Lock className="w-5 h-5 text-slate-400" />}
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <div>
-                      <h3 className="font-bold text-stone-900">{poi.name}</h3>
-                      <span className="text-xs text-stone-500">{categoryLabels[poi.category] || poi.category}</span>
+                      <h3 className="font-bold text-slate-900">{poi.name}</h3>
+                      <span className="text-xs text-slate-500">{categoryLabels[poi.category] || poi.category}</span>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                      <span className="text-xs font-bold text-stone-700">{poi.importanceScore}</span>
+                      <Star className="w-3.5 h-3.5 text-cyan-500 fill-cyan-500" />
+                      <span className="text-xs font-bold text-slate-700">{poi.importanceScore}</span>
                     </div>
                   </div>
 
-                  <p className="text-xs text-stone-600 line-clamp-2 mb-2">{poi.description}</p>
+                  <p className="text-xs text-slate-600 line-clamp-2 mb-2">{poi.description}</p>
 
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-xs text-stone-500">
+                    <div className="flex items-center gap-3 text-xs text-slate-500">
                       <span className="flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
                         {poi.bestTime === 'any' ? 'Sempre' : poi.bestTime === 'mattina' ? 'Mattina' : poi.bestTime === 'pomeriggio' ? 'Pomeriggio' : poi.bestTime === 'sera' ? 'Sera' : 'Tramonto'}
@@ -94,13 +94,13 @@ export default function MissionsScreen({ pois, onPOISelect }: MissionsScreenProp
                         {poi.challenges.length} sfide
                       </span>
                     </div>
-                    <div className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-xs font-semibold">
+                    <div className="bg-cyan-50 text-cyan-700 px-2 py-0.5 rounded-full text-xs font-semibold">
                       {poi.xpReward} XP
                     </div>
                   </div>
 
                   {poi.status === 'locked' && (
-                    <div className="mt-2 flex items-center gap-1.5 text-xs text-stone-400">
+                    <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-400">
                       <Lock className="w-3 h-3" />
                       <span>Completa altre missioni per sbloccare</span>
                     </div>
