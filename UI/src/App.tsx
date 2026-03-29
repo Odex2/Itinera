@@ -102,6 +102,7 @@ function App() {
             onRequestDynamicPOIs={fetchDynamicPOIs}
             hideBottomCard={!!selectedPOI}
             cityName={customCityLocation?.name}
+            onChangeCity={() => setCurrentScreen('city_selection')}
           />
         )}
         {currentScreen === 'missions' && (
