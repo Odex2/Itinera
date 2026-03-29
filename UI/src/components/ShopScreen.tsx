@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Coins, Clock, ChevronDown, ChevronUp, Star, Tag, Sun, Sunset, Moon, CloudMoon, Percent, MapPin } from 'lucide-react';
+import { Coins, Clock, ChevronDown, ChevronUp, Star, Tag, Sun, Sunset, Moon, CloudMoon, Percent } from 'lucide-react';
 import type { Reward, UserProfile, InterestCategory } from '../types';
 
 interface ShopScreenProps {
