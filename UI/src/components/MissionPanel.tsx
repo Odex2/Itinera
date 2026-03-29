@@ -643,6 +643,7 @@ export default function MissionPanel({
   const [aiNarrationLoading, setAiNarrationLoading] = useState(true);
   const [aiChallenges, setAiChallenges] = useState<GeneratedChallenge[] | null>(null);
   const [aiChallengesLoading, setAiChallengesLoading] = useState(false);
+  const [poiRating, setPoiRating] = useState<number | null>(null);
 
   const tooFar =
     userDistance !== null && poi.unlockDistance > 0 && userDistance > poi.unlockDistance;
@@ -986,6 +987,17 @@ export default function MissionPanel({
                 <h3 className="text-lg font-bold text-slate-900">Missione completata!</h3>
                 <p className="text-slate-500 text-sm mt-1">Hai completato tutte le sfide di questo luogo.</p>
               </div>
+              
+              {/* Rating Section */}
+              <div className="bg-amber-50 rounded-xl p-4 space-y-2">
+                <p className="text-sm font-semibold text-slate-700">Come è stata la tua esperienza?</p>
+                <StarRating value={poiRating} onChange={setPoiRating} />
+                {poiRating !== null && (
+                  <p className="text-xs text-slate-600 italic">
+                    {poiRating === 5 ? 'Fantastico! Bellissimo!' : poiRating === 4 ? 'Molto bello!' : poiRating === 3 ? 'Carino!' : poiRating === 2 ? 'Non male...' : 'Poteva essere meglio.'}
+                  </p>
+                )}
+              </div>
               {/* BUG 6 FIX: only show XP earned for freshly completed POIs, not replays */}
               {!alreadyCompleted && (
                 <div className="flex justify-center gap-6">
@@ -1022,6 +1034,32 @@ export default function MissionPanel({
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Star Rating Component ────────────────────────────────────────────────────
+
+function StarRating({ value, onChange }: { value: number | null; onChange: (rating: number) => void }) {
+  return (
+    <div className="flex justify-center gap-2 py-3">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          onClick={() => onChange(star)}
+          className="transition-all duration-200 transform hover:scale-125 active:scale-95"
+          title={`${star} stella${star !== 1 ? 'e' : ''}`}
+        >
+          <Star
+            size={32}
+            className={`transition-colors duration-200 ${
+              value !== null && star <= value
+                ? 'fill-amber-400 text-amber-400'
+                : 'text-slate-300 hover:text-amber-300'
+            }`}
+          />
+        </button>
+      ))}
     </div>
   );
 }
