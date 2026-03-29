@@ -1177,6 +1177,10 @@
             transition-delay: .46s;
         }
 
+        .ai-features .fade-up:nth-child(5) {
+            transition-delay: .58s;
+        }
+
         .steps .fade-up:nth-child(2) {
             transition-delay: .1s;
         }
@@ -1354,12 +1358,11 @@
     <nav class="nav-dots" id="navDots">
         <div class="nav-dot active" data-index="0" data-label="Intro"></div>
         <div class="nav-dot" data-index="1" data-label="La Risposta"></div>
-        <div class="nav-dot" data-index="2" data-label="Soluzione"></div>
+        <div class="nav-dot" data-index="2" data-label="DNA"></div>
         <div class="nav-dot" data-index="3" data-label="Gameplay"></div>
-        <div class="nav-dot" data-index="4" data-label="AI"></div>
+        <div class="nav-dot" data-index="4" data-label="Motore AI"></div>
         <div class="nav-dot" data-index="5" data-label="Demo"></div>
-        <div class="nav-dot" data-index="6" data-label="Perché Noi"></div>
-        <div class="nav-dot" data-index="7" data-label="Fine"></div>
+        <div class="nav-dot" data-index="6" data-label="Vision"></div>
     </nav>
 
     <section class="slide slide-hero" id="slide-0">
@@ -1376,14 +1379,14 @@
         <div class="hero-divider"></div>
 
         <p class="hero-tagline">
-            Ridefiniamo l'esplorazione urbana:<br>
-            dall'osservazione passiva<br>
-            all'interazione dinamica.
+            Il primo ecosistema Drive-to-City<br>
+            che trasforma il divano nel punto di partenza<br>
+            per l'esplorazione gamificata.
         </p>
 
         <div class="hero-badge">
             <div class="hero-badge-dot"></div>
-            PlayTheCity Hackathon by Gunpowder
+            Segmentation Team · PlayTheCity Hackathon
         </div>
 
         <div class="hero-pills">
@@ -1394,7 +1397,7 @@
             <div class="hero-pill"><span>AI generativa</span></div>
         </div>
 
-        <div class="slide-num">01 / 08</div>
+        <div class="slide-num">01 / 07</div>
     </section>
 
     <section class="slide slide-problem" id="slide-1">
@@ -1405,25 +1408,25 @@
         </h2>
         <div class="problem-grid">
             <div class="problem-card fade-up">
-                <div class="problem-icon"><i data-lucide="crosshair"></i></div>
-                <strong>Profilazione Dinamica</strong>
-                <p>Sostituiamo i percorsi generici con l'Explorer DNA: 5 dimensioni che mappano l'utente in tempo reale
-                    e adattano il gioco.</p>
+                <div class="problem-icon"><i data-lucide="smartphone"></i></div>
+                <strong>Esperienza Omnicanale</strong>
+                <p>Il gioco inizia a casa con enigmi preparatori e continua per le strade della città, creando un ponte
+                    digitale-fisico ("Home-to-City").</p>
             </div>
             <div class="problem-card fade-up">
-                <div class="problem-icon"><i data-lucide="layers"></i></div>
-                <strong>Il Tabellone in 3D</strong>
-                <p>Evolviamo la "casella" classica: la città stessa diventa la plancia di gioco, popolata di sfide
-                    contestuali e storytelling AI.</p>
+                <div class="problem-icon"><i data-lucide="gift"></i></div>
+                <strong>Ricompense di Presenza</strong>
+                <p>Gli item virtuali ottenuti a casa sono riscattabili e attivabili esclusivamente recandosi fisicamente
+                    sul punto d'interesse.</p>
             </div>
             <div class="problem-card fade-up">
-                <div class="problem-icon"><i data-lucide="store"></i></div>
-                <strong>Impatto Economico</strong>
-                <p>Il gioco non finisce sullo schermo. Trasformiamo le vittorie digitali in traffico e valore per i
-                    negozi e i bar del territorio.</p>
+                <div class="problem-icon"><i data-lucide="compass"></i></div>
+                <strong>Quest Esclusive On-Site</strong>
+                <p>Sfide ad alto valore e narrazioni segrete accessibili unicamente esplorando il territorio,
+                    trasformando la città in una plancia.</p>
             </div>
         </div>
-        <div class="slide-num">02 / 08</div>
+        <div class="slide-num">02 / 07</div>
     </section>
 
     <section class="slide slide-solution" id="slide-2">
@@ -1456,7 +1459,7 @@
         </div>
         <p class="fade-up" style="font-size:14px;color:var(--text-dim);margin-top:28px;letter-spacing:.5px;">Il profilo
             evolve con te — le tue scelte ricalibrano l'esperienza passo dopo passo.</p>
-        <div class="slide-num">03 / 08</div>
+        <div class="slide-num">03 / 07</div>
     </section>
 
     <section class="slide slide-how" id="slide-3">
@@ -1464,34 +1467,71 @@
         <h2 class="main-title fade-up" style="text-align:center">
             L'Evoluzione del Tabellone:<br>La Casella a 3 Dimensioni
         </h2>
-        <div class="steps">
-            <div class="steps-line"></div>
-            <div class="step fade-up">
-                <div class="step-num"><i data-lucide="user-check"></i></div>
-                <h3>Profilazione</h3>
-                <p>Le 5 domande iniziali calcolano il vettore del tuo DNA per stabilire quali POI (caselle) generare.
-                </p>
+        <div class="gameplay-split"
+            style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; width: 100%; max-width: 1080px; margin-top: 56px;">
+            <div class="phase-card fade-up"
+                style="background: linear-gradient(145deg, rgba(6, 182, 212, 0.05), transparent); border: 1px solid rgba(6, 182, 212, 0.2); padding: 40px; border-radius: 24px; position: relative; overflow: hidden;">
+                <h3
+                    style="color: var(--cyan); font-size: 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+                    <i data-lucide="home"></i> A Casa <span
+                        style="font-size: 14px; font-weight: normal; color: var(--text-mid);">(The Hook)</span>
+                </h3>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 24px;">
+                    <li style="display: flex; gap: 16px; align-items: flex-start;">
+                        <i data-lucide="gamepad-2"
+                            style="color: var(--cyan); font-size: 24px; flex-shrink: 0; margin-top: 4px;"></i>
+                        <div>
+                            <strong style="display: block; font-size: 16px; margin-bottom: 4px; color: #fff;">Minigiochi
+                                Preparatori</strong>
+                            <p style="color: var(--text-mid); font-size: 14px; line-height: 1.6;">Risolvi enigmi e quiz
+                                dal divano per scoprire il tuo prossimo obiettivo cittadino.</p>
+                        </div>
+                    </li>
+                    <li style="display: flex; gap: 16px; align-items: flex-start;">
+                        <i data-lucide="lock"
+                            style="color: var(--cyan); font-size: 24px; flex-shrink: 0; margin-top: 4px;"></i>
+                        <div>
+                            <strong style="display: block; font-size: 16px; margin-bottom: 4px; color: #fff;">Ricompense
+                                Bloccate</strong>
+                            <p style="color: var(--text-mid); font-size: 14px; line-height: 1.6;">Ottieni "Drop"
+                                esclusivi (XP, Coins) che richiedono l'attivazione sul posto.</p>
+                        </div>
+                    </li>
+                </ul>
             </div>
-            <div class="step fade-up">
-                <div class="step-num"><i data-lucide="map"></i></div>
-                <h3>Valore Territoriale</h3>
-                <p>La mappa 3D si aggiorna. I POI visibili cambiano in base a chi sei, creando esplorazione
-                    iper-targettizzata.</p>
-            </div>
-            <div class="step fade-up">
-                <div class="step-num"><i data-lucide="mic"></i></div>
-                <h3>Storytelling</h3>
-                <p>Narrazione unica generata in tempo reale dall'AI e raccontata ad alta voce tramite sintesi vocale.
-                </p>
-            </div>
-            <div class="step fade-up">
-                <div class="step-num"><i data-lucide="swords"></i></div>
-                <h3>Tappa di Gioco</h3>
-                <p>Ogni casella ospita sfide remote (quiz) e fisiche (enigmi) validate intelligentemente dall'agente AI.
-                </p>
+
+            <div class="phase-card fade-up"
+                style="background: linear-gradient(145deg, rgba(20, 184, 166, 0.05), transparent); border: 1px solid rgba(20, 184, 166, 0.2); padding: 40px; border-radius: 24px; position: relative; overflow: hidden;">
+                <h3
+                    style="color: var(--teal); font-size: 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+                    <i data-lucide="map-pin"></i> In Città <span
+                        style="font-size: 14px; font-weight: normal; color: var(--text-mid);">(The Action)</span>
+                </h3>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 24px;">
+                    <li style="display: flex; gap: 16px; align-items: flex-start;">
+                        <i data-lucide="footprints"
+                            style="color: var(--teal); font-size: 24px; flex-shrink: 0; margin-top: 4px;"></i>
+                        <div>
+                            <strong
+                                style="display: block; font-size: 16px; margin-bottom: 4px; color: #fff;">Drive-to-City</strong>
+                            <p style="color: var(--text-mid); font-size: 14px; line-height: 1.6;">Raggiungi fisicamente
+                                la destinazione per sbloccare le ricompense ottenute a casa.</p>
+                        </div>
+                    </li>
+                    <li style="display: flex; gap: 16px; align-items: flex-start;">
+                        <i data-lucide="unlock"
+                            style="color: var(--teal); font-size: 24px; flex-shrink: 0; margin-top: 4px;"></i>
+                        <div>
+                            <strong style="display: block; font-size: 16px; margin-bottom: 4px; color: #fff;">Sfide
+                                Esclusive</strong>
+                            <p style="color: var(--text-mid); font-size: 14px; line-height: 1.6;">Accedi a task ad alto
+                                valore disponibili solo on-site.</p>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </div>
-        <div class="slide-num">04 / 08</div>
+        <div class="slide-num">04 / 07</div>
     </section>
 
     <section class="slide slide-ai" id="slide-4">
@@ -1527,9 +1567,9 @@
                 <div class="ai-card fade-up">
                     <div class="icon"><i data-lucide="map-pin"></i></div>
                     <div>
-                        <h3>POI Discoverer</h3>
-                        <p>Incrocia i dati della mappa con l'Explorer DNA per posizionare le caselle ideali sul
-                            tabellone virtuale.</p>
+                        <h3>Smart POI Sourcing</h3>
+                        <p>Non solo Google Maps: l'AI scansiona i social per trovare gemme nascoste. Bilancia i
+                            "Must-See" della città con tesori a bassa popolarità ma altissimo match con l'utente.</p>
                     </div>
                 </div>
                 <div class="ai-card fade-up">
@@ -1543,22 +1583,30 @@
                 <div class="ai-card fade-up">
                     <div class="icon"><i data-lucide="gamepad-2"></i></div>
                     <div>
-                        <h3>Quiz & Challenge Generator</h3>
+                        <h3>Quiz Generator</h3>
                         <p>Progetta l'ingaggio continuo inventando sfide, quiz storici ed enigmi visivi sempre nuovi.
                         </p>
+                    </div>
+                </div>
+                <div class="ai-card fade-up">
+                    <div class="icon"><i data-lucide="message-square"></i></div>
+                    <div>
+                        <h3>Challenge Dialogue</h3>
+                        <p>Modera l'interazione durante la sfida, fornendo hint dinamici e adattando il tono in base
+                            all'esito.</p>
                     </div>
                 </div>
                 <div class="ai-card fade-up">
                     <div class="icon"><i data-lucide="check-circle"></i></div>
                     <div>
                         <h3>Answer Validator</h3>
-                        <p>Un arbitro intelligente che valuta le risposte aperte o le prove fisiche, superando i rigidi
-                            test A/B/C.</p>
+                        <p>Un arbitro intelligente che valuta le risposte aperte o le prove fisiche, superando le sfide.
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="slide-num">05 / 08</div>
+        <div class="slide-num">05 / 07</div>
     </section>
 
     <section class="slide slide-demo" id="slide-5">
@@ -1581,28 +1629,28 @@
 
                 <div class="demo-steps">
                     <div class="demo-step fade-up">
-                        <div class="demo-step-num">STEP 01</div>
-                        <h3>Scegli la città, scegli te stesso</h3>
-                        <p>Dalla mappa interattiva selezioni la città. 5 domande veloci calibrano le 5 dimensioni del
-                            tuo profilo da esploratore: Relax, Cultura, Avventura, Socialità, Divertimento.</p>
+                        <div class="demo-step-num">UX/UI</div>
+                        <h3>Gamified Onboarding</h3>
+                        <p>L'acquisizione dati è parte del gioco: 3 quiz rapidi e 2 slider sensoriali. Zero attrito,
+                            100% profilazione nei primi 15 secondi.</p>
                     </div>
                     <div class="demo-step fade-up">
-                        <div class="demo-step-num">STEP 02</div>
-                        <h3>POI su misura, in tempo reale</h3>
-                        <p>L'algoritmo popola le tue caselle. Apri un POI: trovi storia generata dall'AI e l'opzione
-                            ascolto hands-free.</p>
+                        <div class="demo-step-num">PERFORMANCE</div>
+                        <h3>Generazione in Real-Time</h3>
+                        <p>Il tempo che intercorre tra la scelta della città e la creazione del tabellone personalizzato
+                            con i POI generati dall'AI.</p>
                     </div>
                     <div class="demo-step fade-up">
-                        <div class="demo-step-num">STEP 03</div>
-                        <h3>Sfida → XP → Ricompensa locale</h3>
-                        <p>2 sfide per ogni luogo. I punti "Coins" ottenuti si trasformano in sconti reali spendibili
-                            direttamente in-app.</p>
+                        <div class="demo-step-num">ENGAGEMENT</div>
+                        <h3>Interazione Vocale</h3>
+                        <p>L'interfaccia passa in secondo piano durante l'esplorazione, lasciando spazio alla narrazione
+                            audio e all'osservazione fisica.</p>
                     </div>
                 </div>
             </div>
 
         </div>
-        <div class="slide-num">06 / 08</div>
+        <div class="slide-num">06 / 07</div>
     </section>
 
     <section class="slide slide-win" id="slide-6">
@@ -1636,24 +1684,15 @@
                     lungo termine per l'esploratore.</p>
             </div>
         </div>
-        <div class="slide-num">07 / 08</div>
-    </section>
+        </div>
 
-    <section class="slide slide-cta" id="slide-7">
-        <div class="slide-label fade-up">È ora di giocare</div>
-        <h2 class="cta-title fade-up">Il mondo<br>ti aspetta.</h2>
-        <p class="cta-sub fade-up">
-            Ogni vicolo ha una storia.<br>
-            Ogni storia merita di essere vissuta.<br>
-            <strong style="color:#fff;">ITINERA la racconta per te.</strong>
-        </p>
-        <div class="cta-team fade-up">
+        <div class="cta-team fade-up" style="margin-top: 64px;">
             <div class="team-dot"></div>
             <div class="cta-team-title">ITINERA <span>by</span> Segmentation Team</div>
             <div class="cta-team-subtitle">PlayTheCity Hackathon by Gunpowder</div>
-            <div class="team-dot" style="margin-top: 8px;"></div>
         </div>
-        <div class="slide-num">08 / 08</div>
+
+        <div class="slide-num">07 / 07</div>
     </section>
 
     <script>
@@ -1732,10 +1771,10 @@
         function triggerSlideTransition(targetSlide) {
             if (isTransitioning) return;
             isTransitioning = true;
-            
+
             // Scorrimento nativo e fluido verso la slide
             targetSlide.scrollIntoView({ behavior: 'smooth' });
-            
+
             // Sblocca la transizione dopo che lo scroll è completato (circa 600ms)
             setTimeout(() => { isTransitioning = false; }, 600);
         }
