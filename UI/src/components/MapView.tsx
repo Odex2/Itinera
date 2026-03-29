@@ -571,7 +571,7 @@ export default function MapView({ pois, profile, userLocation, isDemoMode, onPOI
               <div className="bg-white/95 backdrop-blur-md backdrop-blur-md rounded-xl p-4 shadow-xl border border-slate-200 text-center">
                 <p className="text-slate-500 text-sm">
                   {userLocation
-                    ? 'Nessun punto di interesse disponibile nelle vicinanze.'
+                    ? 'L\'AI sta creando nuovi punti di interesse...'
                     : 'Attiva il GPS per scoprire i punti di interesse.'}
                 </p>
               </div>
