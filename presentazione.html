@@ -2,1921 +2,1862 @@
 <html lang="it">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ITINERA — Play The City · Pitch Deck</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Space+Grotesk:wght@400;500;700&display=swap"
-    rel="stylesheet">
-  <style>
-    :root {
-      --cyan: #06b6d4;
-      --cyan-dark: #0891b2;
-      --teal: #14b8a6;
-      --emerald: #10b981;
-      --violet: #7c3aed;
-      --rose: #f43f5e;
-      --bg: #070709;
-      --surface: rgba(255, 255, 255, 0.04);
-      --surface-hover: rgba(255, 255, 255, 0.07);
-      --border: rgba(255, 255, 255, 0.08);
-      --text-dim: #71717a;
-      --text-mid: #a1a1aa;
-      /* alias per retrocompat */
-      --amber: var(--cyan);
-      --green: var(--emerald);
-      --purple: var(--violet);
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-      scroll-snap-type: y mandatory;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: #fff;
-      overflow-x: hidden;
-    }
-
-    /* ── CANVAS particelle ── */
-    #particles-canvas {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      opacity: .35;
-    }
-
-    /* ── NAV LATERALE ── */
-    .nav-dots {
-      position: fixed;
-      right: 28px;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      z-index: 100;
-    }
-
-    .nav-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-      cursor: pointer;
-      transition: all .3s;
-      position: relative;
-    }
-
-    .nav-dot::before {
-      content: attr(data-label);
-      position: absolute;
-      right: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      color: var(--cyan);
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity .2s;
-    }
-
-    .nav-dot:hover::before {
-      opacity: 1;
-    }
-
-    .nav-dot.active {
-      background: var(--cyan);
-      box-shadow: 0 0 12px var(--cyan);
-      transform: scale(1.4);
-    }
-
-    /* ── SLIDE BASE ── */
-    .slide {
-      min-height: 100vh;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 80px clamp(32px, 8vw, 120px);
-      position: relative;
-      scroll-snap-align: start;
-      overflow: hidden;
-    }
-
-    .slide-num {
-      position: absolute;
-      bottom: 32px;
-      right: 48px;
-      font-size: 11px;
-      color: var(--text-dim);
-      font-weight: 600;
-      letter-spacing: 3px;
-      font-family: 'Space Grotesk', sans-serif;
-    }
-
-    .slide-label {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--cyan);
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .slide-label::before {
-      content: '';
-      width: 24px;
-      height: 2px;
-      background: var(--cyan);
-      display: inline-block;
-    }
-
-    /* ── SLIDE 1 HERO ── */
-    .slide-hero {
-      text-align: center;
-      background: radial-gradient(ellipse 100% 80% at 50% 40%, #001a20 0%, var(--bg) 70%);
-      justify-content: center;
-      gap: 0;
-      padding-top: 40px;
-      padding-bottom: 40px;
-    }
-
-    /* titolo mastodontico ITINERA */
-    .hero-mega {
-      position: relative;
-      line-height: 1;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* il testo principale */
-    .hero-mega-text {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(100px, 20vw, 220px);
-      font-weight: 700;
-      letter-spacing: -6px;
-      background: linear-gradient(160deg, #fff 5%, var(--cyan) 40%, var(--teal) 65%, var(--emerald) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      position: relative;
-      z-index: 2;
-      animation: hero-in 1s cubic-bezier(.16, 1, .3, 1) both;
-    }
-
-    /* scritta ghost outline dietro */
-    .hero-mega-ghost {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(100px, 20vw, 220px);
-      font-weight: 700;
-      letter-spacing: -6px;
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      -webkit-text-stroke: 1px rgba(6, 182, 212, .15);
-      color: transparent;
-      user-select: none;
-      transform: scale(1.04);
-      filter: blur(1px);
-      z-index: 1;
-      animation: hero-in 1.2s cubic-bezier(.16, 1, .3, 1) both;
-    }
-
-    /* glow orb dietro il titolo */
-    .hero-glow-orb {
-      position: absolute;
-      width: clamp(400px, 60vw, 800px);
-      height: clamp(200px, 30vw, 400px);
-      border-radius: 50%;
-      background: radial-gradient(ellipse, rgba(6, 182, 212, .18) 0%, rgba(20, 184, 166, .08) 50%, transparent 70%);
-      filter: blur(40px);
-      animation: orb-pulse 4s ease-in-out infinite;
-      z-index: 0;
-    }
-
-    @keyframes hero-in {
-      from {
-        opacity: 0;
-        transform: translateY(40px) scale(.95);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    @keyframes orb-pulse {
-
-      0%,
-      100% {
-        opacity: .6;
-        transform: scale(1);
-      }
-
-      50% {
-        opacity: 1;
-        transform: scale(1.08);
-      }
-    }
-
-    /* sottotitolo Play The City */
-    .hero-sub {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(16px, 3vw, 28px);
-      font-weight: 400;
-      color: transparent;
-      background: linear-gradient(90deg, var(--cyan), var(--teal), var(--emerald));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: 10px;
-      text-transform: uppercase;
-      margin-bottom: 32px;
-      animation: hero-in .9s .15s cubic-bezier(.16, 1, .3, 1) both;
-    }
-
-    .hero-divider {
-      width: 1px;
-      height: 48px;
-      background: linear-gradient(to bottom, transparent, var(--cyan), transparent);
-      margin: 0 auto 32px;
-      animation: hero-in .8s .25s cubic-bezier(.16, 1, .3, 1) both;
-    }
-
-    .hero-tagline {
-      font-size: clamp(15px, 1.8vw, 19px);
-      color: var(--text-mid);
-      font-weight: 300;
-      max-width: 520px;
-      line-height: 1.8;
-      margin: 0 auto 40px;
-      animation: hero-in .8s .35s cubic-bezier(.16, 1, .3, 1) both;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(6, 182, 212, .08);
-      border: 1px solid rgba(6, 182, 212, .25);
-      color: var(--cyan);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      padding: 7px 18px;
-      border-radius: 100px;
-      margin-bottom: 28px;
-      backdrop-filter: blur(12px);
-      animation: hero-in .8s .45s cubic-bezier(.16, 1, .3, 1) both;
-    }
-
-    .hero-badge-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--cyan);
-      animation: pulse-dot 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse-dot {
-
-      0%,
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      50% {
-        opacity: .4;
-        transform: scale(.8);
-      }
-    }
-
-    .hero-pills {
-      display: inline-flex;
-      gap: 16px;
-      align-items: center;
-      animation: hero-in .8s .5s cubic-bezier(.16, 1, .3, 1) both;
-    }
-
-    .hero-pill {
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      color: var(--text-dim);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .hero-pill-sep {
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--text-dim);
-      opacity: .4;
-    }
-
-    /* ── SLIDE 2 PROBLEMA ── */
-    .slide-problem {
-      background: var(--bg);
-    }
-
-    .problem-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      width: 100%;
-      max-width: 1080px;
-      margin-top: 56px;
-      perspective: 1000px;
-    }
-
-    .problem-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 40px 32px;
-      backdrop-filter: blur(20px);
-      transition: all .4s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .problem-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(6, 182, 212, .06) 0%, transparent 60%);
-      opacity: 0;
-      transition: opacity .4s;
-    }
-
-    .problem-card:hover {
-      border-color: rgba(6, 182, 212, .3);
-      transform: translateY(-4px);
-    }
-
-    .problem-card:hover::before {
-      opacity: 1;
-    }
-
-    .problem-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 16px;
-      background: rgba(6, 182, 212, .1);
-      border: 1px solid rgba(6, 182, 212, .2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      margin-bottom: 24px;
-    }
-
-    .problem-card strong {
-      display: block;
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: #fff;
-    }
-
-    .problem-card p {
-      color: var(--text-mid);
-      font-size: 15px;
-      line-height: 1.65;
-    }
-
-    /* ── SLIDE 3 SOLUZIONE ── */
-    .slide-solution {
-      background: radial-gradient(ellipse 70% 60% at 30% 50%, #001a1a 0%, var(--bg) 65%);
-      text-align: center;
-    }
-
-    .solution-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(40px, 7vw, 80px);
-      font-weight: 700;
-      line-height: 1.05;
-      letter-spacing: -2px;
-      margin-bottom: 20px;
-    }
-
-    .solution-desc {
-      font-size: clamp(16px, 2vw, 20px);
-      color: var(--text-mid);
-      max-width: 680px;
-      margin: 0 auto 56px;
-      line-height: 1.7;
-    }
-
-    .solution-pills {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .pill {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      padding: 12px 24px;
-      font-size: 14px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      backdrop-filter: blur(12px);
-      transition: all .3s;
-    }
-
-    .pill:hover {
-      border-color: var(--cyan);
-      background: rgba(6, 182, 212, .12);
-      transform: translateY(-2px);
-      box-shadow: 0 0 16px rgba(6, 182, 212, .4);
-    }
-
-    /* Auto highlight pills when on slide-solution */
-    @keyframes pill-auto-hover {
-
-      0%,
-      100% {
-        border-color: var(--border);
-        background: var(--surface);
-        transform: translateY(0);
-        box-shadow: none;
-      }
-
-      10%,
-      20% {
-        border-color: var(--cyan);
-        background: rgba(6, 182, 212, .12);
-        transform: translateY(-3px);
-        box-shadow: 0 0 16px rgba(6, 182, 212, .4);
-      }
-
-      30% {
-        border-color: var(--border);
-        background: var(--surface);
-        transform: translateY(0);
-        box-shadow: none;
-      }
-    }
-
-    .slide-visible .solution-pills .pill {
-      animation: pill-auto-hover 5s infinite;
-    }
-
-    .slide-visible .solution-pills .pill:nth-child(1) {
-      animation-delay: 1.0s;
-    }
-
-    .slide-visible .solution-pills .pill:nth-child(2) {
-      animation-delay: 1.4s;
-    }
-
-    .slide-visible .solution-pills .pill:nth-child(3) {
-      animation-delay: 1.8s;
-    }
-
-    .slide-visible .solution-pills .pill:nth-child(4) {
-      animation-delay: 2.2s;
-    }
-
-    .pill-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 8px currentColor;
-    }
-
-    /* ── SLIDE 4 COME FUNZIONA ── */
-    .slide-how {
-      background: var(--bg);
-    }
-
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0;
-      width: 100%;
-      max-width: 1100px;
-      margin-top: 64px;
-      position: relative;
-    }
-
-    .steps-line {
-      position: absolute;
-      top: 44px;
-      left: 12.5%;
-      width: 75%;
-      height: 1px;
-      background: linear-gradient(90deg, var(--cyan), var(--teal), var(--violet), var(--emerald));
-    }
-
-    .step {
-      text-align: center;
-      padding: 0 20px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .step-num {
-      width: 88px;
-      height: 88px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      margin: 0 auto 28px;
-      position: relative;
-    }
-
-    .step:nth-child(2) .step-num,
-    .step:nth-child(3) .step-num,
-    .step:nth-child(4) .step-num,
-    .step:nth-child(5) .step-num {
-      background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
-      box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
-    }
-
-    /* Auto highlight steps when on slide-how */
-    @keyframes step-num-pulse {
-
-      0%,
-      100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
-        background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
-      }
-
-      10%,
-      20% {
-        transform: scale(1.15);
-        box-shadow: 0 0 0 2px var(--cyan), 0 0 40px var(--cyan);
-        background: radial-gradient(circle, #002b36 0%, #001217 100%);
-        color: #fff;
-      }
-
-      30% {
-        transform: scale(1);
-        box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
-        background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
-      }
-    }
-
-    .slide-visible .step:nth-child(2) .step-num {
-      animation: step-num-pulse 5s infinite;
-      animation-delay: 1.0s;
-    }
-
-    .slide-visible .step:nth-child(3) .step-num {
-      animation: step-num-pulse 5s infinite;
-      animation-delay: 1.5s;
-    }
-
-    .slide-visible .step:nth-child(4) .step-num {
-      animation: step-num-pulse 5s infinite;
-      animation-delay: 2.0s;
-    }
-
-    .slide-visible .step:nth-child(5) .step-num {
-      animation: step-num-pulse 5s infinite;
-      animation-delay: 2.5s;
-    }
-
-    .step h3 {
-      font-size: 17px;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    .step p {
-      color: var(--text-mid);
-      font-size: 13px;
-      line-height: 1.65;
-    }
-
-    /* ── SLIDE 5 AI ── */
-    .slide-ai {
-      background: radial-gradient(ellipse 70% 60% at 70% 50%, #001a20 0%, var(--bg) 65%);
-    }
-
-    .ai-layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      max-width: 1080px;
-      width: 100%;
-      align-items: start;
-    }
-
-    .ai-left h2 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(36px, 5vw, 60px);
-      font-weight: 700;
-      line-height: 1.1;
-      letter-spacing: -1.5px;
-      margin-bottom: 20px;
-    }
-
-    .ai-left p {
-      font-size: 18px;
-      color: var(--text-mid);
-      line-height: 1.7;
-      margin-bottom: 36px;
-    }
-
-    .ai-stat-row {
-      display: flex;
-      gap: 32px;
-    }
-
-    .ai-stat {
-      text-align: left;
-    }
-
-    .ai-stat .val {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 36px;
-      font-weight: 700;
-      color: var(--cyan);
-    }
-
-    .ai-stat .lbl {
-      font-size: 13px;
-      color: var(--text-mid);
-      margin-top: 4px;
-    }
-
-    .ai-features {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .ai-card {
-      background: linear-gradient(135deg, rgba(255, 255, 255, .04) 0%, rgba(6, 182, 212, .05) 100%);
-      border: 1px solid rgba(6, 182, 212, .15);
-      border-radius: 20px;
-      padding: 24px 28px;
-      display: flex;
-      gap: 18px;
-      align-items: flex-start;
-      transition: all .35s;
-    }
-
-    .ai-card:hover {
-      border-color: rgba(6, 182, 212, .35);
-      transform: translateX(4px);
-    }
-
-    .ai-card .icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, var(--cyan), var(--teal));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      flex-shrink: 0;
-    }
-
-    .ai-card h3 {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .ai-card p {
-      color: var(--text-mid);
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .slide-demo {
-      background: var(--bg);
-    }
-
-    .demo-split {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      max-width: 1200px;
-      gap: 6vw;
-    }
-
-    .demo-split-left {
-      flex: 0 0 auto;
-      display: flex;
-      justify-content: center;
-    }
-
-    .demo-split-right {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: center;
-    }
-
-    .phone-wrap {
-      position: relative;
-    }
-
-    .phone-glow {
-      position: absolute;
-      inset: -30px;
-      border-radius: 60px;
-      background: radial-gradient(ellipse at center, rgba(6, 182, 212, .15) 0%, transparent 70%);
-      filter: blur(20px);
-    }
-
-    .phone-mockup {
-      /* Aumentato per coprire più spazio verticale come nel tuo disegno */
-      height: min(850px, 75vh);
-      aspect-ratio: 9 / 19.5;
-      border: clamp(6px, 1.5vh, 12px) solid #1a1a1a;
-      border-radius: clamp(24px, 4vh, 44px);
-      overflow: hidden;
-      position: relative;
-      background: #111;
-      box-shadow: 0 40px 100px rgba(0, 0, 0, .8), inset 0 0 0 1px rgba(255, 255, 255, .06);
-    }
-
-    .phone-notch {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100px;
-      height: 28px;
-      background: #1a1a1a;
-      border-radius: 0 0 20px 20px;
-      z-index: 2;
-    }
-
-    .phone-mockup video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .demo-steps {
-      display: flex;
-      flex-direction: column;
-      gap: min(16px, 2vh);
-      max-width: 550px;
-      margin-top: 24px;
-    }
-
-    .demo-step {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--amber);
-      padding: clamp(16px, 2.5vh, 24px) 24px;
-      border-radius: 0 16px 16px 0;
-      backdrop-filter: blur(12px);
-      transition: all .3s;
-    }
-
-    .demo-step:hover {
-      border-left-color: var(--cyan);
-      background: var(--surface-hover);
-      transform: translateX(4px);
-    }
-
-    .demo-step-num {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      color: var(--cyan);
-      margin-bottom: min(6px, 1vh);
-    }
-
-    .demo-step h3 {
-      font-size: clamp(16px, 2.2vh, 18px);
-      font-weight: 700;
-      margin-bottom: min(6px, 1vh);
-    }
-
-    .demo-step p {
-      color: var(--text-mid);
-      font-size: clamp(13px, 1.6vh, 14px);
-      line-height: 1.6;
-    }
-
-    /* ── SLIDE 7 MERCATO ── */
-    .slide-impact {
-      background: radial-gradient(ellipse 70% 60% at 50% 60%, #001a1a 0%, var(--bg) 65%);
-      text-align: center;
-    }
-
-    .impact-numbers {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      max-width: 960px;
-      width: 100%;
-      margin-top: 56px;
-    }
-
-    .impact-num {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 28px;
-      padding: 48px 24px;
-      backdrop-filter: blur(20px);
-      position: relative;
-      overflow: hidden;
-      transition: all .4s;
-    }
-
-    .impact-num::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--amber), var(--red));
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform .4s;
-    }
-
-    .impact-num:hover {
-      border-color: rgba(6, 182, 212, .25);
-      transform: translateY(-6px);
-    }
-
-    .impact-num:hover::after {
-      transform: scaleX(1);
-    }
-
-    .impact-num .num {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 64px;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--cyan), var(--emerald));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      line-height: 1;
-      margin-bottom: 12px;
-    }
-
-    .impact-num .label {
-      color: var(--text-mid);
-      font-size: 15px;
-      line-height: 1.5;
-    }
-
-    /* ── SLIDE 8 WIN ── */
-    .slide-win {
-      background: radial-gradient(ellipse 70% 60% at 50% 40%, #001a18 0%, var(--bg) 65%);
-      text-align: center;
-    }
-
-    .win-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      max-width: 1040px;
-      width: 100%;
-      margin-top: 56px;
-      perspective: 1000px;
-    }
-
-    .win-card {
-      border-radius: 24px;
-      padding: 36px 28px;
-      text-align: left;
-      backdrop-filter: blur(20px);
-      transition: all .4s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .win-card:nth-child(1) {
-      background: linear-gradient(145deg, #001a20, #002530);
-      border: 1px solid rgba(6, 182, 212, .2);
-    }
-
-    .win-card:nth-child(2) {
-      background: linear-gradient(145deg, #001a20, #002530);
-      border: 1px solid rgba(6, 182, 212, .2);
-    }
-
-    .win-card:nth-child(3) {
-      background: linear-gradient(145deg, #001a20, #002530);
-      border: 1px solid rgba(6, 182, 212, .2);
-    }
-
-    .win-card:hover {
-      transform: translateY(-6px) scale(1.01);
-    }
-
-    .win-card .win-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-
-    .win-card:nth-child(1) .win-icon {
-      background: rgba(6, 182, 212, .12);
-      border: 1px solid rgba(6, 182, 212, .2);
-    }
-
-    .win-card:nth-child(2) .win-icon {
-      background: rgba(6, 182, 212, .12);
-      border: 1px solid rgba(6, 182, 212, .2);
-    }
-
-    .win-card:nth-child(3) .win-icon {
-      background: rgba(6, 182, 212, .12);
-      border: 1px solid rgba(6, 182, 212, .2);
-    }
-
-    .win-card h3 {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .win-card p {
-      color: var(--text-mid);
-      font-size: 14px;
-      line-height: 1.65;
-    }
-
-    /* ── SLIDE 9 CTA ── */
-    .slide-cta {
-      background: radial-gradient(ellipse 80% 70% at 50% 30%, #001a20 0%, var(--bg) 65%);
-      text-align: center;
-    }
-
-    .cta-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(56px, 11vw, 120px);
-      font-weight: 700;
-      line-height: .95;
-      letter-spacing: -4px;
-      margin-bottom: 40px;
-      background: linear-gradient(160deg, #fff 10%, var(--cyan) 50%, var(--emerald) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .cta-sub {
-      font-size: clamp(16px, 2vw, 20px);
-      color: var(--text-mid);
-      max-width: 560px;
-      line-height: 1.8;
-      margin: 0 auto 52px;
-    }
-
-    .cta-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: linear-gradient(135deg, var(--amber), #d97706);
-      color: #000;
-      font-size: 17px;
-      font-weight: 700;
-      padding: 18px 48px;
-      border-radius: 100px;
-      text-decoration: none;
-      letter-spacing: .5px;
-      transition: all .3s;
-      box-shadow: 0 12px 40px rgba(6, 182, 212, .3);
-    }
-
-    .cta-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 20px 56px rgba(6, 182, 212, .4);
-    }
-
-    .cta-team {
-      margin-top: 60px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      justify-content: center;
-    }
-
-    .cta-team-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(24px, 4vw, 36px);
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: 1px;
-    }
-
-    .cta-team-title span {
-      color: var(--cyan);
-      font-weight: 400;
-    }
-
-    .cta-team-subtitle {
-      font-size: 14px;
-      color: var(--text-dim);
-      letter-spacing: 4px;
-      text-transform: uppercase;
-    }
-
-    .team-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--cyan);
-      opacity: .8;
-      box-shadow: 0 0 12px var(--cyan);
-    }
-
-    /* ── ACCENTS ── */
-    .highlight {
-      color: var(--amber);
-    }
-
-    .highlight-green {
-      color: var(--green);
-    }
-
-    .highlight-cyan {
-      color: var(--cyan);
-    }
-
-    h2.main-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(38px, 6vw, 72px);
-      font-weight: 700;
-      line-height: 1.1;
-      letter-spacing: -1.5px;
-      margin-bottom: 16px;
-      max-width: 900px;
-    }
-
-    /* ── ANIMATIONS ── */
-    .fade-up {
-      opacity: 0;
-      transform: translateY(40px) scale(.97);
-      filter: blur(4px);
-      transition: opacity .8s cubic-bezier(.16, 1, .3, 1),
-        transform .8s cubic-bezier(.16, 1, .3, 1),
-        filter .8s cubic-bezier(.16, 1, .3, 1);
-    }
-
-    .fade-up.visible {
-      opacity: 1;
-      transform: none;
-      filter: blur(0);
-    }
-
-    /* stagger delays per i figli diretti della slide */
-    .slide>.fade-up:nth-child(1) {
-      transition-delay: .05s;
-    }
-
-    .slide>.fade-up:nth-child(2) {
-      transition-delay: .15s;
-    }
-
-    .slide>.fade-up:nth-child(3) {
-      transition-delay: .25s;
-    }
-
-    .slide>.fade-up:nth-child(4) {
-      transition-delay: .35s;
-    }
-
-    .slide>.fade-up:nth-child(5) {
-      transition-delay: .45s;
-    }
-
-    /* stagger grid children */
-    .problem-grid .fade-up:nth-child(1) {
-      transition-delay: .1s;
-    }
-
-    .problem-grid .fade-up:nth-child(2) {
-      transition-delay: .22s;
-    }
-
-    .problem-grid .fade-up:nth-child(3) {
-      transition-delay: .34s;
-    }
-
-    .win-grid .fade-up:nth-child(1) {
-      transition-delay: .1s;
-    }
-
-    .win-grid .fade-up:nth-child(2) {
-      transition-delay: .22s;
-    }
-
-    .win-grid .fade-up:nth-child(3) {
-      transition-delay: .34s;
-    }
-
-    .ai-features .fade-up:nth-child(1) {
-      transition-delay: .1s;
-    }
-
-    .ai-features .fade-up:nth-child(2) {
-      transition-delay: .22s;
-    }
-
-    .ai-features .fade-up:nth-child(3) {
-      transition-delay: .34s;
-    }
-
-    .ai-features .fade-up:nth-child(4) {
-      transition-delay: .46s;
-    }
-
-    .steps .fade-up:nth-child(2) {
-      transition-delay: .1s;
-    }
-
-    .steps .fade-up:nth-child(3) {
-      transition-delay: .22s;
-    }
-
-    .steps .fade-up:nth-child(4) {
-      transition-delay: .34s;
-    }
-
-    .steps .fade-up:nth-child(5) {
-      transition-delay: .46s;
-    }
-
-    .demo-steps .fade-up:nth-child(1) {
-      transition-delay: .1s;
-    }
-
-    .demo-steps .fade-up:nth-child(2) {
-      transition-delay: .22s;
-    }
-
-    .demo-steps .fade-up:nth-child(3) {
-      transition-delay: .34s;
-    }
-
-    /* ── SCROLL PROGRESS BAR ── */
-    #scroll-progress {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 3px;
-      width: 0%;
-      background: linear-gradient(90deg, var(--cyan), var(--teal), var(--emerald));
-      z-index: 1000;
-      transition: width .1s linear;
-      box-shadow: 0 0 12px var(--cyan);
-    }
-
-    /* ── CURSOR GLOW ── */
-    #cursor-glow {
-      position: fixed;
-      width: 400px;
-      height: 400px;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 1;
-      background: radial-gradient(circle, rgba(6, 182, 212, .06) 0%, transparent 70%);
-      transform: translate(-50%, -50%);
-      transition: left .12s ease, top .12s ease;
-      mix-blend-mode: screen;
-    }
-
-    /* ── SLIDE TRANSITION OVERLAY ── */
-    #slide-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 500;
-      pointer-events: none;
-      background: var(--bg);
-      clip-path: circle(0% at 50% 50%);
-      transition: clip-path 0s;
-    }
-
-    #slide-overlay.expanding {
-      clip-path: circle(150% at 50% 50%);
-      transition: clip-path .55s cubic-bezier(.8, 0, .2, 1);
-    }
-
-    #slide-overlay.collapsing {
-      clip-path: circle(0% at 50% 50%);
-      transition: clip-path .45s cubic-bezier(.8, 0, .2, 1);
-    }
-
-    /* nessun overlay nella nav scroll normale */
-
-    /* ── SHINE SWEEP sulle card ── */
-    .problem-card,
-    .win-card,
-    .ai-card,
-    .impact-num {
-      overflow: hidden;
-    }
-
-    .problem-card::after,
-    .win-card::after,
-    .ai-card::after,
-    .impact-num::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -75%;
-      width: 50%;
-      height: 100%;
-      background: linear-gradient(90deg,
-          transparent,
-          rgba(255, 255, 255, .06),
-          transparent);
-      transform: skewX(-20deg);
-      transition: left .6s ease;
-      pointer-events: none;
-    }
-
-    .problem-card:hover::after,
-    .win-card:hover::after,
-    .ai-card:hover::after,
-    .impact-num:hover::before {
-      left: 150%;
-    }
-
-    /* ── 3D TILT PERSPECTIVE ── */
-    .tilt-wrap {
-      perspective: 800px;
-    }
-
-    .tilt-card {
-      transform-style: preserve-3d;
-      transition: transform .3s ease;
-      will-change: transform;
-    }
-
-    /* ── GLITCH sul titolo hero ── */
-    @keyframes glitch-1 {
-
-      0%,
-      90%,
-      100% {
-        clip-path: none;
-        transform: none;
-        opacity: 1;
-      }
-
-      91% {
-        clip-path: polygon(0 10%, 100% 10%, 100% 32%, 0 32%);
-        transform: translateX(-4px);
-        opacity: .9;
-      }
-
-      93% {
-        clip-path: polygon(0 55%, 100% 55%, 100% 70%, 0 70%);
-        transform: translateX(4px);
-        opacity: .9;
-      }
-
-      95% {
-        clip-path: none;
-        transform: none;
-        opacity: 1;
-      }
-    }
-
-    .hero-mega-text {
-      animation: hero-in 1s cubic-bezier(.16, 1, .3, 1) both,
-        glitch-1 8s 2s ease-in-out infinite;
-    }
-
-    /* ── COUNTER NUMBERS ── */
-    .count-num {
-      display: inline-block;
-    }
-
-    /* ── SCROLLBAR ── */
-    ::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: rgba(6, 182, 212, .3);
-      border-radius: 2px;
-    }
-
-    .lucide {
-      width: 1em;
-      height: 1em;
-      vertical-align: middle;
-      stroke-width: 2;
-    }
-  </style>
-  <script src="https://unpkg.com/lucide@latest"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITINERA — PlayTheCity Hackathon · Pitch Deck</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Space+Grotesk:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --cyan: #06b6d4;
+            --cyan-dark: #0891b2;
+            --teal: #14b8a6;
+            --emerald: #10b981;
+            --violet: #7c3aed;
+            --rose: #f43f5e;
+            --bg: #070709;
+            --surface: rgba(255, 255, 255, 0.04);
+            --surface-hover: rgba(255, 255, 255, 0.07);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-dim: #71717a;
+            --text-mid: #a1a1aa;
+            /* alias per retrocompat */
+            --amber: var(--cyan);
+            --green: var(--emerald);
+            --purple: var(--violet);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* ── CANVAS particelle ── */
+        #particles-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: .35;
+        }
+
+        /* ── NAV LATERALE ── */
+        .nav-dots {
+            position: fixed;
+            right: 28px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all .3s;
+            position: relative;
+        }
+
+        .nav-dot::before {
+            content: attr(data-label);
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--cyan);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity .2s;
+        }
+
+        .nav-dot:hover::before {
+            opacity: 1;
+        }
+
+        .nav-dot.active {
+            background: var(--cyan);
+            box-shadow: 0 0 12px var(--cyan);
+            transform: scale(1.4);
+        }
+
+        /* ── SLIDE BASE ── */
+        .slide {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 80px clamp(32px, 8vw, 120px);
+            position: relative;
+            scroll-snap-align: start;
+            overflow: hidden;
+        }
+
+        .slide-num {
+            position: absolute;
+            bottom: 32px;
+            right: 48px;
+            font-size: 11px;
+            color: var(--text-dim);
+            font-weight: 600;
+            letter-spacing: 3px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .slide-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slide-label::before {
+            content: '';
+            width: 24px;
+            height: 2px;
+            background: var(--cyan);
+            display: inline-block;
+        }
+
+        /* ── SLIDE 1 HERO ── */
+        .slide-hero {
+            text-align: center;
+            background: radial-gradient(ellipse 100% 80% at 50% 40%, #001a20 0%, var(--bg) 70%);
+            justify-content: center;
+            gap: 0;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+
+        /* titolo mastodontico ITINERA */
+        .hero-mega {
+            position: relative;
+            line-height: 1;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* il testo principale */
+        .hero-mega-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(100px, 20vw, 220px);
+            font-weight: 700;
+            letter-spacing: -6px;
+            background: linear-gradient(160deg, #fff 5%, var(--cyan) 40%, var(--teal) 65%, var(--emerald) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 2;
+            animation: hero-in 1s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        /* scritta ghost outline dietro */
+        .hero-mega-ghost {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(100px, 20vw, 220px);
+            font-weight: 700;
+            letter-spacing: -6px;
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-text-stroke: 1px rgba(6, 182, 212, .15);
+            color: transparent;
+            user-select: none;
+            transform: scale(1.04);
+            filter: blur(1px);
+            z-index: 1;
+            animation: hero-in 1.2s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        /* glow orb dietro il titolo */
+        .hero-glow-orb {
+            position: absolute;
+            width: clamp(400px, 60vw, 800px);
+            height: clamp(200px, 30vw, 400px);
+            border-radius: 50%;
+            background: radial-gradient(ellipse, rgba(6, 182, 212, .18) 0%, rgba(20, 184, 166, .08) 50%, transparent 70%);
+            filter: blur(40px);
+            animation: orb-pulse 4s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes hero-in {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes orb-pulse {
+
+            0%,
+            100% {
+                opacity: .6;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.08);
+            }
+        }
+
+        /* sottotitolo Play The City */
+        .hero-sub {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(16px, 3vw, 28px);
+            font-weight: 400;
+            color: transparent;
+            background: linear-gradient(90deg, var(--cyan), var(--teal), var(--emerald));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 10px;
+            text-transform: uppercase;
+            margin-bottom: 32px;
+            animation: hero-in .9s .15s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        .hero-divider {
+            width: 1px;
+            height: 48px;
+            background: linear-gradient(to bottom, transparent, var(--cyan), transparent);
+            margin: 0 auto 32px;
+            animation: hero-in .8s .25s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        .hero-tagline {
+            font-size: clamp(15px, 1.8vw, 19px);
+            color: var(--text-mid);
+            font-weight: 300;
+            max-width: 520px;
+            line-height: 1.8;
+            margin: 0 auto 40px;
+            animation: hero-in .8s .35s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(6, 182, 212, .08);
+            border: 1px solid rgba(6, 182, 212, .25);
+            color: var(--cyan);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 7px 18px;
+            border-radius: 100px;
+            margin-bottom: 28px;
+            backdrop-filter: blur(12px);
+            animation: hero-in .8s .45s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        .hero-badge-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--cyan);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: .4;
+                transform: scale(.8);
+            }
+        }
+
+        .hero-pills {
+            display: inline-flex;
+            gap: 16px;
+            align-items: center;
+            animation: hero-in .8s .5s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        .hero-pill {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hero-pill-sep {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--text-dim);
+            opacity: .4;
+        }
+
+        /* ── SLIDE 2 LA RISPOSTA ── */
+        .slide-problem {
+            background: var(--bg);
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 1080px;
+            margin-top: 56px;
+            perspective: 1000px;
+        }
+
+        .problem-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px 32px;
+            backdrop-filter: blur(20px);
+            transition: all .4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .problem-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(6, 182, 212, .06) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity .4s;
+        }
+
+        .problem-card:hover {
+            border-color: rgba(6, 182, 212, .3);
+            transform: translateY(-4px);
+        }
+
+        .problem-card:hover::before {
+            opacity: 1;
+        }
+
+        .problem-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: rgba(6, 182, 212, .1);
+            border: 1px solid rgba(6, 182, 212, .2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin-bottom: 24px;
+        }
+
+        .problem-card strong {
+            display: block;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .problem-card p {
+            color: var(--text-mid);
+            font-size: 15px;
+            line-height: 1.65;
+        }
+
+        /* ── SLIDE 3 SOLUZIONE ── */
+        .slide-solution {
+            background: radial-gradient(ellipse 70% 60% at 30% 50%, #001a1a 0%, var(--bg) 65%);
+            text-align: center;
+        }
+
+        .solution-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(40px, 7vw, 80px);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+        }
+
+        .solution-desc {
+            font-size: clamp(16px, 2vw, 20px);
+            color: var(--text-mid);
+            max-width: 680px;
+            margin: 0 auto 56px;
+            line-height: 1.7;
+        }
+
+        .solution-pills {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .pill {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(12px);
+            transition: all .3s;
+        }
+
+        .pill:hover {
+            border-color: var(--cyan);
+            background: rgba(6, 182, 212, .12);
+            transform: translateY(-2px);
+            box-shadow: 0 0 16px rgba(6, 182, 212, .4);
+        }
+
+        /* Auto highlight pills when on slide-solution */
+        @keyframes pill-auto-hover {
+
+            0%,
+            100% {
+                border-color: var(--border);
+                background: var(--surface);
+                transform: translateY(0);
+                box-shadow: none;
+            }
+
+            10%,
+            20% {
+                border-color: var(--cyan);
+                background: rgba(6, 182, 212, .12);
+                transform: translateY(-3px);
+                box-shadow: 0 0 16px rgba(6, 182, 212, .4);
+            }
+
+            30% {
+                border-color: var(--border);
+                background: var(--surface);
+                transform: translateY(0);
+                box-shadow: none;
+            }
+        }
+
+        .slide-visible .solution-pills .pill {
+            animation: pill-auto-hover 6s infinite;
+        }
+
+        .slide-visible .solution-pills .pill:nth-child(1) {
+            animation-delay: 1.0s;
+        }
+
+        .slide-visible .solution-pills .pill:nth-child(2) {
+            animation-delay: 1.4s;
+        }
+
+        .slide-visible .solution-pills .pill:nth-child(3) {
+            animation-delay: 1.8s;
+        }
+
+        .slide-visible .solution-pills .pill:nth-child(4) {
+            animation-delay: 2.2s;
+        }
+
+        .slide-visible .solution-pills .pill:nth-child(5) {
+            animation-delay: 2.6s;
+        }
+
+        .pill-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        /* ── SLIDE 4 COME FUNZIONA ── */
+        .slide-how {
+            background: var(--bg);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+            width: 100%;
+            max-width: 1100px;
+            margin-top: 64px;
+            position: relative;
+        }
+
+        .steps-line {
+            position: absolute;
+            top: 44px;
+            left: 12.5%;
+            width: 75%;
+            height: 1px;
+            background: linear-gradient(90deg, var(--cyan), var(--teal), var(--violet), var(--emerald));
+        }
+
+        .step {
+            text-align: center;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-num {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 28px;
+            position: relative;
+        }
+
+        .step:nth-child(2) .step-num,
+        .step:nth-child(3) .step-num,
+        .step:nth-child(4) .step-num,
+        .step:nth-child(5) .step-num {
+            background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
+            box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
+        }
+
+        /* Auto highlight steps when on slide-how */
+        @keyframes step-num-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
+                background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
+            }
+
+            10%,
+            20% {
+                transform: scale(1.15);
+                box-shadow: 0 0 0 2px var(--cyan), 0 0 40px var(--cyan);
+                background: radial-gradient(circle, #002b36 0%, #001217 100%);
+                color: #fff;
+            }
+
+            30% {
+                transform: scale(1);
+                box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
+                background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
+            }
+        }
+
+        .slide-visible .step:nth-child(2) .step-num {
+            animation: step-num-pulse 5s infinite;
+            animation-delay: 1.0s;
+        }
+
+        .slide-visible .step:nth-child(3) .step-num {
+            animation: step-num-pulse 5s infinite;
+            animation-delay: 1.5s;
+        }
+
+        .slide-visible .step:nth-child(4) .step-num {
+            animation: step-num-pulse 5s infinite;
+            animation-delay: 2.0s;
+        }
+
+        .slide-visible .step:nth-child(5) .step-num {
+            animation: step-num-pulse 5s infinite;
+            animation-delay: 2.5s;
+        }
+
+        .step h3 {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .step p {
+            color: var(--text-mid);
+            font-size: 13px;
+            line-height: 1.65;
+        }
+
+        /* ── SLIDE 5 AI ── */
+        .slide-ai {
+            background: radial-gradient(ellipse 70% 60% at 70% 50%, #001a20 0%, var(--bg) 65%);
+        }
+
+        .ai-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            max-width: 1080px;
+            width: 100%;
+            align-items: start;
+        }
+
+        .ai-left h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(36px, 5vw, 60px);
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            margin-bottom: 20px;
+        }
+
+        .ai-left p {
+            font-size: 18px;
+            color: var(--text-mid);
+            line-height: 1.7;
+            margin-bottom: 36px;
+        }
+
+        .ai-stat-row {
+            display: flex;
+            gap: 32px;
+        }
+
+        .ai-stat {
+            text-align: left;
+        }
+
+        .ai-stat .val {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--cyan);
+        }
+
+        .ai-stat .lbl {
+            font-size: 13px;
+            color: var(--text-mid);
+            margin-top: 4px;
+        }
+
+        .ai-features {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .ai-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, .04) 0%, rgba(6, 182, 212, .05) 100%);
+            border: 1px solid rgba(6, 182, 212, .15);
+            border-radius: 20px;
+            padding: 24px 28px;
+            display: flex;
+            gap: 18px;
+            align-items: flex-start;
+            transition: all .35s;
+        }
+
+        .ai-card:hover {
+            border-color: rgba(6, 182, 212, .35);
+            transform: translateX(4px);
+        }
+
+        .ai-card .icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--cyan), var(--teal));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .ai-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .ai-card p {
+            color: var(--text-mid);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .slide-demo {
+            background: var(--bg);
+        }
+
+        .demo-split {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1200px;
+            gap: 6vw;
+        }
+
+        .demo-split-left {
+            flex: 0 0 auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .demo-split-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .phone-wrap {
+            position: relative;
+        }
+
+        .phone-glow {
+            position: absolute;
+            inset: -30px;
+            border-radius: 60px;
+            background: radial-gradient(ellipse at center, rgba(6, 182, 212, .15) 0%, transparent 70%);
+            filter: blur(20px);
+        }
+
+        .phone-mockup {
+            /* Aumentato per coprire più spazio verticale come nel tuo disegno */
+            height: min(850px, 75vh);
+            aspect-ratio: 9 / 19.5;
+            border: clamp(6px, 1.5vh, 12px) solid #1a1a1a;
+            border-radius: clamp(24px, 4vh, 44px);
+            overflow: hidden;
+            position: relative;
+            background: #111;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, .8), inset 0 0 0 1px rgba(255, 255, 255, .06);
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 28px;
+            background: #1a1a1a;
+            border-radius: 0 0 20px 20px;
+            z-index: 2;
+        }
+
+        .phone-mockup video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .demo-steps {
+            display: flex;
+            flex-direction: column;
+            gap: min(16px, 2vh);
+            max-width: 550px;
+            margin-top: 24px;
+        }
+
+        .demo-step {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--amber);
+            padding: clamp(16px, 2.5vh, 24px) 24px;
+            border-radius: 0 16px 16px 0;
+            backdrop-filter: blur(12px);
+            transition: all .3s;
+        }
+
+        .demo-step:hover {
+            border-left-color: var(--cyan);
+            background: var(--surface-hover);
+            transform: translateX(4px);
+        }
+
+        .demo-step-num {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--cyan);
+            margin-bottom: min(6px, 1vh);
+        }
+
+        .demo-step h3 {
+            font-size: clamp(16px, 2.2vh, 18px);
+            font-weight: 700;
+            margin-bottom: min(6px, 1vh);
+        }
+
+        .demo-step p {
+            color: var(--text-mid);
+            font-size: clamp(13px, 1.6vh, 14px);
+            line-height: 1.6;
+        }
+
+        /* ── SLIDE 7 MERCATO ── */
+        .slide-impact {
+            background: radial-gradient(ellipse 70% 60% at 50% 60%, #001a1a 0%, var(--bg) 65%);
+            text-align: center;
+        }
+
+        .impact-numbers {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            max-width: 960px;
+            width: 100%;
+            margin-top: 56px;
+        }
+
+        .impact-num {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 48px 24px;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            transition: all .4s;
+        }
+
+        .impact-num::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--amber), var(--red));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform .4s;
+        }
+
+        .impact-num:hover {
+            border-color: rgba(6, 182, 212, .25);
+            transform: translateY(-6px);
+        }
+
+        .impact-num:hover::after {
+            transform: scaleX(1);
+        }
+
+        .impact-num .num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 64px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--cyan), var(--emerald));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 12px;
+        }
+
+        .impact-num .label {
+            color: var(--text-mid);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* ── SLIDE 8 WIN ── */
+        .slide-win {
+            background: radial-gradient(ellipse 70% 60% at 50% 40%, #001a18 0%, var(--bg) 65%);
+            text-align: center;
+        }
+
+        .win-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 1040px;
+            width: 100%;
+            margin-top: 56px;
+            perspective: 1000px;
+        }
+
+        .win-card {
+            border-radius: 24px;
+            padding: 36px 28px;
+            text-align: left;
+            backdrop-filter: blur(20px);
+            transition: all .4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .win-card:nth-child(1) {
+            background: linear-gradient(145deg, #001a20, #002530);
+            border: 1px solid rgba(6, 182, 212, .2);
+        }
+
+        .win-card:nth-child(2) {
+            background: linear-gradient(145deg, #001a20, #002530);
+            border: 1px solid rgba(6, 182, 212, .2);
+        }
+
+        .win-card:nth-child(3) {
+            background: linear-gradient(145deg, #001a20, #002530);
+            border: 1px solid rgba(6, 182, 212, .2);
+        }
+
+        .win-card:hover {
+            transform: translateY(-6px) scale(1.01);
+        }
+
+        .win-card .win-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .win-card:nth-child(1) .win-icon {
+            background: rgba(6, 182, 212, .12);
+            border: 1px solid rgba(6, 182, 212, .2);
+        }
+
+        .win-card:nth-child(2) .win-icon {
+            background: rgba(6, 182, 212, .12);
+            border: 1px solid rgba(6, 182, 212, .2);
+        }
+
+        .win-card:nth-child(3) .win-icon {
+            background: rgba(6, 182, 212, .12);
+            border: 1px solid rgba(6, 182, 212, .2);
+        }
+
+        .win-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .win-card p {
+            color: var(--text-mid);
+            font-size: 14px;
+            line-height: 1.65;
+        }
+
+        /* ── SLIDE 9 CTA ── */
+        .slide-cta {
+            background: radial-gradient(ellipse 80% 70% at 50% 30%, #001a20 0%, var(--bg) 65%);
+            text-align: center;
+        }
+
+        .cta-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(56px, 11vw, 120px);
+            font-weight: 700;
+            line-height: .95;
+            letter-spacing: -4px;
+            margin-bottom: 40px;
+            background: linear-gradient(160deg, #fff 10%, var(--cyan) 50%, var(--emerald) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cta-sub {
+            font-size: clamp(16px, 2vw, 20px);
+            color: var(--text-mid);
+            max-width: 560px;
+            line-height: 1.8;
+            margin: 0 auto 52px;
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--amber), #d97706);
+            color: #000;
+            font-size: 17px;
+            font-weight: 700;
+            padding: 18px 48px;
+            border-radius: 100px;
+            text-decoration: none;
+            letter-spacing: .5px;
+            transition: all .3s;
+            box-shadow: 0 12px 40px rgba(6, 182, 212, .3);
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 56px rgba(6, 182, 212, .4);
+        }
+
+        .cta-team {
+            margin-top: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .cta-team-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .cta-team-title span {
+            color: var(--cyan);
+            font-weight: 400;
+        }
+
+        .cta-team-subtitle {
+            font-size: 14px;
+            color: var(--text-dim);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .team-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--cyan);
+            opacity: .8;
+            box-shadow: 0 0 12px var(--cyan);
+        }
+
+        /* ── ACCENTS ── */
+        .highlight {
+            color: var(--amber);
+        }
+
+        .highlight-green {
+            color: var(--green);
+        }
+
+        .highlight-cyan {
+            color: var(--cyan);
+        }
+
+        h2.main-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(38px, 6vw, 72px);
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            margin-bottom: 16px;
+            max-width: 900px;
+        }
+
+        /* ── ANIMATIONS ── */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(40px) scale(.97);
+            filter: blur(4px);
+            transition: opacity .8s cubic-bezier(.16, 1, .3, 1),
+                transform .8s cubic-bezier(.16, 1, .3, 1),
+                filter .8s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: none;
+            filter: blur(0);
+        }
+
+        /* stagger delays per i figli diretti della slide */
+        .slide>.fade-up:nth-child(1) {
+            transition-delay: .05s;
+        }
+
+        .slide>.fade-up:nth-child(2) {
+            transition-delay: .15s;
+        }
+
+        .slide>.fade-up:nth-child(3) {
+            transition-delay: .25s;
+        }
+
+        .slide>.fade-up:nth-child(4) {
+            transition-delay: .35s;
+        }
+
+        .slide>.fade-up:nth-child(5) {
+            transition-delay: .45s;
+        }
+
+        /* stagger grid children */
+        .problem-grid .fade-up:nth-child(1) {
+            transition-delay: .1s;
+        }
+
+        .problem-grid .fade-up:nth-child(2) {
+            transition-delay: .22s;
+        }
+
+        .problem-grid .fade-up:nth-child(3) {
+            transition-delay: .34s;
+        }
+
+        .win-grid .fade-up:nth-child(1) {
+            transition-delay: .1s;
+        }
+
+        .win-grid .fade-up:nth-child(2) {
+            transition-delay: .22s;
+        }
+
+        .win-grid .fade-up:nth-child(3) {
+            transition-delay: .34s;
+        }
+
+        .ai-features .fade-up:nth-child(1) {
+            transition-delay: .1s;
+        }
+
+        .ai-features .fade-up:nth-child(2) {
+            transition-delay: .22s;
+        }
+
+        .ai-features .fade-up:nth-child(3) {
+            transition-delay: .34s;
+        }
+
+        .ai-features .fade-up:nth-child(4) {
+            transition-delay: .46s;
+        }
+
+        .steps .fade-up:nth-child(2) {
+            transition-delay: .1s;
+        }
+
+        .steps .fade-up:nth-child(3) {
+            transition-delay: .22s;
+        }
+
+        .steps .fade-up:nth-child(4) {
+            transition-delay: .34s;
+        }
+
+        .steps .fade-up:nth-child(5) {
+            transition-delay: .46s;
+        }
+
+        .demo-steps .fade-up:nth-child(1) {
+            transition-delay: .1s;
+        }
+
+        .demo-steps .fade-up:nth-child(2) {
+            transition-delay: .22s;
+        }
+
+        .demo-steps .fade-up:nth-child(3) {
+            transition-delay: .34s;
+        }
+
+        /* ── SCROLL PROGRESS BAR ── */
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--cyan), var(--teal), var(--emerald));
+            z-index: 1000;
+            transition: width .1s linear;
+            box-shadow: 0 0 12px var(--cyan);
+        }
+
+        /* ── CURSOR GLOW ── */
+        #cursor-glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            background: radial-gradient(circle, rgba(6, 182, 212, .06) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            transition: left .12s ease, top .12s ease;
+            mix-blend-mode: screen;
+        }
+
+
+
+        /* ── SHINE SWEEP sulle card ── */
+        .problem-card,
+        .win-card,
+        .ai-card,
+        .impact-num {
+            overflow: hidden;
+        }
+
+        .problem-card::after,
+        .win-card::after,
+        .ai-card::after,
+        .impact-num::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, .06),
+                    transparent);
+            transform: skewX(-20deg);
+            transition: left .6s ease;
+            pointer-events: none;
+        }
+
+        .problem-card:hover::after,
+        .win-card:hover::after,
+        .ai-card:hover::after,
+        .impact-num:hover::before {
+            left: 150%;
+        }
+
+        /* ── 3D TILT PERSPECTIVE ── */
+        .tilt-wrap {
+            perspective: 800px;
+        }
+
+        .tilt-card {
+            transform-style: preserve-3d;
+            transition: transform .3s ease;
+            will-change: transform;
+        }
+
+        /* ── GLITCH sul titolo hero ── */
+        @keyframes glitch-1 {
+
+            0%,
+            90%,
+            100% {
+                clip-path: none;
+                transform: none;
+                opacity: 1;
+            }
+
+            91% {
+                clip-path: polygon(0 10%, 100% 10%, 100% 32%, 0 32%);
+                transform: translateX(-4px);
+                opacity: .9;
+            }
+
+            93% {
+                clip-path: polygon(0 55%, 100% 55%, 100% 70%, 0 70%);
+                transform: translateX(4px);
+                opacity: .9;
+            }
+
+            95% {
+                clip-path: none;
+                transform: none;
+                opacity: 1;
+            }
+        }
+
+        .hero-mega-text {
+            animation: hero-in 1s cubic-bezier(.16, 1, .3, 1) both,
+                glitch-1 8s 2s ease-in-out infinite;
+        }
+
+        /* ── COUNTER NUMBERS ── */
+        .count-num {
+            display: inline-block;
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(6, 182, 212, .3);
+            border-radius: 2px;
+        }
+
+        .lucide {
+            width: 1em;
+            height: 1em;
+            vertical-align: middle;
+            stroke-width: 2;
+        }
+    </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
 
-  <!-- SCROLL PROGRESS -->
-  <div id="scroll-progress"></div>
+    <div id="scroll-progress"></div>
 
-  <!-- CURSOR GLOW -->
-  <div id="cursor-glow"></div>
+    <div id="cursor-glow"></div>
 
-  <!-- SLIDE TRANSITION OVERLAY -->
-  <div id="slide-overlay"></div>
+    <canvas id="particles-canvas"></canvas>
 
-  <canvas id="particles-canvas"></canvas>
+    <nav class="nav-dots" id="navDots">
+        <div class="nav-dot active" data-index="0" data-label="Intro"></div>
+        <div class="nav-dot" data-index="1" data-label="La Risposta"></div>
+        <div class="nav-dot" data-index="2" data-label="Soluzione"></div>
+        <div class="nav-dot" data-index="3" data-label="Gameplay"></div>
+        <div class="nav-dot" data-index="4" data-label="AI"></div>
+        <div class="nav-dot" data-index="5" data-label="Demo"></div>
+        <div class="nav-dot" data-index="6" data-label="Perché Noi"></div>
+        <div class="nav-dot" data-index="7" data-label="Fine"></div>
+    </nav>
 
-  <!-- NAV DOTS -->
-  <nav class="nav-dots" id="navDots">
-    <div class="nav-dot active" data-index="0" data-label="Intro"></div>
-    <div class="nav-dot" data-index="1" data-label="Problema"></div>
-    <div class="nav-dot" data-index="2" data-label="Soluzione"></div>
-    <div class="nav-dot" data-index="3" data-label="Come Funziona"></div>
-    <div class="nav-dot" data-index="4" data-label="AI"></div>
-    <div class="nav-dot" data-index="5" data-label="Demo"></div>
-    <div class="nav-dot" data-index="6" data-label="Perché Noi"></div>
-    <div class="nav-dot" data-index="7" data-label="Fine"></div>
-  </nav>
+    <section class="slide slide-hero" id="slide-0">
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- SLIDE 1 — HERO -->
-  <!-- ══════════════════════════════════════════ -->
-  <section class="slide slide-hero" id="slide-0">
+        <div class="hero-glow-orb"></div>
 
-    <!-- ORB glow di sfondo -->
-    <div class="hero-glow-orb"></div>
+        <div class="hero-mega">
+            <span class="hero-mega-ghost" aria-hidden="true">ITINERA</span>
+            <span class="hero-mega-text">ITINERA</span>
+        </div>
 
-    <!-- TITOLO MASTODONTICO -->
-    <div class="hero-mega">
-      <span class="hero-mega-ghost" aria-hidden="true">ITINERA</span>
-      <span class="hero-mega-text">ITINERA</span>
-    </div>
+        <p class="hero-sub">Play · The · City</p>
 
-    <!-- SOTTOTITOLO -->
-    <p class="hero-sub">Play · The · City</p>
+        <div class="hero-divider"></div>
 
-    <!-- DIVIDER -->
-    <div class="hero-divider"></div>
-
-    <!-- TAGLINE -->
-    <p class="hero-tagline">
-      Le città non sono un museo.<br>
-      Sono un gioco.<br>
-      Esplorarle non dovrebbe essere noioso.
-    </p>
-
-    <!-- BADGE EVENTO -->
-    <div class="hero-badge">
-      <div class="hero-badge-dot"></div>
-      Segmentation Team · Codemotion Hackathon 2026
-    </div>
-
-    <!-- PILLOLE -->
-    <div class="hero-pills">
-      <div class="hero-pill"><span>Turismo intelligente</span></div>
-      <div class="hero-pill-sep"></div>
-      <div class="hero-pill"><span>Gamification urbana</span></div>
-      <div class="hero-pill-sep"></div>
-      <div class="hero-pill"><span>AI generativa</span></div>
-    </div>
-
-    <div class="slide-num">01 / 08</div>
-  </section>
-
-  <!-- ══════════════════════════════════════════ -->
-  <!-- SLIDE 2 — PROBLEMA -->
-  <!-- ══════════════════════════════════════════ -->
-  <section class="slide slide-problem" id="slide-1">
-    <div class="slide-label fade-up">Il problema</div>
-    <h2 class="main-title fade-up">
-      Il turismo di massa produce<br>
-      <span class="highlight">esperienza zero.</span>
-    </h2>
-    <div class="problem-grid">
-      <div class="problem-card fade-up">
-        <div class="problem-icon"><i data-lucide="list"></i></div>
-        <strong>Guide uguali per tutti</strong>
-        <p>TripAdvisor, Google Maps, guide cartacee: propongono sempre gli stessi posti, senza sapere nulla di chi sei.
+        <p class="hero-tagline">
+            Ridefiniamo l'esplorazione urbana:<br>
+            dall'osservazione passiva<br>
+            all'interazione dinamica.
         </p>
-      </div>
-      <div class="problem-card fade-up">
-        <div class="problem-icon"><i data-lucide="zap-off"></i></div>
-        <strong>Nessun coinvolgimento reale</strong>
-        <p>Leggere una targa o guardare un video non crea memoria. Serve partecipazione attiva, non passiva.</p>
-      </div>
-      <div class="problem-card fade-up">
-        <div class="problem-icon"><i data-lucide="unlink"></i></div>
-        <strong>Digitale scollegato dal territorio</strong>
-        <p>Le app di viaggio non generano valore locale. I commercianti non esistono, i quartieri autentici restano
-          invisibili.</p>
-      </div>
-    </div>
-    <div class="slide-num">02 / 08</div>
-  </section>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- SLIDE 3 — SOLUZIONE -->
-  <!-- ══════════════════════════════════════════ -->
-  <section class="slide slide-solution" id="slide-2">
-    <div class="slide-label fade-up">La soluzione</div>
-    <h2 class="solution-title fade-up">
-      Il tuo profilo in<br>
-      <span class="highlight">4 dimensioni.</span><br>
-      La città, su misura.
-    </h2>
-    <p class="solution-desc fade-up">
-      5 domande al primo avvio costruiscono il tuo DNA da esploratore.
-      L'AI mappa i tuoi interessi su 4 assi e li aggiorna dopo ogni esperienza.
-    </p>
-    <div class="solution-pills fade-up">
-      <div class="pill">
-        <div class="pill-dot" style="background:var(--teal)"></div>Relax
-      </div>
-      <div class="pill">
-        <div class="pill-dot" style="background:var(--cyan)"></div>Cultura
-      </div>
-      <div class="pill">
-        <div class="pill-dot" style="background:var(--emerald)"></div>Avventura
-      </div>
-      <div class="pill">
-        <div class="pill-dot" style="background:var(--cyan)"></div>Socialità
-      </div>
-    </div>
-    <p class="fade-up" style="font-size:14px;color:var(--text-dim);margin-top:28px;letter-spacing:.5px;">Il profilo
-      evolve con te — ogni feedback aggiorna il modello in tempo reale.</p>
-    <div class="slide-num">03 / 08</div>
-  </section>
+        <div class="hero-badge">
+            <div class="hero-badge-dot"></div>
+            PlayTheCity Hackathon by Gunpowder
+        </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- SLIDE 4 — COME FUNZIONA -->
-  <!-- ══════════════════════════════════════════ -->
-  <section class="slide slide-how" id="slide-3">
-    <div class="slide-label fade-up">Come funziona</div>
-    <h2 class="main-title fade-up" style="text-align:center">
-      Dal profilo alla ricompensa:<br>ogni passo è un'avventura
-    </h2>
-    <div class="steps">
-      <div class="steps-line"></div>
-      <div class="step fade-up">
-        <div class="step-num"><i data-lucide="user-check"></i></div>
-        <h3>5 domande</h3>
-        <p>In meno di 2 minuti costruisci il tuo profilo. L'AI calcola i tuoi pesi su Relax, Cultura, Avventura e
-          Socialità.</p>
-      </div>
-      <div class="step fade-up">
-        <div class="step-num"><i data-lucide="map"></i></div>
-        <h3>Mappa viva</h3>
-        <p>L'algoritmo combina rilevanza del luogo e le tue preferenze per mostrarti solo i POI che fanno per te.</p>
-      </div>
-      <div class="step fade-up">
-        <div class="step-num"><i data-lucide="swords"></i></div>
-        <h3>2 sfide per POI</h3>
-        <p>Da remoto: quiz per stimolare la curiosità. In presenza: esperienze immersive legate all'ambiente reale.</p>
-      </div>
-      <div class="step fade-up">
-        <div class="step-num"><i data-lucide="badge"></i></div>
-        <h3>XP → Premi reali</h3>
-        <p>Punti, badge e monete sbloccano sconti ed esperienze dai partner locali. Digitale e territorio finalmente
-          connessi.</p>
-      </div>
-    </div>
-    <div class="slide-num">04 / 08</div>
-  </section>
+        <div class="hero-pills">
+            <div class="hero-pill"><span>Turismo intelligente</span></div>
+            <div class="hero-pill-sep"></div>
+            <div class="hero-pill"><span>Gamification urbana</span></div>
+            <div class="hero-pill-sep"></div>
+            <div class="hero-pill"><span>AI generativa</span></div>
+        </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- SLIDE 5 — AI -->
-  <!-- ══════════════════════════════════════════ -->
-  <section class="slide slide-ai" id="slide-4">
-    <div class="ai-layout">
-      <div class="ai-left">
-        <div class="slide-label fade-up">Il motore AI</div>
-        <h2 class="ai-left fade-up"
-          style="font-family:'Space Grotesk',sans-serif;font-size:clamp(34px,4.5vw,56px);font-weight:700;line-height:1.1;letter-spacing:-1.5px;margin-bottom:20px;">
-          Rilevanza del luogo<br>
-          + preferenze tue =
-          <span class="highlight-cyan">percorso unico.</span>
+        <div class="slide-num">01 / 08</div>
+    </section>
+
+    <section class="slide slide-problem" id="slide-1">
+        <div class="slide-label fade-up">La Nostra Risposta</div>
+        <h2 class="main-title fade-up">
+            Il vostro brief.<br>
+            <span class="highlight">La nostra evoluzione.</span>
         </h2>
-        <p class="fade-up">
-          L'algoritmo non è una semplice lista ordinata. Combina la rilevanza oggettiva del POI con
-          il tuo vettore di preferenze — e si aggiorna dopo ogni esperienza grazie ai tuoi feedback.
+        <div class="problem-grid">
+            <div class="problem-card fade-up">
+                <div class="problem-icon"><i data-lucide="crosshair"></i></div>
+                <strong>Profilazione Dinamica</strong>
+                <p>Sostituiamo i percorsi generici con l'Explorer DNA: 5 dimensioni che mappano l'utente in tempo reale
+                    e adattano il gioco.</p>
+            </div>
+            <div class="problem-card fade-up">
+                <div class="problem-icon"><i data-lucide="layers"></i></div>
+                <strong>Il Tabellone in 3D</strong>
+                <p>Evolviamo la "casella" classica: la città stessa diventa la plancia di gioco, popolata di sfide
+                    contestuali e storytelling AI.</p>
+            </div>
+            <div class="problem-card fade-up">
+                <div class="problem-icon"><i data-lucide="store"></i></div>
+                <strong>Impatto Economico</strong>
+                <p>Il gioco non finisce sullo schermo. Trasformiamo le vittorie digitali in traffico e valore per i
+                    negozi e i bar del territorio.</p>
+            </div>
+        </div>
+        <div class="slide-num">02 / 08</div>
+    </section>
+
+    <section class="slide slide-solution" id="slide-2">
+        <div class="slide-label fade-up">Il Concept</div>
+        <h2 class="solution-title fade-up">
+            Il tuo Explorer DNA in<br>
+            <span class="highlight">5 dimensioni.</span><br>
+            La città, su misura.
+        </h2>
+        <p class="solution-desc fade-up">
+            ITINERA trasforma la visita in un gioco personalizzato. 5 domande al primo avvio costruiscono il tuo DNA.
+            L'AI ti profila su 5 assi e aggiorna dinamicamente i contenuti in tempo reale.
         </p>
-        <div class="ai-stat-row fade-up">
-          <div class="ai-stat">
-            <div class="val"><span class="count-num" data-target="4" data-suffix="">4</span></div>
-            <div class="lbl">dimensioni<br>del profilo</div>
-          </div>
-          <div class="ai-stat">
-            <div class="val"><span class="count-num" data-target="5" data-suffix="">5</span></div>
-            <div class="lbl">domande per<br>l'onboarding</div>
-          </div>
-          <div class="ai-stat">
-            <div class="val"><span class="count-num" data-target="2" data-suffix="">2</span></div>
-            <div class="lbl">sfide generate<br>per ogni POI</div>
-          </div>
+        <div class="solution-pills fade-up">
+            <div class="pill">
+                <div class="pill-dot" style="background:var(--teal)"></div>Relax
+            </div>
+            <div class="pill">
+                <div class="pill-dot" style="background:var(--cyan)"></div>Cultura
+            </div>
+            <div class="pill">
+                <div class="pill-dot" style="background:var(--emerald)"></div>Avventura
+            </div>
+            <div class="pill">
+                <div class="pill-dot" style="background:var(--cyan)"></div>Socialità
+            </div>
+            <div class="pill">
+                <div class="pill-dot" style="background:var(--amber)"></div>Divertimento
+            </div>
         </div>
-      </div>
-      <div class="ai-features">
-        <div class="ai-card fade-up">
-          <div class="icon"><i data-lucide="sliders-horizontal"></i></div>
-          <div>
-            <h3>Algoritmo ibrido</h3>
-            <p>Rilevanza dei luoghi × vettore preferenze personali. Non si basa su rating medi: impara continuamente da
-              te.</p>
-          </div>
+        <p class="fade-up" style="font-size:14px;color:var(--text-dim);margin-top:28px;letter-spacing:.5px;">Il profilo
+            evolve con te — le tue scelte ricalibrano l'esperienza passo dopo passo.</p>
+        <div class="slide-num">03 / 08</div>
+    </section>
+
+    <section class="slide slide-how" id="slide-3">
+        <div class="slide-label fade-up">Gameplay & Caselle</div>
+        <h2 class="main-title fade-up" style="text-align:center">
+            L'Evoluzione del Tabellone:<br>La Casella a 3 Dimensioni
+        </h2>
+        <div class="steps">
+            <div class="steps-line"></div>
+            <div class="step fade-up">
+                <div class="step-num"><i data-lucide="user-check"></i></div>
+                <h3>Profilazione</h3>
+                <p>Le 5 domande iniziali calcolano il vettore del tuo DNA per stabilire quali POI (caselle) generare.
+                </p>
+            </div>
+            <div class="step fade-up">
+                <div class="step-num"><i data-lucide="map"></i></div>
+                <h3>Valore Territoriale</h3>
+                <p>La mappa 3D si aggiorna. I POI visibili cambiano in base a chi sei, creando esplorazione
+                    iper-targettizzata.</p>
+            </div>
+            <div class="step fade-up">
+                <div class="step-num"><i data-lucide="mic"></i></div>
+                <h3>Storytelling</h3>
+                <p>Narrazione unica generata in tempo reale dall'AI e raccontata ad alta voce tramite sintesi vocale.
+                </p>
+            </div>
+            <div class="step fade-up">
+                <div class="step-num"><i data-lucide="swords"></i></div>
+                <h3>Tappa di Gioco</h3>
+                <p>Ogni casella ospita sfide remote (quiz) e fisiche (enigmi) validate intelligentemente dall'agente AI.
+                </p>
+            </div>
         </div>
-        <div class="ai-card fade-up">
-          <div class="icon"><i data-lucide="sparkles"></i></div>
-          <div>
-            <h3>Storie &amp; curiosità generative</h3>
-            <p>Ogni POI produce contenuti unici: testo breve, curiosità contestuali e una modalità audio per chi
-              cammina.</p>
-          </div>
+        <div class="slide-num">04 / 08</div>
+    </section>
+
+    <section class="slide slide-ai" id="slide-4">
+        <div class="ai-layout">
+            <div class="ai-left">
+                <div class="slide-label fade-up">L'architettura</div>
+                <h2 class="ai-left fade-up"
+                    style="font-family:'Space Grotesk',sans-serif;font-size:clamp(34px,4.5vw,56px);font-weight:700;line-height:1.1;letter-spacing:-1.5px;margin-bottom:20px;">
+                    Non un semplice LLM:<br>
+                    <span class="highlight-cyan">5 Agenti in sinergia.</span>
+                </h2>
+                <p class="fade-up">
+                    Il vero valore non è il modello di base, ma l'orchestrazione. Abbiamo ingegnerizzato un'architettura
+                    multi-agente dove l'AI agisce come game designer, autore e arbitro, costruendo l'intera partita in
+                    tempo reale.
+                </p>
+                <div class="ai-stat-row fade-up">
+                    <div class="ai-stat">
+                        <div class="val"><span class="count-num" data-target="5" data-suffix="">5</span></div>
+                        <div class="lbl">Agenti AI<br>dedicati</div>
+                    </div>
+                    <div class="ai-stat">
+                        <div class="val"><span class="count-num" data-target="100" data-suffix="%">100%</span></div>
+                        <div class="lbl">Contenuti<br>dinamici</div>
+                    </div>
+                    <div class="ai-stat">
+                        <div class="val"><span class="count-num" data-target="0" data-suffix="">0</span></div>
+                        <div class="lbl">Data entry<br>manuale</div>
+                    </div>
+                </div>
+            </div>
+            <div class="ai-features">
+                <div class="ai-card fade-up">
+                    <div class="icon"><i data-lucide="map-pin"></i></div>
+                    <div>
+                        <h3>POI Discoverer</h3>
+                        <p>Incrocia i dati della mappa con l'Explorer DNA per posizionare le caselle ideali sul
+                            tabellone virtuale.</p>
+                    </div>
+                </div>
+                <div class="ai-card fade-up">
+                    <div class="icon"><i data-lucide="headphones"></i></div>
+                    <div>
+                        <h3>Dialogue Writer & Voice</h3>
+                        <p>Plasma lo storytelling adattando tono e dettagli, poi sintetizzato in voce realistica
+                            (ElevenLabs).</p>
+                    </div>
+                </div>
+                <div class="ai-card fade-up">
+                    <div class="icon"><i data-lucide="gamepad-2"></i></div>
+                    <div>
+                        <h3>Quiz & Challenge Generator</h3>
+                        <p>Progetta l'ingaggio continuo inventando sfide, quiz storici ed enigmi visivi sempre nuovi.
+                        </p>
+                    </div>
+                </div>
+                <div class="ai-card fade-up">
+                    <div class="icon"><i data-lucide="check-circle"></i></div>
+                    <div>
+                        <h3>Answer Validator</h3>
+                        <p>Un arbitro intelligente che valuta le risposte aperte o le prove fisiche, superando i rigidi
+                            test A/B/C.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="ai-card fade-up">
-          <div class="icon"><i data-lucide="refresh-cw"></i></div>
-          <div>
-            <h3>Profilo che evolve</h3>
-            <p>I pesi delle 4 dimensioni si aggiornano dopo ogni feedback. Più usi ITINERA, più diventa tua.</p>
-          </div>
+        <div class="slide-num">05 / 08</div>
+    </section>
+
+    <section class="slide slide-demo" id="slide-5">
+        <div class="demo-split">
+
+            <div class="demo-split-left fade-up">
+                <div class="phone-wrap">
+                    <div class="phone-glow"></div>
+                    <div class="phone-mockup">
+                        <div class="phone-notch"></div>
+                        <video src="prova.mp4" autoplay loop muted playsinline></video>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-split-right">
+                <div class="slide-label fade-up">Live Demo</div>
+                <h2 class="main-title fade-up" style="text-align:left; margin-bottom: 10px;">Vedi ITINERA<br>in azione
+                </h2>
+
+                <div class="demo-steps">
+                    <div class="demo-step fade-up">
+                        <div class="demo-step-num">STEP 01</div>
+                        <h3>Scegli la città, scegli te stesso</h3>
+                        <p>Dalla mappa interattiva selezioni la città. 5 domande veloci calibrano le 5 dimensioni del
+                            tuo profilo da esploratore: Relax, Cultura, Avventura, Socialità, Divertimento.</p>
+                    </div>
+                    <div class="demo-step fade-up">
+                        <div class="demo-step-num">STEP 02</div>
+                        <h3>POI su misura, in tempo reale</h3>
+                        <p>L'algoritmo popola le tue caselle. Apri un POI: trovi storia generata dall'AI e l'opzione
+                            ascolto hands-free.</p>
+                    </div>
+                    <div class="demo-step fade-up">
+                        <div class="demo-step-num">STEP 03</div>
+                        <h3>Sfida → XP → Ricompensa locale</h3>
+                        <p>2 sfide per ogni luogo. I punti "Coins" ottenuti si trasformano in sconti reali spendibili
+                            direttamente in-app.</p>
+                    </div>
+                </div>
+            </div>
+
         </div>
-        <div class="ai-card fade-up">
-          <div class="icon"><i data-lucide="headphones"></i></div>
-          <div>
-            <h3>Modalità audio</h3>
-            <p>ElevenLabs sintetizza la narrazione. Cammini, ascolti, vivi — senza tenere lo sguardo fisso sullo
-              schermo.</p>
-          </div>
+        <div class="slide-num">06 / 08</div>
+    </section>
+
+    <section class="slide slide-win" id="slide-6">
+        <div class="slide-label fade-up">Impatto & Scalabilità</div>
+        <h2 class="main-title fade-up" style="text-align:center">
+            Valorizzazione reale.<br>
+            <span class="highlight">Replicabilità infinita.</span>
+        </h2>
+        <p class="fade-up"
+            style="font-size:18px;color:var(--text-mid);max-width:700px;line-height:1.7;margin-bottom:0;">
+            ITINERA non è solo un gioco, è uno strumento di valorizzazione urbana. Un ecosistema che trasforma
+            l'esplorazione digitale in un impatto tangibile sul territorio, esportabile ovunque.
+        </p>
+        <div class="win-grid">
+            <div class="win-card fade-up">
+                <div class="win-icon"><i data-lucide="link-2"></i></div>
+                <h3>Ecosistema Premiale Locale</h3>
+                <p>I Coins non restano nel telefono. Possono essere spesi per vantaggi in bar, negozi e attività
+                    partner, portando valore alle realtà di quartiere.</p>
+            </div>
+            <div class="win-card fade-up">
+                <div class="win-icon"><i data-lucide="globe"></i></div>
+                <h3>Zero Data Entry (Scalabilità)</h3>
+                <p>Inserisci le coordinate di una nuova città e l'AI genera tutto da zero. Nessun team editoriale
+                    necessario per mappare o aggiornare le zone.</p>
+            </div>
+            <div class="win-card fade-up">
+                <div class="win-icon"><i data-lucide="trophy"></i></div>
+                <h3>Progressione Continua</h3>
+                <p>Punti XP, Badge e un sistema di validazione AI che va oltre la scelta multipla, garantendo ingaggio a
+                    lungo termine per l'esploratore.</p>
+            </div>
         </div>
-      </div>
-    </div>
-    <div class="slide-num">05 / 08</div>
-  </section>
+        <div class="slide-num">07 / 08</div>
+    </section>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- SLIDE 6 — DEMO -->
-  <!-- ══════════════════════════════════════════ -->
-  <section class="slide slide-demo" id="slide-5">
-    <div class="demo-split">
-
-      <div class="demo-split-left fade-up">
-        <div class="phone-wrap">
-          <div class="phone-glow"></div>
-          <div class="phone-mockup">
-            <div class="phone-notch"></div>
-            <video src="prova.mp4" autoplay loop muted playsinline></video>
-          </div>
+    <section class="slide slide-cta" id="slide-7">
+        <div class="slide-label fade-up">È ora di giocare</div>
+        <h2 class="cta-title fade-up">Il mondo<br>ti aspetta.</h2>
+        <p class="cta-sub fade-up">
+            Ogni vicolo ha una storia.<br>
+            Ogni storia merita di essere vissuta.<br>
+            <strong style="color:#fff;">ITINERA la racconta per te.</strong>
+        </p>
+        <div class="cta-team fade-up">
+            <div class="team-dot"></div>
+            <div class="cta-team-title">ITINERA <span>by</span> Segmentation Team</div>
+            <div class="cta-team-subtitle">PlayTheCity Hackathon by Gunpowder</div>
+            <div class="team-dot" style="margin-top: 8px;"></div>
         </div>
-      </div>
+        <div class="slide-num">08 / 08</div>
+    </section>
 
-      <div class="demo-split-right">
-        <div class="slide-label fade-up">Live Demo</div>
-        <h2 class="main-title fade-up" style="text-align:left; margin-bottom: 10px;">Vedi ITINERA<br>in azione</h2>
+    <script>
+        // ══════════════════════════════════════════
+        // PARTICLES
+        // ══════════════════════════════════════════
+        (function () {
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let W, H;
 
-        <div class="demo-steps">
-          <div class="demo-step fade-up">
-            <div class="demo-step-num">STEP 01</div>
-            <h3>Scegli la città, scegli te stesso</h3>
-            <p>Dalla mappa interattiva selezioni la città. 5 domande veloci calibrano le 4 dimensioni del tuo profilo:
-              Relax, Cultura, Avventura, Socialità.</p>
-          </div>
-          <div class="demo-step fade-up">
-            <div class="demo-step-num">STEP 02</div>
-            <h3>POI su misura, in tempo reale</h3>
-            <p>L'algoritmo seleziona i punti d'interesse per te. Apri un POI: trovi storia generata dall'AI, curiosità e
-              l'opzione ascolto.</p>
-          </div>
-          <div class="demo-step fade-up">
-            <div class="demo-step-num">STEP 03</div>
-            <h3>Sfida → XP → Ricompensa locale</h3>
-            <p>2 sfide per ogni luogo: quiz da remoto o esperienza immersiva sul posto. I punti si trasformano in sconti
-              e offerte dai partner locali.</p>
-          </div>
-        </div>
-      </div>
+            function resize() {
+                W = canvas.width = window.innerWidth;
+                H = canvas.height = window.innerHeight;
+            }
 
-    </div>
-    <div class="slide-num">06 / 08</div>
-  </section>
+            function Particle() {
+                this.x = Math.random() * W;
+                this.y = Math.random() * H;
+                this.r = Math.random() * 1.5 + 0.3;
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = (Math.random() - 0.5) * 0.3;
+                this.alpha = Math.random() * 0.5 + 0.1;
+            }
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- SLIDE 7 — PERCHÉ NOI VINCE -->
-  <!-- ══════════════════════════════════════════ -->
-  <section class="slide slide-win" id="slide-6">
-    <div class="slide-label fade-up">Perché ITINERA vince</div>
-    <h2 class="main-title fade-up" style="text-align:center">
-      Il ponte che mancava tra<br>
-      <span class="highlight">digitale e territorio.</span>
-    </h2>
-    <p class="fade-up" style="font-size:18px;color:var(--text-mid);max-width:700px;line-height:1.7;margin-bottom:0;">
-      Non siamo una guida digitale. Non siamo un social. Siamo l'infrastruttura che<br>
-      connette l'esploratore al tessuto vivo della città — e porta valore reale ai partner locali.
-    </p>
-    <div class="win-grid">
-      <div class="win-card fade-up">
-        <div class="win-icon"><i data-lucide="link-2"></i></div>
-        <h3>Digitale ↔ Territorio</h3>
-        <p>Le monete guadagnate si spendono da caffè, ristoranti ed esperienze locali. Ogni click diventa fatturato
-          reale per il territorio.</p>
-      </div>
-      <div class="win-card fade-up">
-        <div class="win-icon"><i data-lucide="trophy"></i></div>
-        <h3>Sistema XP &amp; Badge</h3>
-        <p>Punti, livelli e badge incentivano l'esplorazione continua. Il gioco non finisce mai: ogni visita aggiunge
-          una tessera al mosaico.</p>
-      </div>
-      <div class="win-card fade-up">
-        <div class="win-icon"><i data-lucide="globe"></i></div>
-        <h3>Ogni città, subito</h3>
-        <p>Il motore AI non ha confini geografici. Nuova città? Bastano le coordinate: il profilo dell'utente viaggia
-          con lui.</p>
-      </div>
-    </div>
-    <div class="slide-num">07 / 08</div>
-  </section>
+            for (let i = 0; i < 120; i++) particles.push(new Particle());
+            window.addEventListener('resize', resize);
+            resize();
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- SLIDE 8 — CTA -->
-  <!-- ══════════════════════════════════════════ -->
-  <section class="slide slide-cta" id="slide-7">
-    <div class="slide-label fade-up">È ora di giocare</div>
-    <h2 class="cta-title fade-up">Il mondo<br>ti aspetta.</h2>
-    <p class="cta-sub fade-up">
-      Ogni vicolo ha una storia.<br>
-      Ogni storia merita di essere vissuta.<br>
-      <strong style="color:#fff;">ITINERA la racconta per te.</strong>
-    </p>
-    <div class="cta-team fade-up">
-      <div class="team-dot"></div>
-      <div class="cta-team-title">ITINERA <span>by</span> Segmentation Team</div>
-      <div class="cta-team-subtitle">Codemotion Hackathon 2026</div>
-      <div class="team-dot" style="margin-top: 8px;"></div>
-    </div>
-    <div class="slide-num">08 / 08</div>
-  </section>
+            function draw() {
+                ctx.clearRect(0, 0, W, H);
+                particles.forEach(p => {
+                    p.x += p.vx; p.y += p.vy;
+                    if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+                    if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(6,182,212,${p.alpha})`;
+                    ctx.fill();
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+        })();
 
-  <script>
-    // ══════════════════════════════════════════
-    // PARTICLES
-    // ══════════════════════════════════════════
-    (function () {
-      const canvas = document.getElementById('particles-canvas');
-      const ctx = canvas.getContext('2d');
-      let particles = [];
-      let W, H;
+        // ══════════════════════════════════════════
+        // SCROLL PROGRESS BAR
+        // ══════════════════════════════════════════
+        const progressBar = document.getElementById('scroll-progress');
+        function updateProgress() {
+            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            progressBar.style.width = (scrollTop / scrollHeight * 100) + '%';
+        }
+        window.addEventListener('scroll', updateProgress, { passive: true });
 
-      function resize() {
-        W = canvas.width = window.innerWidth;
-        H = canvas.height = window.innerHeight;
-      }
-
-      function Particle() {
-        this.x = Math.random() * W;
-        this.y = Math.random() * H;
-        this.r = Math.random() * 1.5 + 0.3;
-        this.vx = (Math.random() - 0.5) * 0.3;
-        this.vy = (Math.random() - 0.5) * 0.3;
-        this.alpha = Math.random() * 0.5 + 0.1;
-      }
-
-      for (let i = 0; i < 120; i++) particles.push(new Particle());
-      window.addEventListener('resize', resize);
-      resize();
-
-      function draw() {
-        ctx.clearRect(0, 0, W, H);
-        particles.forEach(p => {
-          p.x += p.vx; p.y += p.vy;
-          if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
-          if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(6,182,212,${p.alpha})`;
-          ctx.fill();
+        // ══════════════════════════════════════════
+        // CURSOR GLOW
+        // ══════════════════════════════════════════
+        const cursorGlow = document.getElementById('cursor-glow');
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', e => {
+            mouseX = e.clientX; mouseY = e.clientY;
+            cursorGlow.style.left = mouseX + 'px';
+            cursorGlow.style.top = mouseY + 'px';
         });
-        requestAnimationFrame(draw);
-      }
-      draw();
-    })();
 
-    // ══════════════════════════════════════════
-    // SCROLL PROGRESS BAR
-    // ══════════════════════════════════════════
-    const progressBar = document.getElementById('scroll-progress');
-    function updateProgress() {
-      const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      progressBar.style.width = (scrollTop / scrollHeight * 100) + '%';
-    }
-    window.addEventListener('scroll', updateProgress, { passive: true });
+        // ══════════════════════════════════════════
+        // NAV DOTS + SCROLL FLUIDO
+        // ══════════════════════════════════════════
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.nav-dot');
+        let isTransitioning = false;
 
-    // ══════════════════════════════════════════
-    // CURSOR GLOW
-    // ══════════════════════════════════════════
-    const cursorGlow = document.getElementById('cursor-glow');
-    let mouseX = 0, mouseY = 0;
-    document.addEventListener('mousemove', e => {
-      mouseX = e.clientX; mouseY = e.clientY;
-      cursorGlow.style.left = mouseX + 'px';
-      cursorGlow.style.top = mouseY + 'px';
-    });
-
-    // ══════════════════════════════════════════
-    // NAV DOTS + SLIDE TRANSITION OVERLAY
-    // ══════════════════════════════════════════
-    const slides = document.querySelectorAll('.slide');
-    const dots = document.querySelectorAll('.nav-dot');
-    const overlay = document.getElementById('slide-overlay');
-    let isTransitioning = false;
-
-    function triggerSlideTransition(targetSlide) {
-      if (isTransitioning) return;
-      isTransitioning = true;
-
-      // expand overlay from current mouse position
-      const cx = mouseX / window.innerWidth * 100;
-      const cy = mouseY / window.innerHeight * 100;
-      overlay.style.clipPath = `circle(0% at ${cx}% ${cy}%)`;
-      overlay.style.transition = 'none';
-
-      requestAnimationFrame(() => {
-        overlay.style.transition = 'clip-path .45s cubic-bezier(.8,0,.2,1)';
-        overlay.style.clipPath = `circle(150% at ${cx}% ${cy}%)`;
-
-        setTimeout(() => {
-          targetSlide.scrollIntoView({ behavior: 'instant' });
-          // collapse overlay
-          overlay.style.transition = 'clip-path .45s cubic-bezier(.2,1,.8,1)';
-          overlay.style.clipPath = `circle(0% at ${cx}% ${cy}%)`;
-          setTimeout(() => { isTransitioning = false; }, 500);
-        }, 480);
-      });
-    }
-
-    dots.forEach(dot => {
-      dot.addEventListener('click', () => {
-        const idx = parseInt(dot.dataset.index);
-        triggerSlideTransition(slides[idx]);
-      });
-    });
-
-    const ioNav = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const idx = parseInt(entry.target.id.split('-')[1]);
-          dots.forEach(d => d.classList.remove('active'));
-          if (dots[idx]) dots[idx].classList.add('active');
+        function triggerSlideTransition(targetSlide) {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            
+            // Scorrimento nativo e fluido verso la slide
+            targetSlide.scrollIntoView({ behavior: 'smooth' });
+            
+            // Sblocca la transizione dopo che lo scroll è completato (circa 600ms)
+            setTimeout(() => { isTransitioning = false; }, 600);
         }
-      });
-    }, { threshold: 0.5 });
-    slides.forEach(s => ioNav.observe(s));
 
-    // ══════════════════════════════════════════
-    // FADE-UP CON BLUR + STAGGER
-    // ══════════════════════════════════════════
-    const ioFade = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const idx = parseInt(dot.dataset.index);
+                triggerSlideTransition(slides[idx]);
+            });
+        });
+
+        const ioNav = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const idx = parseInt(entry.target.id.split('-')[1]);
+                    dots.forEach(d => d.classList.remove('active'));
+                    if (dots[idx]) dots[idx].classList.add('active');
+                }
+            });
+        }, { threshold: 0.5 });
+        slides.forEach(s => ioNav.observe(s));
+
+        // ══════════════════════════════════════════
+        // FADE-UP CON BLUR + STAGGER
+        // ══════════════════════════════════════════
+        const ioFade = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.12 });
+        document.querySelectorAll('.fade-up').forEach(el => ioFade.observe(el));
+
+        // ══════════════════════════════════════════
+        // 3D TILT su card
+        // ══════════════════════════════════════════
+        document.querySelectorAll('.problem-card, .win-card, .impact-num').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - .5;
+                const y = (e.clientY - rect.top) / rect.height - .5;
+                card.style.transform = `translateY(-6px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg) scale(1.02)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
+
+        // ══════════════════════════════════════════
+        // ANIMATED COUNTER per .count-num
+        // ══════════════════════════════════════════
+        function animateCounter(el) {
+            const suffix = el.dataset.suffix || '';
+            const prefix = el.dataset.prefix || '';
+            const end = parseFloat(el.dataset.target);
+            const dur = parseInt(el.dataset.dur) || 1600;
+            const start = performance.now();
+            const isInt = Number.isInteger(end);
+
+            function step(now) {
+                const frac = Math.min((now - start) / dur, 1);
+                // ease out expo
+                const eased = 1 - Math.pow(2, -10 * frac);
+                const val = end * eased;
+                el.textContent = prefix + (isInt ? Math.round(val) : val.toFixed(1)) + suffix;
+                if (frac < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
         }
-      });
-    }, { threshold: 0.12 });
-    document.querySelectorAll('.fade-up').forEach(el => ioFade.observe(el));
 
-    // ══════════════════════════════════════════
-    // 3D TILT su card
-    // ══════════════════════════════════════════
-    document.querySelectorAll('.problem-card, .win-card, .impact-num').forEach(card => {
-      card.addEventListener('mousemove', e => {
-        const rect = card.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width - .5;
-        const y = (e.clientY - rect.top) / rect.height - .5;
-        card.style.transform = `translateY(-6px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg) scale(1.02)`;
-      });
-      card.addEventListener('mouseleave', () => {
-        card.style.transform = '';
-      });
-    });
+        const ioCount = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.dataset.animated) {
+                    entry.target.dataset.animated = '1';
+                    animateCounter(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        document.querySelectorAll('.count-num').forEach(el => ioCount.observe(el));
 
-    // ══════════════════════════════════════════
-    // ANIMATED COUNTER per .count-num
-    // ══════════════════════════════════════════
-    function animateCounter(el) {
-      const suffix = el.dataset.suffix || '';
-      const prefix = el.dataset.prefix || '';
-      const end = parseFloat(el.dataset.target);
-      const dur = parseInt(el.dataset.dur) || 1600;
-      const start = performance.now();
-      const isInt = Number.isInteger(end);
+        // ══════════════════════════════════════════
+        // SLIDE ENTRANCE: ripple di luce quando
+        // una slide entra nel viewport
+        // ══════════════════════════════════════════
+        const ioSlide = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('slide-visible');
+                } else {
+                    entry.target.classList.remove('slide-visible');
+                }
+            });
+        }, { threshold: 0.45 });
+        slides.forEach(s => ioSlide.observe(s));
 
-      function step(now) {
-        const frac = Math.min((now - start) / dur, 1);
-        // ease out expo
-        const eased = 1 - Math.pow(2, -10 * frac);
-        const val = end * eased;
-        el.textContent = prefix + (isInt ? Math.round(val) : val.toFixed(1)) + suffix;
-        if (frac < 1) requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
-    }
+        // ══════════════════════════════════════════
+        // KEYBOARD NAVIGATION (Arrow / Page keys)
+        // ══════════════════════════════════════════
+        let currentSlideIdx = 0;
+        const ioKbd = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting)
+                    currentSlideIdx = parseInt(entry.target.id.split('-')[1]);
+            });
+        }, { threshold: 0.6 });
+        slides.forEach(s => ioKbd.observe(s));
 
-    const ioCount = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting && !entry.target.dataset.animated) {
-          entry.target.dataset.animated = '1';
-          animateCounter(entry.target);
-        }
-      });
-    }, { threshold: 0.5 });
-    document.querySelectorAll('.count-num').forEach(el => ioCount.observe(el));
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+                e.preventDefault();
+                const next = Math.min(currentSlideIdx + 1, slides.length - 1);
+                if (next !== currentSlideIdx) triggerSlideTransition(slides[next]);
+            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                e.preventDefault();
+                const prev = Math.max(currentSlideIdx - 1, 0);
+                if (prev !== currentSlideIdx) triggerSlideTransition(slides[prev]);
+            }
+        });
 
-    // ══════════════════════════════════════════
-    // SLIDE ENTRANCE: ripple di luce quando
-    // una slide entra nel viewport
-    // ══════════════════════════════════════════
-    const ioSlide = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('slide-visible');
-        } else {
-          entry.target.classList.remove('slide-visible');
-        }
-      });
-    }, { threshold: 0.45 });
-    slides.forEach(s => ioSlide.observe(s));
-
-    // ══════════════════════════════════════════
-    // KEYBOARD NAVIGATION (Arrow / Page keys)
-    // ══════════════════════════════════════════
-    let currentSlideIdx = 0;
-    const ioKbd = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting)
-          currentSlideIdx = parseInt(entry.target.id.split('-')[1]);
-      });
-    }, { threshold: 0.6 });
-    slides.forEach(s => ioKbd.observe(s));
-
-    document.addEventListener('keydown', e => {
-      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-        e.preventDefault();
-        const next = Math.min(currentSlideIdx + 1, slides.length - 1);
-        if (next !== currentSlideIdx) triggerSlideTransition(slides[next]);
-      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-        e.preventDefault();
-        const prev = Math.max(currentSlideIdx - 1, 0);
-        if (prev !== currentSlideIdx) triggerSlideTransition(slides[prev]);
-      }
-    });
-
-    lucide.createIcons();
-  </script>
+        lucide.createIcons();
+    </script>
 
 </body>
 
