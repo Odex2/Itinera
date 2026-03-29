@@ -17,6 +17,30 @@ export const discoverRouter = Router();
  * Converts an Overpass element (bar/pub/cafe) to a DiscoveredPOI shape.
  * Returns null if the element lacks coordinates or a name.
  */
+function categorizeOverpass(tags: Record<string, string> | undefined): { category: string; label: string; importance: number } {
+  if (!tags) return { category: 'cultura', label: 'Punto di interesse', importance: 42 };
+  const amenity = tags.amenity ?? '';
+  const tourism = tags.tourism ?? '';
+  const historic = tags.historic ?? '';
+  const leisure = tags.leisure ?? '';
+  const shop = tags.shop ?? '';
+
+  if (tourism === 'museum') return { category: 'cultura', label: 'Museo', importance: 65 };
+  if (tourism === 'artwork') return { category: 'arte', label: 'Opera d\'arte', importance: 55 };
+  if (tourism === 'attraction') return { category: 'cultura', label: 'Attrazione', importance: 60 };
+  if (historic) return { category: 'storia', label: historic === 'memorial' ? 'Memoriale' : historic === 'monument' ? 'Monumento' : historic === 'ruins' ? 'Rovine' : 'Sito storico', importance: 58 };
+  if (amenity === 'place_of_worship') return { category: 'cultura', label: 'Chiesa', importance: 55 };
+  if (leisure === 'park') return { category: 'natura', label: 'Parco', importance: 50 };
+  if (leisure === 'garden') return { category: 'natura', label: 'Giardino', importance: 48 };
+  if (amenity === 'restaurant') return { category: 'enogastronomia', label: 'Ristorante', importance: 45 };
+  if (amenity === 'cafe') return { category: 'enogastronomia', label: 'Caffè', importance: 42 };
+  if (amenity === 'pub') return { category: 'enogastronomia', label: 'Pub', importance: 42 };
+  if (amenity === 'bar') return { category: 'enogastronomia', label: 'Bar', importance: 42 };
+  if (shop === 'bakery') return { category: 'enogastronomia', label: 'Panificio', importance: 44 };
+  if (shop === 'craft') return { category: 'artigianato', label: 'Bottega artigiana', importance: 50 };
+  return { category: 'cultura', label: 'Punto di interesse', importance: 42 };
+}
+
 function overpassToPOI(el: OverpassElement): DiscoveredPOI | null {
   const lat = el.lat ?? el.center?.lat;
   const lon = el.lon ?? el.center?.lon;
@@ -24,21 +48,20 @@ function overpassToPOI(el: OverpassElement): DiscoveredPOI | null {
 
   if (!lat || !lon || !name) return null;
 
-  const amenity = el.tags?.amenity ?? 'bar';
-  const partnerType = amenity === 'pub' ? 'pub' : amenity === 'cafe' ? 'caffè' : 'bar';
+  const { category, label, importance } = categorizeOverpass(el.tags);
   const opening = el.tags?.opening_hours ?? '';
   const openingNote = opening ? ` Orari: ${opening}.` : '';
 
   return {
     id: `osm-${el.id}`,
     name,
-    description: `${partnerType.charAt(0).toUpperCase() + partnerType.slice(1)} nelle vicinanze.${openingNote}`,
+    description: `${label} nelle vicinanze.${openingNote}`,
     lat,
     lng: lon,
-    category: 'enogastronomia',
-    importanceScore: 42,   // below AI-discovered gems, above nothing
-    unlockDistance: 50,    // must be nearby to unlock
-    xpReward: 60,
+    category,
+    importanceScore: importance,
+    unlockDistance: 50,
+    xpReward: Math.round(importance * 1.2),
     source: 'openstreetmap',
   };
 }
@@ -86,27 +109,30 @@ discoverRouter.post('/discover-pois', async (req: Request, res: Response) => {
 
     const bbox = buildBbox(lat, lng, 800);
 
-    // Run AI discovery + Overpass bar lookup in parallel
-    const [aiPois, overpassElements] = await Promise.allSettled([
-      discoverPOIs({ lat, lng, interests }),
+    // Overpass first (real places, fast), AI second (enrichment, slow)
+    // Run in parallel but respond as soon as Overpass is ready
+    const [overpassResult, aiResult] = await Promise.allSettled([
       fetchOverpassPOIs(bbox.south, bbox.west, bbox.north, bbox.east),
+      discoverPOIs({ lat, lng, interests }),
     ]);
 
-    // Collect AI-discovered POIs
-    const pois: DiscoveredPOI[] = aiPois.status === 'fulfilled' ? aiPois.value : [];
+    const pois: DiscoveredPOI[] = [];
 
-    // Convert and merge Overpass bars (skip if Overpass failed)
-    if (overpassElements.status === 'fulfilled') {
-      const existingIds = new Set(pois.map((p) => p.id));
-
-      // Limit to 5 nearest bars to avoid flooding the map
-      const bars = overpassElements.value
+    // Real places from OpenStreetMap — these are guaranteed to be nearby
+    if (overpassResult.status === 'fulfilled') {
+      const realPois = overpassResult.value
         .map(overpassToPOI)
         .filter((p): p is DiscoveredPOI => p !== null)
-        .filter((p) => !existingIds.has(p.id))
-        .slice(0, 5);
+        .sort((a, b) => b.importanceScore - a.importanceScore)
+        .slice(0, 15);
+      pois.push(...realPois);
+    }
 
-      pois.push(...bars);
+    // AI-discovered hidden gems (may have relocated coordinates)
+    if (aiResult.status === 'fulfilled') {
+      const existingIds = new Set(pois.map((p) => p.id));
+      const aiPois = aiResult.value.filter((p) => !existingIds.has(p.id));
+      pois.push(...aiPois);
     }
 
     res.json({ pois });
