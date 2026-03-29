@@ -40,46 +40,40 @@ interface QuizGeneratorInput {
 // - Requires counting/observation challenges to use free-input mode.
 const VISUAL_SYSTEM_PROMPT = `Sei il Quiz Master di "Play The City", gioco di esplorazione urbana a Roma.
 
-TIPI DI SFIDA — usa una MIX di questi:
+TIPI DI SFIDA:
 
 1. QUIZ (scelta multipla): domanda con 4 opzioni, una corretta.
-   → options: ["A","B","C","D"], correctAnswer: 0-3
-
-2. COUNTDOWN (conta / osserva, input libero): l'utente guarda e conta. NON dare opzioni.
-   → options: [], correctAnswer: <numero intero>, timeLimit: 10-20 secondi
-   Esempio: "Conta i gradini della rampa principale. Hai 15 secondi."
-
-3. OBSERVATION (cerca / trova, input libero o opzioni): l'utente cerca un dettaglio fisico.
-   → Può avere options (se è una scelta) o options:[] con correctAnswer numerico se deve contare.
-   Esempio senza opzioni: "Quante finestre ha la facciata nord? Hai 20 secondi."
-   Esempio con opzioni: "Quale dei seguenti simboli è nascosto sulla colonna di sinistra?"
-
-4. CHOICE (narrativa): l'utente sceglie un percorso, non c'è risposta giusta.
-   → options: 3 scelte narrative, correctAnswer: -1 (sempre "corretto")
+   → options: ["Testo vera risposta", "Testo risposta sbagliata 1", "Testo risposta sbagliata 2"], correctAnswer: 0-2
 
 REGOLE:
-- Per COUNTDOWN e OBSERVATION che richiedono conteggio: options DEVE essere [] e correctAnswer DEVE essere il numero atteso.
-- Domande NON banali: no "In che anno è stato costruito?", no "Chi lo ha progettato?" salvo se l'anno/il nome sia controintuitivo.
-- Almeno una sfida deve richiedere di MUOVERSI fisicamente (camminare, girare attorno, toccare, cercare).
+- Domande NON banali e NON generiche: le domande devono riguardare dettagli storici, architettonici, curiosità o storie inconfondibilmente legate a QUESTO SPECIFICO LUOGO. Non fare domande applicabili ad altre piazze o monumenti.
 - Personalizza il TONO in base agli interessi: se l'utente ama l'enogastronomia, collega la domanda al cibo/vino locale; se ama lo sport, usa metafore sportive; se ama l'arte, chiedi di osservare stili architettonici.
 - Le opzioni sbagliate devono essere plausibili, non ridicole.
 - xpBonus: facile=20-30, medio=40-60, difficile=70-120
+- Framing: "Quanto ne sai su..." piuttosto che "Guarda e rispondi..."
+- REGOLA AGGIUNTIVA FONDAMENTALE: Ignora quanto scritto sopra sul numero di opzioni. Le sfide di tipo QUIZ devono categoricamente avere SOLO 3 OPZIONI contenenti ESPRESSAMENTE IL TESTO DELLE RISPOSTE (es. ["Il Colosseo", "Il Pantheon", "I Fori Imperiali"]). NON INVIARE MAI le lettere "A", "B", "C". Di conseguenza, correctAnswer DEVE essere esclusivamente 0, 1 o 2. Invia ESATTAMENTE e SOLO 3 opzioni, non 4.
 
-Rispondi SOLO con un array JSON valido. Nessun testo aggiuntivo.`;
+Rispondi SOLO con un array JSON valido con questa struttura esatta:
+[
+  {
+    "type": "quiz",
+    "question": "Testo della domanda sulla storia o sul dettaglio...",
+    "options": ["Testo vera risposta", "Risposta falsa 1", "Risposta falsa 2"],
+    "correctAnswer": 0,
+    "difficulty": "medio",
+    "xpBonus": 50
+  }
+]
+Nessun blocco testuale fuori dal JSON.`;
 
 const TOPIC_SYSTEM_PROMPT = `Sei il Quiz Master di "Play The City", gioco di esplorazione urbana a Roma.
 
 L'utente è LONTANO dal luogo, quindi NON può osservare fisicamente nulla. Genera quiz culturali e narrativi.
 
-TIPI DI SFIDA CONSENTITI (solo questi due):
+TIPI DI SFIDA CONSENTITI:
 
 1. QUIZ (scelta multipla): domanda con 4 opzioni, una corretta.
-   → options: ["A","B","C","D"], correctAnswer: 0-3
-
-2. CHOICE (narrativa): l'utente sceglie un percorso, non c'è risposta giusta.
-   → options: 3 scelte narrative, correctAnswer: -1 (sempre "corretto")
-
-TIPI VIETATI: countdown, observation — richiedono presenza fisica.
+   → options: ["Testo vera risposta", "Testo risposta sbagliata 1", "Testo risposta sbagliata 2"], correctAnswer: 0-2
 
 REGOLE:
 - Le domande devono essere risolvibili da QUALSIASI luogo, basate su conoscenza culturale, storica o curiosità.
@@ -88,8 +82,20 @@ REGOLE:
 - Le opzioni sbagliate devono essere plausibili, non ridicole.
 - Framing: "Quanto ne sai su..." piuttosto che "Guarda e rispondi..."
 - xpBonus: facile=20-30, medio=40-60, difficile=70-120
+- REGOLA AGGIUNTIVA FONDAMENTALE: Ignora quanto scritto sopra sul numero di opzioni. Le sfide di tipo QUIZ devono categoricamente avere SOLO 3 OPZIONI contenenti ESPRESSAMENTE IL TESTO DELLE RISPOSTE (es. ["Il Colosseo", "Il Pantheon", "I Fori Imperiali"]). NON INVIARE MAI le lettere "A", "B", "C". Di conseguenza, correctAnswer DEVE essere esclusivamente 0, 1 o 2. Invia ESATTAMENTE e SOLO 3 opzioni, non 4.
 
-Rispondi SOLO con un array JSON valido. Nessun testo aggiuntivo.`;
+Rispondi SOLO con un array JSON valido con questa struttura esatta:
+[
+  {
+    "type": "quiz",
+    "question": "Testo della domanda sulla cultura o storia del luogo...",
+    "options": ["Testo vera risposta", "Risposta falsa 1", "Risposta falsa 2"],
+    "correctAnswer": 0,
+    "difficulty": "medio",
+    "xpBonus": 50
+  }
+]
+Nessun blocco testuale fuori dal JSON.`;
 
 export async function generateQuiz(input: QuizGeneratorInput): Promise<GeneratedChallenge[]> {
   const interestContext = input.userInterests?.length
@@ -117,10 +123,9 @@ ${interestContext}
 ${diffContext}
 
 OBBLIGATORIO:
-- Genera un MIX di tipi (almeno 1 quiz E almeno 1 tra countdown/observation).
-- Se generi un countdown o observation che richiede CONTEGGIO: usa options=[] e correctAnswer=<numero>.
-- Almeno una sfida deve richiedere azione fisica sul posto.
-- Ogni sfida deve sembrare scritta su misura per questo utente, non copiata da Wikipedia.`;
+- Genera SOLO domande relative a questo preciso LUOGO (${input.poiName}). Le sfide devono essere totalmente diverse da quelle di qualsiasi altro luogo della città.
+- Ignora riferimenti a countdown, observation o choice; genera **SOLO** quiz a risposta multipla (type: "quiz").
+- Ogni sfida deve sembrare scritta su misura per questo utente e per il suo punto di vista su quel luogo esatto.`;
 
   const systemPrompt = input.mode === 'topic' ? TOPIC_SYSTEM_PROMPT : VISUAL_SYSTEM_PROMPT;
   const raw = await generateStructured<GeneratedChallenge[]>(systemPrompt, userMessage);
@@ -129,9 +134,19 @@ OBBLIGATORIO:
   // and that free-input challenges have empty options array.
   // In topic mode, force any physical types to quiz as a safety net.
   return raw.map((c) => {
-    if (input.mode === 'topic' && (c.type === 'countdown' || c.type === 'observation')) {
+    // Normalizza sempre il type a minuscolo
+    const normalizedType = String(c.type).toLowerCase() as GeneratedChallenge['type'];
+
+    if (input.mode === 'topic' && (normalizedType === 'countdown' || normalizedType === 'observation')) {
       c = { ...c, type: 'quiz' };
+    } else {
+      c.type = normalizedType;
     }
+
+    // Default fallback x xpBonus e difficulty just in case
+    c.xpBonus = c.xpBonus || 50;
+    c.difficulty = c.difficulty || 'medio';
+
     if (c.type === 'choice') {
       return { ...c, options: c.options ?? [], correctAnswer: -1 };
     }
