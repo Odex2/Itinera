@@ -33,6 +33,8 @@ REGOLE FONDAMENTALI:
 8. unlockDistance: 30-150m
 9. xpReward: 50-200
 10. L'id deve essere nel formato "discovered-{nome-slug}"
+11. devono avere almeno 100 recensioni su google o tripadvisor, o essere molto popolari su Instagram (almeno 10k post taggati)
+12. ricontrolla se veramente sono vicino il lugo indicato. Se non lo sono, correggi le coordinate o sostituiscili con luoghi simili ma più vicini.
 
 CATEGORIE VALIDE: enogastronomia, cultura, arte, storia, natura, paesaggio, shopping, artigianato, intrattenimento, family, sport
 
