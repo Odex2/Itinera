@@ -1,4 +1,4 @@
-import { Target, Lock, CheckCircle2, Clock, MapPin, Star } from 'lucide-react';
+import { Target, CheckCircle2, Clock, MapPin, Star } from 'lucide-react';
 import { POI } from '../types';
 
 interface MissionsScreenProps {
@@ -45,28 +45,19 @@ export default function MissionsScreen({ pois, onPOISelect }: MissionsScreenProp
         {pois.map((poi) => (
           <div
             key={poi.id}
-            onClick={() => poi.status !== 'locked' && onPOISelect(poi)}
-            className={`
-              bg-white/95 backdrop-blur-md rounded-xl shadow-md shadow-cyan-900/10 overflow-hidden transition-all duration-200
-              ${poi.status !== 'locked' ? 'hover:shadow-[0_8px_30px_rgb(6,182,212,0.12)] cursor-pointer active:scale-[0.98]' : 'opacity-60'}
-            `}
+            onClick={() => onPOISelect(poi)}
+            className="bg-white/95 backdrop-blur-md rounded-xl shadow-md shadow-cyan-900/10 overflow-hidden transition-all duration-200 hover:shadow-[0_8px_30px_rgb(6,182,212,0.12)] cursor-pointer active:scale-[0.98]"
           >
             <div className="p-4">
               <div className="flex items-start gap-3">
                 <div
                   className={`
                     p-2.5 rounded-xl flex-shrink-0
-                    ${poi.status === 'completed'
-                      ? 'bg-green-100'
-                      : poi.status === 'available' || poi.status === 'active'
-                        ? 'bg-cyan-100'
-                        : 'bg-slate-100'
-                    }
+                    ${poi.status === 'completed' ? 'bg-green-100' : 'bg-cyan-100'}
                   `}
                 >
                   {poi.status === 'completed' && <CheckCircle2 className="w-5 h-5 text-green-600" />}
-                  {(poi.status === 'available' || poi.status === 'active') && <Target className="w-5 h-5 text-cyan-600" />}
-                  {poi.status === 'locked' && <Lock className="w-5 h-5 text-slate-400" />}
+                  {poi.status !== 'completed' && <Target className="w-5 h-5 text-cyan-600" />}
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -99,12 +90,6 @@ export default function MissionsScreen({ pois, onPOISelect }: MissionsScreenProp
                     </div>
                   </div>
 
-                  {poi.status === 'locked' && (
-                    <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-400">
-                      <Lock className="w-3 h-3" />
-                      <span>Completa altre missioni per sbloccare</span>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
