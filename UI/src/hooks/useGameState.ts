@@ -216,10 +216,6 @@ export function useGameState() {
       setPois((prev) =>
         prev.map((poi) => {
           if (poi.id === poiId) return { ...poi, status: 'completed' as const };
-          if (poi.status === 'locked') {
-            // unlock next POIs based on progression
-            return { ...poi, status: 'available' as const };
-          }
           return poi;
         })
       );

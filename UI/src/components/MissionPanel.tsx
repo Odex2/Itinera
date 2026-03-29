@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   X, MapPin, Star, ChevronRight, Clock, Eye, HelpCircle,
   CheckCircle, XCircle, Award, Coins, BookOpen, Target, Trophy,
-  AlertTriangle, Volume2, VolumeX, Loader2, Sparkles,
+  Volume2, VolumeX, Loader2, Sparkles,
 } from 'lucide-react';
 import type { POI, Challenge, UserProfile } from '../types';
 import { fetchNarration, fetchChallenges } from '../services/api';
@@ -692,11 +692,12 @@ export default function MissionPanel({
 
   // ── Fetch AI challenges when sfida tab opens ──
   useEffect(() => {
-    if (activeTab !== 'sfida' || aiChallenges !== null || tooFar || alreadyCompleted) return;
+    if (activeTab !== 'sfida' || aiChallenges !== null || alreadyCompleted) return;
     // For AI-discovered POIs (empty context), wait for narration first
     const isAIDiscovered = !poi.shortStory && !poi.hiddenFact;
     if (isAIDiscovered && !aiNarration && aiNarrationLoading) return;
     let cancelled = false;
+    const challengeMode = tooFar ? 'topic' : 'visual';
     setAiChallengesLoading(true);
     fetchChallenges({
       poiName: poi.name,
@@ -706,16 +707,21 @@ export default function MissionPanel({
       category: poi.category,
       count: 2,
       userInterests: profile.interests,
+      mode: challengeMode,
     })
       .then((challenges) => { if (!cancelled) setAiChallenges(challenges); })
-      .catch(() => { /* silent fallback to static challenges */ })
+      .catch((err) => { console.error('[MissionPanel] ❌ Challenge fetch failed:', poi.name, err); })
       .finally(() => { if (!cancelled) setAiChallengesLoading(false); });
     return () => { cancelled = true; };
-  }, [activeTab, aiNarration, aiNarrationLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeTab, aiNarration, aiNarrationLoading, alreadyCompleted, tooFar]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Use AI challenges if available, otherwise fall back to static
+  // Use AI challenges if available, otherwise fall back to static.
+  // In topic mode, filter static challenges to only quiz/choice (no physical ones).
+  const staticFallback = tooFar
+    ? poi.challenges.filter((c) => c.type === 'quiz' || c.type === 'choice')
+    : poi.challenges;
   const activeChallenges: (Challenge | GeneratedChallenge)[] =
-    aiChallenges && aiChallenges.length > 0 ? aiChallenges : poi.challenges;
+    aiChallenges && aiChallenges.length > 0 ? aiChallenges : staticFallback;
 
   const handleClose = useCallback(() => {
     setIsVisible(false);
@@ -819,18 +825,15 @@ export default function MissionPanel({
             </div>
           </div>
 
-          {/* Too far warning */}
-          {tooFar && (
-            <div className="mb-4 p-4 bg-cyan-50 border border-cyan-200 rounded-xl">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-cyan-600 mt-0.5 shrink-0" />
-                <div>
-                  <p className="font-semibold text-cyan-800 text-sm">Avvicinati al luogo</p>
-                  <p className="text-cyan-700 text-xs mt-1">
-                    Sei a {Math.round(userDistance!)}m. Devi essere entro {poi.unlockDistance}m per iniziare la sfida.
-                  </p>
-                </div>
-              </div>
+          {/* Distance info */}
+          {userDistance !== null && (
+            <div className="mb-4 flex items-center gap-2 text-xs">
+              <MapPin className="w-3.5 h-3.5 text-slate-400" />
+              <span className="text-slate-500">
+                {tooFar
+                  ? `Sei a ${Math.round(userDistance)}m — rispondi a quiz sui tuoi argomenti di interesse!`
+                  : `Sei a ${Math.round(userDistance)}m — sei nel raggio, osserva e rispondi!`}
+              </span>
             </div>
           )}
 
@@ -844,13 +847,13 @@ export default function MissionPanel({
               label="La Storia"
               disabled={false}
             />
-            {/* Sfida: blocked when completed OR too far */}
+            {/* Sfida: blocked only when completed */}
             <TabButton
               active={activeTab === 'sfida'}
-              onClick={() => !tooFar && !alreadyCompleted && setActiveTab('sfida')}
+              onClick={() => !alreadyCompleted && setActiveTab('sfida')}
               icon={<Target className="w-4 h-4" />}
               label="La Sfida"
-              disabled={tooFar || alreadyCompleted}
+              disabled={alreadyCompleted}
             />
             {/* Completato: visible only once done */}
             <TabButton
@@ -907,18 +910,29 @@ export default function MissionPanel({
                 )}
               </div>
 
-              {!tooFar && !alreadyCompleted && (
+              {!alreadyCompleted && (
                 <button onClick={() => setActiveTab('sfida')}
                   className="w-full py-3 rounded-xl font-semibold text-white bg-cyan-600 hover:bg-cyan-700 transition-colors flex items-center justify-center gap-2">
-                  Inizia la sfida <ChevronRight className="w-5 h-5" />
+                  {tooFar ? 'Quiz culturale' : 'Inizia la sfida'} <ChevronRight className="w-5 h-5" />
                 </button>
               )}
             </div>
           )}
 
           {/* ── Sfida Tab ──────────────────────────────────────────────────── */}
-          {activeTab === 'sfida' && !tooFar && !alreadyCompleted && (
+          {activeTab === 'sfida' && !alreadyCompleted && (
             <div className="space-y-4">
+              {/* Mode badge */}
+              {tooFar ? (
+                <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl text-xs text-amber-800">
+                  Sei lontano dal luogo — rispondi a quiz culturali personalizzati sui tuoi interessi!
+                </div>
+              ) : (
+                <div className="p-3 bg-green-50 border border-green-100 rounded-xl text-xs text-green-800">
+                  Sei sul posto — osserva il luogo e rispondi alle sfide!
+                </div>
+              )}
+
               {/* AI badge */}
               {aiChallenges && aiChallenges.length > 0 && (
                 <span className="inline-flex items-center gap-1 text-xs font-medium text-violet-700 bg-violet-50 px-2 py-0.5 rounded-full">
