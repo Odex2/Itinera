@@ -18,27 +18,57 @@ interface DiscoverInput {
   interests: string[];
 }
 
-const SYSTEM_PROMPT = `Sei il "Scopritore Segreto" di "Play The City", un agente AI specializzato nel trovare luoghi interessanti a Roma.
 
-Il tuo compito è generare 3-5 Punti di Interesse (POI) entro 800 metri dalle coordinate fornite.
+// --- PINNED POIs (demo) ---
+// Injected into AI results when the user is within the specified radius.
+const PINNED_POIS: (DiscoveredPOI & { pinnedLat: number; pinnedLng: number; pinnedRadius: number })[] = [
+  {
+    id: 'pinned-gazometro',
+    name: 'Gazometro di Roma',
+    description: "L'iconica struttura industriale dell'Ostiense, simbolo della Roma operaia e palcoscenico di street art d'autore.",
+    lat: 41.869515470340716,
+    lng: 12.47499398273591,
+    category: 'arte',
+    importanceScore: 85,
+    unlockDistance: 200,
+    xpReward: 150,
+    pinnedLat: 41.869515470340716,
+    pinnedLng: 12.47499398273591,
+    pinnedRadius: 200,
+  },
+];
 
-REGOLE FONDAMENTALI:
-1. I POI devono essere REALI e trovarsi DAVVERO vicino alle coordinate indicate
-2. Se le coordinate sono vicine a un monumento famoso (Colosseo, Fontana di Trevi, ecc.), includilo pure — ma SOLO se è realmente entro 800m
-3. NON inventare la presenza di monumenti famosi in zone dove non esistono
-4. Privilegia anche gemme nascoste: cortili nascosti, botteghe storiche, street art, fontanelle antiche, murales, mercati rionali
-5. Le coordinate devono variare POCHISSIMO rispetto al punto di partenza (massimo ±0.005 in lat/lng)
-6. Se la zona è residenziale e non conosci luoghi famosi lì, suggerisci posti tipici del quartiere (parchi, chiese, bar storici, panifici)
-7. L'importanceScore deve essere tra 40 e 95 (più alto per monumenti famosi, più basso per gemme nascoste)
-8. unlockDistance: 30-150m
-9. xpReward: 50-200
-10. L'id deve essere nel formato "discovered-{nome-slug}"
-11. devono avere almeno 100 recensioni su google o tripadvisor, o essere molto popolari su Instagram (almeno 10k post taggati)
-12. ricontrolla se veramente sono vicino il lugo indicato. Se non lo sono, correggi le coordinate o sostituiscili con luoghi simili ma più vicini.
+// Groups of categories — each parallel call stays small and focused,
+// preventing the model from "padding" with landmarks from other zones.
+const CATEGORY_GROUPS = [
+  'enogastronomia, shopping, artigianato',
+  'cultura, storia, arte',
+  'natura, paesaggio, intrattenimento, family, sport',
+];
+
+function buildSystemPrompt(categoryFocus: string): string {
+  return `Sei il "Scopritore Segreto" di "Play The City", un agente AI specializzato nel trovare luoghi interessanti a Roma.
+
+Il tuo compito è generare ESATTAMENTE 2-3 Punti di Interesse nella CATEGORIA: ${categoryFocus}.
+
+REGOLA ASSOLUTA — GEOGRAFICA:
+- Riceverai coordinate precise e il nome del quartiere/zona
+- Genera SOLO luoghi che si trovano fisicamente IN QUELLA SPECIFICA ZONA — non altrove a Roma
+- Se non conosci luoghi famosi lì, inventa posti tipici del quartiere (chiesa locale, parco, bar storico, mercato rionale) — sono preferibili a monumenti di altre zone
+- È VIETATO generare luoghi che non si trovano fisicamente nella zona indicata (es. il Pincio, Colosseo, Fontana di Trevi se non siamo lì)
+- Le coordinate lat/lng di ogni POI devono essere entro ±0.004 rispetto alle coordinate fornite (~400m)
+
+ALTRE REGOLE:
+- importanceScore: 40-75
+- unlockDistance: 30-150m
+- xpReward: 50-200
+- id nel formato "discovered-{nome-slug}"
+- Descrizione evocativa di 1-2 frasi
 
 CATEGORIE VALIDE: enogastronomia, cultura, arte, storia, natura, paesaggio, shopping, artigianato, intrattenimento, family, sport
 
 Rispondi SOLO con un array JSON di oggetti con campi: id, name, description, lat, lng, category, importanceScore, unlockDistance, xpReward.`;
+}
 
 function getDistanceMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371000;
@@ -66,42 +96,72 @@ async function reverseGeocode(lat: number, lng: number): Promise<string> {
   } catch { return ''; }
 }
 
+function validateAndClamp(poi: DiscoveredPOI, input: DiscoverInput, index: number, total: number): DiscoveredPOI {
+  const clamped = {
+    ...poi,
+    importanceScore: Math.max(40, Math.min(75, poi.importanceScore)),
+    unlockDistance: Math.max(30, Math.min(150, poi.unlockDistance)),
+    xpReward: Math.max(50, Math.min(200, poi.xpReward)),
+  };
+
+  const dist = getDistanceMeters(input.lat, input.lng, clamped.lat, clamped.lng);
+  if (dist > 600) {
+    const angle = (Math.PI * 2 * (index + 1)) / (total + 1);
+    const offsetM = 200 + Math.random() * 300;
+    const latOffset = (offsetM * Math.cos(angle)) / 111320;
+    const lngOffset = (offsetM * Math.sin(angle)) / (111320 * Math.cos(input.lat * Math.PI / 180));
+    console.warn(`[poiDiscoverer] Relocated "${clamped.name}" — was ${Math.round(dist)}m away`);
+    clamped.lat = input.lat + latOffset;
+    clamped.lng = input.lng + lngOffset;
+  }
+
+  return clamped;
+}
+
 export async function discoverPOIs(input: DiscoverInput): Promise<DiscoveredPOI[]> {
   const zoneName = await reverseGeocode(input.lat, input.lng);
-  const zoneContext = zoneName ? `\nZONA ATTUALE: ${zoneName} — genera POI che esistono IN QUESTA ZONA, non altrove.` : '';
 
-  const userMessage = `Trova 3-5 luoghi interessanti vicino a queste coordinate:
+  const userMessage = (categoryFocus: string) =>
+    `Zona: ${zoneName || 'Roma'} — GENERA SOLO POI IN QUESTA ZONA.
 
-LATITUDINE: ${input.lat}
-LONGITUDINE: ${input.lng}
-INTERESSI UTENTE: ${input.interests.join(', ')}${zoneContext}
+COORDINATE CENTRO: ${input.lat}, ${input.lng}
+RAGGIO MASSIMO: 400 metri (±0.004 in lat/lng)
+CATEGORIA: ${categoryFocus}
+INTERESSI UTENTE: ${input.interests.join(', ')}
 
-IMPORTANTE: I POI devono trovarsi REALMENTE vicino a queste coordinate (entro 800m). Le coordinate che generi devono essere molto vicine a quelle indicate sopra (differenza massima ±0.005). NON generare luoghi che si trovano in altre zone di Roma.
+Ogni POI deve trovarsi fisicamente in "${zoneName || 'questa zona'}". Non usare monumenti o luoghi di altre zone di Roma.`;
 
-Ogni POI deve avere una descrizione evocativa di 1-2 frasi.`;
+  // Fire all category groups in parallel — each call is small (2-3 POI) so the model
+  // stays anchored to the zone instead of drifting toward famous landmarks elsewhere.
+  const results = await Promise.allSettled(
+    CATEGORY_GROUPS.map(group =>
+      generateStructured<DiscoveredPOI[]>(buildSystemPrompt(group), userMessage(group))
+    )
+  );
 
-  const pois = await generateStructured<DiscoveredPOI[]>(SYSTEM_PROMPT, userMessage);
-
-  // Validate, clamp values, and relocate POIs with hallucinated coordinates
-  return pois.map((poi, i) => {
-    const clamped = {
-      ...poi,
-      importanceScore: Math.max(40, Math.min(75, poi.importanceScore)),
-      unlockDistance: Math.max(30, Math.min(150, poi.unlockDistance)),
-      xpReward: Math.max(50, Math.min(200, poi.xpReward)),
-    };
-
-    const dist = getDistanceMeters(input.lat, input.lng, clamped.lat, clamped.lng);
-    if (dist > 1000) {
-      const angle = (Math.PI * 2 * (i + 1)) / (pois.length + 1);
-      const offsetM = 400 + Math.random() * 300;
-      const latOffset = (offsetM * Math.cos(angle)) / 111320;
-      const lngOffset = (offsetM * Math.sin(angle)) / (111320 * Math.cos(input.lat * Math.PI / 180));
-      console.warn(`[poiDiscoverer] Relocated "${clamped.name}" — was ${Math.round(dist)}m away`);
-      clamped.lat = input.lat + latOffset;
-      clamped.lng = input.lng + lngOffset;
+  const allPois = results.flatMap((r, groupIndex) => {
+    if (r.status === 'rejected') {
+      console.warn(`[poiDiscoverer] Group "${CATEGORY_GROUPS[groupIndex]}" failed:`, r.reason);
+      return [];
     }
-
-    return clamped;
+    return r.value;
   });
+
+  // Deduplicate by id, then validate/clamp each POI
+  const seen = new Set<string>();
+  const unique = allPois.filter(p => {
+    if (seen.has(p.id)) return false;
+    seen.add(p.id);
+    return true;
+  });
+
+  const validated = unique.map((poi, i) => validateAndClamp(poi, input, i, unique.length));
+
+  // Inject pinned POIs into results when user is within their radius (demo)
+  const pinned = PINNED_POIS
+    .filter(p => getDistanceMeters(input.lat, input.lng, p.pinnedLat, p.pinnedLng) <= p.pinnedRadius)
+    .filter(p => !seen.has(p.id))
+    .map(({ pinnedLat, pinnedLng, pinnedRadius, ...poi }) => poi);
+
+  return [...pinned, ...validated];
 }
