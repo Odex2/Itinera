@@ -363,7 +363,7 @@ export default function ProfileSetupScreen({ onComplete }: ProfileSetupScreenPro
                         fontFamily: '"DM Sans", sans-serif', fontWeight: 400, fontSize: 13,
                         color: '#94a3b8', marginTop: 10, marginBottom: 0,
                     }}>
-                        Crea il tuo profilo per sbloccare Roma
+                        Crea il tuo profilo
                     </p>
                     <div style={{
                         width: 40, height: 3, borderRadius: 2,

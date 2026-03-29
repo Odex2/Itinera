@@ -105,7 +105,7 @@ const GLOBAL_CSS = `
 
 interface CardQuestion {
   kind: 'card';
-  id: string;
+  id: number;
   number: string;
   question: string;
   subtitle: string;
@@ -119,7 +119,7 @@ interface CardQuestion {
 }
 interface SliderQuestion {
   kind: 'slider';
-  id: string;
+  id: number;
   number: string;
   question: string;
   subtitle: string;
@@ -133,18 +133,18 @@ type Question = CardQuestion | SliderQuestion;
 
 const QUESTIONS: Question[] = [
   {
-    kind: 'card', id: 'q1', number: '01',
-    question: 'Come inizi una giornata ideale a Roma?',
+    kind: 'card', id: 1, number: '01',
+    question: 'Come inizi una giornata ideale?',
     subtitle: 'Scegli quella che ti rappresenta di più',
     options: [
       { id: 'coffee', icon: <Coffee size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Bar storico', desc: 'Caffè lento in un posto con storia', categories: ['enogastronomia', 'storia'] },
-      { id: 'run', icon: <Footprints size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Corsa ai Fori', desc: 'Movimento e la città che si sveglia', categories: ['sport', 'natura'] },
+      { id: 'run', icon: <Footprints size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Corsetta in centro', desc: 'Movimento mentre la città si sveglia', categories: ['sport', 'natura'] },
       { id: 'museum', icon: <Landmark size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Museo aperto', desc: 'Primo ingresso, nessuna fila, silenzio', categories: ['cultura', 'arte'] },
       { id: 'market', icon: <Store size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Mercato rionale', desc: 'Voci, colori, gente vera del quartiere', categories: ['shopping', 'family'] },
     ],
   },
   {
-    kind: 'slider', id: 'q2', number: '02',
+    kind: 'slider', id: 2, number: '02',
     question: 'Quanto sei avventuroso?',
     subtitle: "Dai percorsi battuti all'esplorazione totale",
     leftLabel: 'Sicurezza', rightLabel: 'Avventura',
@@ -152,18 +152,18 @@ const QUESTIONS: Question[] = [
     categories: ['sport', 'natura', 'paesaggio'],
   },
   {
-    kind: 'card', id: 'q3', number: '03',
-    question: 'Cosa non può mancare in una serata a Roma?',
-    subtitle: 'La tua serata perfetta',
+    kind: 'card', id: 3, number: '03',
+    question: 'Cosa non può mancare in una serata perfetta?',
+    subtitle: 'La tua serata ideala',
     options: [
       { id: 'aperitivo', icon: <Wine size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Aperitivo in piazza', desc: 'Tramonto, vino, buona compagnia', categories: ['enogastronomia', 'intrattenimento'] },
       { id: 'show', icon: <Ticket size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Spettacolo', desc: 'Musica, teatro, cultura live', categories: ['intrattenimento', 'arte'] },
       { id: 'trattoria', icon: <Utensils size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Trattoria nascosta', desc: 'Pasta fatta a mano, zero turisti', categories: ['enogastronomia', 'storia'] },
-      { id: 'walk', icon: <Moon size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Passeggiata notturna', desc: 'Roma illuminata, ritmo lento', categories: ['paesaggio', 'natura'] },
+      { id: 'walk', icon: <Moon size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Passeggiata notturna', desc: 'Città illuminata, ritmo lento', categories: ['paesaggio', 'natura'] },
     ],
   },
   {
-    kind: 'slider', id: 'q4', number: '04',
+    kind: 'slider', id: 4, number: '04',
     question: 'Quanto conta la cultura nel tuo viaggio?',
     subtitle: 'Relax puro o immersione nella storia',
     leftLabel: 'Relax totale', rightLabel: 'Cultura intensa',
@@ -171,13 +171,13 @@ const QUESTIONS: Question[] = [
     categories: ['cultura', 'arte', 'storia'],
   },
   {
-    kind: 'card', id: 'q5', number: '05',
-    question: 'Il tuo souvenir ideale di Roma?',
+    kind: 'card', id: 5, number: '05',
+    question: 'Il tuo souvenir ideale in un viaggio?',
     subtitle: 'Cosa porti a casa',
     options: [
       { id: 'craft', icon: <Wand2 size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Artigianato', desc: 'Fatto a mano, unico, autentico', categories: ['artigianato', 'shopping'] },
       { id: 'photo', icon: <Camera size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Una foto perfetta', desc: "Il momento, la luce, l'angolo giusto", categories: ['paesaggio', 'arte'] },
-      { id: 'recipe', icon: <ChefHat size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Una ricetta', desc: 'Lezione di cucina da rifare a casa', categories: ['enogastronomia', 'famiglia'] },
+      { id: 'recipe', icon: <ChefHat size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Una ricetta', desc: 'Lezione di cucina da rifare a casa', categories: ['enogastronomia', 'family'] },
       { id: 'story', icon: <History size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Una storia segreta', desc: 'Quel posto che non trovi sulle guide', categories: ['storia', 'cultura'] },
     ],
   },
@@ -480,8 +480,8 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [animKey, setAnimKey] = useState(0);
-  const [cardAnswers, setCardAnswers] = useState<Record<string, { optionId: string; categories: InterestCategory[] }>>({});
-  const [sliderValues, setSliderValues] = useState<Record<string, number>>({ q2: 3, q4: 3 });
+  const [cardAnswers, setCardAnswers] = useState<Record<number, { optionId: string; categories: InterestCategory[] }>>({});
+  const [sliderValues, setSliderValues] = useState<Record<number, number>>({ 2: 3, 4: 3 });
   const [dietary, setDietary] = useState<string[]>([]);
   const [exiting, setExiting] = useState(false);
 
@@ -514,7 +514,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
       setExiting(true);
       const answers: OnboardingAnswer[] = [
         ...Object.entries(cardAnswers).map(([qId, val]) => ({
-          questionId: qId, answerId: val.optionId, categories: val.categories,
+          questionId: Number(qId), answerId: val.optionId, categories: val.categories,
         })),
         ...QUESTIONS.filter((q): q is SliderQuestion => q.kind === 'slider').map((q) => {
           const v = sliderValues[q.id] ?? 3;
@@ -545,7 +545,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
   const buildAnswers = useCallback((): [OnboardingAnswer[], string[]] => {
     const answers: OnboardingAnswer[] = [
       ...Object.entries(cardAnswers).map(([qId, val]) => ({
-        questionId: qId, answerId: val.optionId, categories: val.categories,
+        questionId: Number(qId), answerId: val.optionId, categories: val.categories,
       })),
       ...QUESTIONS.filter((q): q is SliderQuestion => q.kind === 'slider').map((q) => {
         const v = sliderValues[q.id] ?? 3;
@@ -648,7 +648,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
                 fontFamily: '"DM Mono", monospace', fontSize: 11,
                 color: '#0891b2', fontWeight: 500, letterSpacing: '0.1em',
               }}>
-                PERSONALIZZA LA TUA ROMA
+                PERSONALIZZA LA TUA ESPERIENZA
               </span>
             </div>
             <h1 style={{
