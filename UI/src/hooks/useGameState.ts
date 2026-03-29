@@ -389,6 +389,14 @@ export function useGameState() {
     [pois, profile.personalityScores, profile.interests, timeOfDay],
   );
 
+  const resetPOIsForCity = useCallback((cityName: string) => {
+    setPois([]);
+    lastFetchLocation.current = null;
+    isFetchingPOIs.current = false;
+    setProfile((prev) => ({ ...prev, currentCity: cityName }));
+    setSelectedPOI(null);
+  }, []);
+
   return {
     profile,
     pois,
@@ -412,6 +420,7 @@ export function useGameState() {
     addCoins,
     fetchDynamicPOIs,
     fetchDynamicNarration,
+    resetPOIsForCity,
     scorePOI,
     getVisiblePOIs,
   };

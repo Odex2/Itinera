@@ -35,6 +35,7 @@ function App() {
     getTimeOptimizedRewards,
     updateProfileBasic,
     fetchDynamicPOIs,
+    resetPOIsForCity,
     getVisiblePOIs,
   } = useGameState();
 
@@ -78,8 +79,10 @@ function App() {
         onSelect={(coords) => {
           if (coords) {
             setCustomCityLocation(coords);
+            resetPOIsForCity(coords.name);
           } else {
             setCustomCityLocation(null);
+            resetPOIsForCity('Roma');
           }
           setCurrentScreen('map');
         }}
