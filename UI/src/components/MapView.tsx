@@ -23,6 +23,7 @@ interface MapViewProps {
   timeOfDay: 'mattina' | 'pomeriggio' | 'sera' | 'notte';
   onRequestDynamicPOIs?: (lat: number, lng: number) => void;
   hideBottomCard?: boolean;
+  cityName?: string;
 }
 
 // Bug 03 — Geofencing: Ostiense neighborhood bounding box
@@ -350,7 +351,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function MapView({ pois, profile, userLocation, isDemoMode, onPOISelect, timeOfDay, onRequestDynamicPOIs, hideBottomCard }: MapViewProps) {
+export default function MapView({ pois, profile, userLocation, isDemoMode, onPOISelect, timeOfDay, onRequestDynamicPOIs, hideBottomCard, cityName }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
 
   // BUG 7 FIX: track current zoom to toggle marker vs cluster rendering
@@ -488,7 +489,7 @@ export default function MapView({ pois, profile, userLocation, isDemoMode, onPOI
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-cyan-400" />
-                <span className="text-white font-bold text-lg tracking-wide">Roma</span>
+                <span className="text-white font-bold text-lg tracking-wide">{cityName || 'Roma'}</span>
                 <div className="flex items-center gap-1 ml-2 px-2 py-0.5 bg-slate-800 rounded-full">
                   <TimeIcon className="w-3.5 h-3.5 text-cyan-300" />
                   <span className="text-cyan-200 text-xs font-medium">
@@ -522,54 +523,54 @@ export default function MapView({ pois, profile, userLocation, isDemoMode, onPOI
 
       {/* ── Bottom Card Overlay ── */}
       {!hideBottomCard && (
-      <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none">
-        <div className="mx-3 mb-6 pointer-events-auto">
-          {nearestAvailable ? (
-            <div className="bg-white/95 backdrop-blur-md backdrop-blur-md rounded-xl p-4 shadow-xl border border-slate-200">
-              <div className="flex items-center gap-1.5 mb-2">
-                <Navigation className="w-3.5 h-3.5 text-cyan-600" />
-                <span className="text-cyan-700 text-xs font-bold uppercase tracking-wider">
-                  Prossima Tappa
-                </span>
-              </div>
-              <div className="flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-slate-900 font-bold text-base truncate">
-                    {nearestAvailable.poi.name}
-                  </h3>
-                  <p className="text-slate-500 text-sm">
-                    {CATEGORY_LABELS[nearestAvailable.poi.category] || nearestAvailable.poi.category}
-                  </p>
-                  <div className="flex items-center gap-3 mt-1.5">
-                    <span className="text-slate-600 text-xs">
-                      {userLocation
-                        ? formatDistance(nearestAvailable.distance)
-                        : 'GPS non disponibile'}
-                    </span>
-                    <span className="text-cyan-500 text-sm tracking-wide">
-                      {renderImportanceStars(nearestAvailable.poi.importanceScore)}
-                    </span>
-                  </div>
+        <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none">
+          <div className="mx-3 mb-6 pointer-events-auto">
+            {nearestAvailable ? (
+              <div className="bg-white/95 backdrop-blur-md backdrop-blur-md rounded-xl p-4 shadow-xl border border-slate-200">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Navigation className="w-3.5 h-3.5 text-cyan-600" />
+                  <span className="text-cyan-700 text-xs font-bold uppercase tracking-wider">
+                    Prossima Tappa
+                  </span>
                 </div>
-                <button
-                  onClick={() => onPOISelect(nearestAvailable.poi)}
-                  className="ml-3 px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-bold text-sm rounded-xl shadow-md shadow-cyan-900/10 hover:from-cyan-600 hover:to-cyan-700 active:scale-95 transition-all"
-                >
-                  Esplora
-                </button>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-slate-900 font-bold text-base truncate">
+                      {nearestAvailable.poi.name}
+                    </h3>
+                    <p className="text-slate-500 text-sm">
+                      {CATEGORY_LABELS[nearestAvailable.poi.category] || nearestAvailable.poi.category}
+                    </p>
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <span className="text-slate-600 text-xs">
+                        {userLocation
+                          ? formatDistance(nearestAvailable.distance)
+                          : 'GPS non disponibile'}
+                      </span>
+                      <span className="text-cyan-500 text-sm tracking-wide">
+                        {renderImportanceStars(nearestAvailable.poi.importanceScore)}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => onPOISelect(nearestAvailable.poi)}
+                    className="ml-3 px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-bold text-sm rounded-xl shadow-md shadow-cyan-900/10 hover:from-cyan-600 hover:to-cyan-700 active:scale-95 transition-all"
+                  >
+                    Esplora
+                  </button>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="bg-white/95 backdrop-blur-md backdrop-blur-md rounded-xl p-4 shadow-xl border border-slate-200 text-center">
-              <p className="text-slate-500 text-sm">
-                {userLocation
-                  ? 'Nessun punto di interesse disponibile nelle vicinanze.'
-                  : 'Attiva il GPS per scoprire i punti di interesse.'}
-              </p>
-            </div>
-          )}
+            ) : (
+              <div className="bg-white/95 backdrop-blur-md backdrop-blur-md rounded-xl p-4 shadow-xl border border-slate-200 text-center">
+                <p className="text-slate-500 text-sm">
+                  {userLocation
+                    ? 'Nessun punto di interesse disponibile nelle vicinanze.'
+                    : 'Attiva il GPS per scoprire i punti di interesse.'}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
       )}
     </div>
   );
