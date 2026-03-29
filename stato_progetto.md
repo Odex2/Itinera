@@ -51,7 +51,7 @@ L'architettura di "Scacchiera Urbana" segue un paradigma Client-Server, unita a 
 | File | Azione |
 |---|---|
 | `UI/src/vite-env.d.ts` | **[NUOVO]** Aggiunto `/// <reference types="vite/client" />` per risolvere errore `import.meta.env`. |
-| `server/.env` | **[RICREATO]** File gitignored, ricreato dopo pull con tutte le API key (Regolo, ElevenLabs, OpenWeather, Mapbox). |
+| `server/.env` e `UI/.env` | **[CREATI]** File gitignored creati con le rispettive API key (Regolo, ElevenLabs, OpenWeather per server, e Mapbox per UI). |
 | `server/src/routes/diagnostics.ts` | **[NUOVO]** Route diagnostica `GET /api/diagnostics` mancante che impediva l'avvio del server. |
 
 ## 3. Problemi Noti (Non Bloccanti)
@@ -87,4 +87,4 @@ L'architettura di "Scacchiera Urbana" segue un paradigma Client-Server, unita a 
     - [x] `fetchDynamicNarration` in `useGameState.ts`
     - [x] Skeleton loading + label AI dinamiche in `MissionPanel.tsx`
     - [x] Tipi `POINarration` e `isGeneratingNarration` nel sistema di tipi
-    - [ ] Integrazione `fetchDynamicNarration` dal game state nel modale (attualmente il modale chiama `fetchNarration` direttamente da `api.ts`)
+    - [x] Integrazione `fetchDynamicNarration` dal game state nel modale (rimossi vecchi import da `api.ts` e completato lo Sprint 3B)
