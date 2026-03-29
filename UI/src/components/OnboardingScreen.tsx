@@ -134,11 +134,11 @@ type Question = CardQuestion | SliderQuestion;
 const QUESTIONS: Question[] = [
   {
     kind: 'card', id: 'q1', number: '01',
-    question: 'Come inizi una giornata ideale a Roma?',
+    question: 'Come inizi una giornata ideale?',
     subtitle: 'Scegli quella che ti rappresenta di più',
     options: [
       { id: 'coffee', icon: <Coffee size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Bar storico', desc: 'Caffè lento in un posto con storia', categories: ['enogastronomia', 'storia'] },
-      { id: 'run', icon: <Footprints size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Corsa ai Fori', desc: 'Movimento e la città che si sveglia', categories: ['sport', 'natura'] },
+      { id: 'run', icon: <Footprints size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Corsetta in centro', desc: 'Movimento mentre la città si sveglia', categories: ['sport', 'natura'] },
       { id: 'museum', icon: <Landmark size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Museo aperto', desc: 'Primo ingresso, nessuna fila, silenzio', categories: ['cultura', 'arte'] },
       { id: 'market', icon: <Store size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Mercato rionale', desc: 'Voci, colori, gente vera del quartiere', categories: ['shopping', 'family'] },
     ],
@@ -153,13 +153,13 @@ const QUESTIONS: Question[] = [
   },
   {
     kind: 'card', id: 'q3', number: '03',
-    question: 'Cosa non può mancare in una serata a Roma?',
-    subtitle: 'La tua serata perfetta',
+    question: 'Cosa non può mancare in una serata perfetta?',
+    subtitle: 'La tua serata ideala',
     options: [
       { id: 'aperitivo', icon: <Wine size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Aperitivo in piazza', desc: 'Tramonto, vino, buona compagnia', categories: ['enogastronomia', 'intrattenimento'] },
       { id: 'show', icon: <Ticket size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Spettacolo', desc: 'Musica, teatro, cultura live', categories: ['intrattenimento', 'arte'] },
       { id: 'trattoria', icon: <Utensils size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Trattoria nascosta', desc: 'Pasta fatta a mano, zero turisti', categories: ['enogastronomia', 'storia'] },
-      { id: 'walk', icon: <Moon size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Passeggiata notturna', desc: 'Roma illuminata, ritmo lento', categories: ['paesaggio', 'natura'] },
+      { id: 'walk', icon: <Moon size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Passeggiata notturna', desc: 'Città illuminata, ritmo lento', categories: ['paesaggio', 'natura'] },
     ],
   },
   {
@@ -172,7 +172,7 @@ const QUESTIONS: Question[] = [
   },
   {
     kind: 'card', id: 'q5', number: '05',
-    question: 'Il tuo souvenir ideale di Roma?',
+    question: 'Il tuo souvenir ideale in un viaggio?',
     subtitle: 'Cosa porti a casa',
     options: [
       { id: 'craft', icon: <Wand2 size={32} color="#0891b2" strokeWidth={1.5} />, label: 'Artigianato', desc: 'Fatto a mano, unico, autentico', categories: ['artigianato', 'shopping'] },
