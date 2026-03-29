@@ -12,7 +12,7 @@ import Map, {
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { POI, UserProfile } from '../types';
 import { getDistanceMeters } from '../hooks/useGeolocation';
-import { MapPin, Coins, Sun, Moon, Sunset, CloudMoon, Star, Navigation } from 'lucide-react';
+import { MapPin, Coins, Sun, Moon, Sunset, CloudMoon, Star, Navigation, Edit3 } from 'lucide-react';
 
 interface MapViewProps {
   pois: POI[];
@@ -24,6 +24,7 @@ interface MapViewProps {
   onRequestDynamicPOIs?: (lat: number, lng: number) => void;
   hideBottomCard?: boolean;
   cityName?: string;
+  onChangeCity?: () => void;
 }
 
 // Bug 03 — Geofencing: Ostiense neighborhood bounding box
@@ -351,7 +352,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function MapView({ pois, profile, userLocation, isDemoMode, onPOISelect, timeOfDay, onRequestDynamicPOIs, hideBottomCard, cityName }: MapViewProps) {
+export default function MapView({ pois, profile, userLocation, isDemoMode, onPOISelect, timeOfDay, onRequestDynamicPOIs, hideBottomCard, cityName, onChangeCity }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
 
   // BUG 7 FIX: track current zoom to toggle marker vs cluster rendering
@@ -488,9 +489,15 @@ export default function MapView({ pois, profile, userLocation, isDemoMode, onPOI
           <div className="bg-slate-900/90 backdrop-blur-md rounded-xl px-4 py-3 shadow-[0_8px_30px_rgb(6,182,212,0.12)] border border-slate-700/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-cyan-400" />
-                <span className="text-white font-bold text-lg tracking-wide">{cityName || 'Roma'}</span>
-                <div className="flex items-center gap-1 ml-2 px-2 py-0.5 bg-slate-800 rounded-full">
+                <div
+                  className="flex items-center gap-1.5 cursor-pointer hover:bg-white/10 px-2 py-1 rounded-lg transition-colors group"
+                  onClick={onChangeCity}
+                >
+                  <MapPin className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
+                  <span className="text-white font-bold text-lg tracking-wide">{cityName || 'Roma'}</span>
+                  <Edit3 className="w-4 h-4 text-cyan-300 opacity-70 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <div className="flex items-center gap-1 ml-1 px-2 py-0.5 bg-slate-800 rounded-full">
                   <TimeIcon className="w-3.5 h-3.5 text-cyan-300" />
                   <span className="text-cyan-200 text-xs font-medium">
                     {TIME_LABELS[timeOfDay].label}
