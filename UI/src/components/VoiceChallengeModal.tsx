@@ -53,10 +53,13 @@ export default function VoiceChallengeModal({
     setError('');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : 'audio/webm';
-      const recorder = new MediaRecorder(stream, { mimeType });
+      // Safari/iOS supports only audio/mp4, Chrome/Firefox prefer webm
+      const mimeType =
+        MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' :
+        MediaRecorder.isTypeSupported('audio/webm')             ? 'audio/webm' :
+        MediaRecorder.isTypeSupported('audio/mp4')              ? 'audio/mp4' :
+        '';
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       chunksRef.current = [];
 
       recorder.ondataavailable = (e) => {
@@ -66,7 +69,7 @@ export default function VoiceChallengeModal({
       recorder.onstop = () => {
         stream.getTracks().forEach((t) => t.stop());
         const blob = new Blob(chunksRef.current, { type: mimeType });
-        submitAnswer(blob);
+        submitAnswer(blob, mimeType);
       };
 
       recorder.start();
@@ -88,7 +91,7 @@ export default function VoiceChallengeModal({
 
   // ── Submit to backend ───────────────────────────────────────────────────
   const submitAnswer = useCallback(
-    async (blob: Blob) => {
+    async (blob: Blob, mimeType: string) => {
       try {
         // Convert blob to base64
         const buffer = await blob.arrayBuffer();
@@ -104,7 +107,7 @@ export default function VoiceChallengeModal({
             correctAnswer,
             acceptableKeywords,
             audio: base64,
-            audioFilename: 'recording.webm',
+            audioFilename: mimeType.includes('mp4') ? 'recording.mp4' : 'recording.webm',
           }),
         });
 
