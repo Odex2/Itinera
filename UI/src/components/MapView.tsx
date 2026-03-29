@@ -104,13 +104,33 @@ const clusterCountLayer: LayerProps = {
   paint: { 'text-color': '#ffffff' },
 };
 
-// Invisible placeholder so unclustered features still exist in the layer tree
+// Unclustered (single) points — visible so isolated POIs don't vanish on zoom out
 const unclusteredPointLayer: LayerProps = {
   id: 'poi-unclustered',
   type: 'circle',
   source: 'pois-source',
   filter: ['!', ['has', 'point_count']],
-  paint: { 'circle-radius': 0 },
+  paint: {
+    'circle-radius': 8,
+    'circle-color': [
+      'match', ['get', 'status'],
+      'available', '#f59e0b',
+      'completed', '#22c55e',
+      'active', '#ef4444',
+      'locked', '#9ca3af',
+      '#f59e0b',
+    ],
+    'circle-opacity': 0.9,
+    'circle-stroke-width': 2,
+    'circle-stroke-color': [
+      'match', ['get', 'status'],
+      'available', '#d97706',
+      'completed', '#16a34a',
+      'active', '#dc2626',
+      'locked', '#6b7280',
+      '#d97706',
+    ],
+  },
 };
 
 // Colors per status
@@ -342,7 +362,7 @@ export default function MapView({ pois, profile, userLocation, isDemoMode, onPOI
     features: pois.map((poi) => ({
       type: 'Feature' as const,
       geometry: { type: 'Point' as const, coordinates: [poi.lng, poi.lat] },
-      properties: { id: poi.id },
+      properties: { id: poi.id, status: poi.status },
     })),
   }), [pois]);
 

@@ -155,8 +155,10 @@ function CountdownChallenge({ challenge, onAnswer }: { challenge: Challenge | Ge
   const totalTime = challenge.timeLimit ?? 30;
   const [timeLeft, setTimeLeft] = useState(totalTime);
   const [selected, setSelected] = useState<number | null>(null);
+  const [freeInputValue, setFreeInputValue] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isFreeInput = !challenge.options || challenge.options.length === 0;
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
@@ -173,46 +175,75 @@ function CountdownChallenge({ challenge, onAnswer }: { challenge: Challenge | Ge
   }, [timeLeft, submitted, onAnswer]);
 
   const handleSubmit = () => {
-    if (selected === null || submitted) return;
+    if (submitted) return;
     if (intervalRef.current) clearInterval(intervalRef.current);
-    setSubmitted(true);
-    setTimeout(() => onAnswer(selected === challenge.correctAnswer), 1200);
+    if (isFreeInput) {
+      if (!freeInputValue.trim()) return;
+      setSubmitted(true);
+      const isCorrect = parseInt(freeInputValue.trim(), 10) === challenge.correctAnswer;
+      setTimeout(() => onAnswer(isCorrect), 1200);
+    } else {
+      if (selected === null) return;
+      setSubmitted(true);
+      setTimeout(() => onAnswer(selected === challenge.correctAnswer), 1200);
+    }
   };
+
+  const freeInputCorrect = parseInt(freeInputValue.trim(), 10) === challenge.correctAnswer;
 
   return (
     <div className="space-y-4">
       <div className="flex justify-center"><CountdownCircle timeLeft={timeLeft} totalTime={totalTime} /></div>
       <p className="text-slate-800 font-medium text-base leading-relaxed text-center">{challenge.question}</p>
-      <div className="space-y-2">
-        {challenge.options?.map((option, idx) => {
-          let style = 'border-slate-200 bg-white/95 backdrop-blur-md hover:border-cyan-400';
-          if (submitted) {
-            if (idx === challenge.correctAnswer) style = 'border-green-500 bg-green-50 ring-2 ring-green-300';
-            else if (idx === selected) style = 'border-red-500 bg-red-50 ring-2 ring-red-300';
-            else style = 'border-slate-200 bg-slate-50 opacity-50';
-          } else if (idx === selected) style = 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-300';
-          return (
-            <button key={idx} disabled={submitted || timeLeft === 0} onClick={() => setSelected(idx)}
-              className={`w-full text-left p-3 rounded-xl border-2 transition-all duration-200 ${style}`}>
-              <div className="flex items-center gap-3">
-                <span className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-sm font-semibold text-slate-600 shrink-0">
-                  {String.fromCharCode(65 + idx)}
-                </span>
-                <span className="text-slate-700 text-sm">{option}</span>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+      {isFreeInput ? (
+        <div className="space-y-2">
+          <input type="number" inputMode="numeric" value={freeInputValue}
+            onChange={(e) => setFreeInputValue(e.target.value)}
+            disabled={submitted || timeLeft === 0} placeholder="Scrivi la tua risposta..."
+            className={`w-full p-3 rounded-xl border-2 text-center text-lg font-semibold outline-none transition-all ${
+              submitted ? (freeInputCorrect ? 'border-green-500 bg-green-50 text-green-700' : 'border-red-500 bg-red-50 text-red-700')
+              : 'border-slate-200 bg-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200 text-slate-800'
+            }`} />
+          {submitted && !freeInputCorrect && (
+            <p className="text-slate-500 text-sm text-center">Risposta corretta: {challenge.correctAnswer}</p>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {challenge.options?.map((option, idx) => {
+            let style = 'border-slate-200 bg-white/95 backdrop-blur-md hover:border-cyan-400';
+            if (submitted) {
+              if (idx === challenge.correctAnswer) style = 'border-green-500 bg-green-50 ring-2 ring-green-300';
+              else if (idx === selected) style = 'border-red-500 bg-red-50 ring-2 ring-red-300';
+              else style = 'border-slate-200 bg-slate-50 opacity-50';
+            } else if (idx === selected) style = 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-300';
+            return (
+              <button key={idx} disabled={submitted || timeLeft === 0} onClick={() => setSelected(idx)}
+                className={`w-full text-left p-3 rounded-xl border-2 transition-all duration-200 ${style}`}>
+                <div className="flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-sm font-semibold text-slate-600 shrink-0">
+                    {String.fromCharCode(65 + idx)}
+                  </span>
+                  <span className="text-slate-700 text-sm">{option}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
       {!submitted && timeLeft > 0 && (
-        <button onClick={handleSubmit} disabled={selected === null}
+        <button onClick={handleSubmit} disabled={isFreeInput ? !freeInputValue.trim() : selected === null}
           className="w-full py-3 rounded-xl font-semibold text-white bg-cyan-600 hover:bg-cyan-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all">
           Conferma risposta
         </button>
       )}
       {submitted && (
-        <div className={`p-3 rounded-xl text-center font-medium ${timeLeft === 0 ? 'bg-red-50 text-red-700' : selected === challenge.correctAnswer ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-          {timeLeft === 0 ? 'Tempo scaduto!' : selected === challenge.correctAnswer ? 'Risposta corretta! Ben fatto!' : 'Risposta sbagliata.'}
+        <div className={`p-3 rounded-xl text-center font-medium ${
+          timeLeft === 0 ? 'bg-red-50 text-red-700'
+          : (isFreeInput ? freeInputCorrect : selected === challenge.correctAnswer) ? 'bg-green-50 text-green-700'
+          : 'bg-red-50 text-red-700'
+        }`}>
+          {timeLeft === 0 ? 'Tempo scaduto!' : (isFreeInput ? freeInputCorrect : selected === challenge.correctAnswer) ? 'Risposta corretta! Ben fatto!' : 'Risposta sbagliata.'}
         </div>
       )}
     </div>
@@ -224,13 +255,25 @@ function CountdownChallenge({ challenge, onAnswer }: { challenge: Challenge | Ge
 function ObservationChallenge({ challenge, onAnswer }: { challenge: Challenge | GeneratedChallenge; onAnswer: (correct: boolean) => void }) {
   const [showHint, setShowHint] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
+  const [freeInputValue, setFreeInputValue] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const isFreeInput = !challenge.options || challenge.options.length === 0;
 
   const handleSubmit = () => {
-    if (selected === null) return;
-    setSubmitted(true);
-    setTimeout(() => onAnswer(selected === challenge.correctAnswer), 1200);
+    if (submitted) return;
+    if (isFreeInput) {
+      if (!freeInputValue.trim()) return;
+      setSubmitted(true);
+      const isCorrect = parseInt(freeInputValue.trim(), 10) === challenge.correctAnswer;
+      setTimeout(() => onAnswer(isCorrect), 1200);
+    } else {
+      if (selected === null) return;
+      setSubmitted(true);
+      setTimeout(() => onAnswer(selected === challenge.correctAnswer), 1200);
+    }
   };
+
+  const freeInputCorrect = parseInt(freeInputValue.trim(), 10) === challenge.correctAnswer;
 
   return (
     <div className="space-y-4">
@@ -250,38 +293,53 @@ function ObservationChallenge({ challenge, onAnswer }: { challenge: Challenge | 
           <span className="font-medium text-slate-700">Suggerimento:</span> {challenge.hint}
         </div>
       )}
-      <div className="space-y-2">
-        {challenge.options?.map((option, idx) => {
-          let style = 'border-slate-200 bg-white/95 backdrop-blur-md hover:border-cyan-400';
-          if (submitted) {
-            if (idx === challenge.correctAnswer) style = 'border-green-500 bg-green-50 ring-2 ring-green-300';
-            else if (idx === selected) style = 'border-red-500 bg-red-50 ring-2 ring-red-300';
-            else style = 'border-slate-200 bg-slate-50 opacity-50';
-          } else if (idx === selected) style = 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-300';
-          return (
-            <button key={idx} disabled={submitted} onClick={() => setSelected(idx)}
-              className={`w-full text-left p-3 rounded-xl border-2 transition-all duration-200 ${style}`}>
-              <div className="flex items-center gap-3">
-                <span className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-sm font-semibold text-slate-600 shrink-0">
-                  {String.fromCharCode(65 + idx)}
-                </span>
-                <span className="text-slate-700 text-sm">{option}</span>
-                {submitted && idx === challenge.correctAnswer && <CheckCircle className="w-5 h-5 text-green-600 ml-auto shrink-0" />}
-                {submitted && idx === selected && idx !== challenge.correctAnswer && <XCircle className="w-5 h-5 text-red-600 ml-auto shrink-0" />}
-              </div>
-            </button>
-          );
-        })}
-      </div>
+      {isFreeInput ? (
+        <div className="space-y-2">
+          <input type="number" inputMode="numeric" value={freeInputValue}
+            onChange={(e) => setFreeInputValue(e.target.value)}
+            disabled={submitted} placeholder="Scrivi la tua risposta..."
+            className={`w-full p-3 rounded-xl border-2 text-center text-lg font-semibold outline-none transition-all ${
+              submitted ? (freeInputCorrect ? 'border-green-500 bg-green-50 text-green-700' : 'border-red-500 bg-red-50 text-red-700')
+              : 'border-slate-200 bg-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200 text-slate-800'
+            }`} />
+          {submitted && !freeInputCorrect && (
+            <p className="text-slate-500 text-sm text-center">Risposta corretta: {challenge.correctAnswer}</p>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {challenge.options?.map((option, idx) => {
+            let style = 'border-slate-200 bg-white/95 backdrop-blur-md hover:border-cyan-400';
+            if (submitted) {
+              if (idx === challenge.correctAnswer) style = 'border-green-500 bg-green-50 ring-2 ring-green-300';
+              else if (idx === selected) style = 'border-red-500 bg-red-50 ring-2 ring-red-300';
+              else style = 'border-slate-200 bg-slate-50 opacity-50';
+            } else if (idx === selected) style = 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-300';
+            return (
+              <button key={idx} disabled={submitted} onClick={() => setSelected(idx)}
+                className={`w-full text-left p-3 rounded-xl border-2 transition-all duration-200 ${style}`}>
+                <div className="flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-sm font-semibold text-slate-600 shrink-0">
+                    {String.fromCharCode(65 + idx)}
+                  </span>
+                  <span className="text-slate-700 text-sm">{option}</span>
+                  {submitted && idx === challenge.correctAnswer && <CheckCircle className="w-5 h-5 text-green-600 ml-auto shrink-0" />}
+                  {submitted && idx === selected && idx !== challenge.correctAnswer && <XCircle className="w-5 h-5 text-red-600 ml-auto shrink-0" />}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
       {!submitted && (
-        <button onClick={handleSubmit} disabled={selected === null}
+        <button onClick={handleSubmit} disabled={isFreeInput ? !freeInputValue.trim() : selected === null}
           className="w-full py-3 rounded-xl font-semibold text-white bg-cyan-600 hover:bg-cyan-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all">
           Conferma risposta
         </button>
       )}
       {submitted && (
-        <div className={`p-3 rounded-xl text-center font-medium ${selected === challenge.correctAnswer ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-          {selected === challenge.correctAnswer ? 'Ottimo spirito di osservazione!' : 'Non preoccuparti, riprova la prossima volta!'}
+        <div className={`p-3 rounded-xl text-center font-medium ${(isFreeInput ? freeInputCorrect : selected === challenge.correctAnswer) ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+          {(isFreeInput ? freeInputCorrect : selected === challenge.correctAnswer) ? 'Ottimo spirito di osservazione!' : 'Non preoccuparti, riprova la prossima volta!'}
         </div>
       )}
     </div>
@@ -634,15 +692,17 @@ export default function MissionPanel({
 
   // ── Fetch AI challenges when sfida tab opens ──
   useEffect(() => {
-    // BUG 6 FIX: never fetch challenges for already-completed POIs
     if (activeTab !== 'sfida' || aiChallenges !== null || tooFar || alreadyCompleted) return;
+    // For AI-discovered POIs (empty context), wait for narration first
+    const isAIDiscovered = !poi.shortStory && !poi.hiddenFact;
+    if (isAIDiscovered && !aiNarration && aiNarrationLoading) return;
     let cancelled = false;
     setAiChallengesLoading(true);
     fetchChallenges({
       poiName: poi.name,
       poiDescription: poi.description,
-      hiddenFact: poi.hiddenFact,
-      shortStory: poi.shortStory,
+      hiddenFact: poi.hiddenFact || aiNarration?.hiddenFact || '',
+      shortStory: poi.shortStory || aiNarration?.narration || poi.description || '',
       category: poi.category,
       count: 2,
       userInterests: profile.interests,
@@ -651,7 +711,7 @@ export default function MissionPanel({
       .catch(() => { /* silent fallback to static challenges */ })
       .finally(() => { if (!cancelled) setAiChallengesLoading(false); });
     return () => { cancelled = true; };
-  }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeTab, aiNarration, aiNarrationLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Use AI challenges if available, otherwise fall back to static
   const activeChallenges: (Challenge | GeneratedChallenge)[] =
