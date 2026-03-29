@@ -353,6 +353,7 @@
       width: 100%;
       max-width: 1080px;
       margin-top: 56px;
+      perspective: 1000px;
     }
 
     .problem-card {
@@ -456,9 +457,57 @@
     }
 
     .pill:hover {
-      border-color: rgba(74, 222, 128, .4);
-      background: rgba(74, 222, 128, .06);
+      border-color: var(--cyan);
+      background: rgba(6, 182, 212, .12);
       transform: translateY(-2px);
+      box-shadow: 0 0 16px rgba(6, 182, 212, .4);
+    }
+
+    /* Auto highlight pills when on slide-solution */
+    @keyframes pill-auto-hover {
+
+      0%,
+      100% {
+        border-color: var(--border);
+        background: var(--surface);
+        transform: translateY(0);
+        box-shadow: none;
+      }
+
+      10%,
+      20% {
+        border-color: var(--cyan);
+        background: rgba(6, 182, 212, .12);
+        transform: translateY(-3px);
+        box-shadow: 0 0 16px rgba(6, 182, 212, .4);
+      }
+
+      30% {
+        border-color: var(--border);
+        background: var(--surface);
+        transform: translateY(0);
+        box-shadow: none;
+      }
+    }
+
+    .slide-visible .solution-pills .pill {
+      animation: pill-auto-hover 5s infinite;
+    }
+
+    .slide-visible .solution-pills .pill:nth-child(1) {
+      animation-delay: 1.0s;
+    }
+
+    .slide-visible .solution-pills .pill:nth-child(2) {
+      animation-delay: 1.4s;
+    }
+
+    .slide-visible .solution-pills .pill:nth-child(3) {
+      animation-delay: 1.8s;
+    }
+
+    .slide-visible .solution-pills .pill:nth-child(4) {
+      animation-delay: 2.2s;
     }
 
     .pill-dot {
@@ -466,7 +515,7 @@
       height: 8px;
       border-radius: 50%;
       background: var(--green);
-      box-shadow: 0 0 8px var(--green);
+      box-shadow: 0 0 8px currentColor;
     }
 
     /* ── SLIDE 4 COME FUNZIONA ── */
@@ -512,24 +561,57 @@
       position: relative;
     }
 
-    .step:nth-child(2) .step-num {
-      background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
-      box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
-    }
-
-    .step:nth-child(3) .step-num {
-      background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
-      box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
-    }
-
-    .step:nth-child(4) .step-num {
-      background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
-      box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
-    }
-
+    .step:nth-child(2) .step-num,
+    .step:nth-child(3) .step-num,
+    .step:nth-child(4) .step-num,
     .step:nth-child(5) .step-num {
       background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
       box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
+    }
+
+    /* Auto highlight steps when on slide-how */
+    @keyframes step-num-pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
+        background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
+      }
+
+      10%,
+      20% {
+        transform: scale(1.15);
+        box-shadow: 0 0 0 2px var(--cyan), 0 0 40px var(--cyan);
+        background: radial-gradient(circle, #002b36 0%, #001217 100%);
+        color: #fff;
+      }
+
+      30% {
+        transform: scale(1);
+        box-shadow: 0 0 0 1px var(--cyan), 0 0 24px rgba(6, 182, 212, .2);
+        background: radial-gradient(circle, #001a20 0%, #000a0d 100%);
+      }
+    }
+
+    .slide-visible .step:nth-child(2) .step-num {
+      animation: step-num-pulse 5s infinite;
+      animation-delay: 1.0s;
+    }
+
+    .slide-visible .step:nth-child(3) .step-num {
+      animation: step-num-pulse 5s infinite;
+      animation-delay: 1.5s;
+    }
+
+    .slide-visible .step:nth-child(4) .step-num {
+      animation: step-num-pulse 5s infinite;
+      animation-delay: 2.0s;
+    }
+
+    .slide-visible .step:nth-child(5) .step-num {
+      animation: step-num-pulse 5s infinite;
+      animation-delay: 2.5s;
     }
 
     .step h3 {
@@ -546,7 +628,7 @@
 
     /* ── SLIDE 5 AI ── */
     .slide-ai {
-      background: radial-gradient(ellipse 70% 60% at 70% 50%, #08001a 0%, var(--bg) 65%);
+      background: radial-gradient(ellipse 70% 60% at 70% 50%, #001a20 0%, var(--bg) 65%);
     }
 
     .ai-layout {
@@ -587,7 +669,7 @@
       font-family: 'Space Grotesk', sans-serif;
       font-size: 36px;
       font-weight: 700;
-      color: var(--violet);
+      color: var(--cyan);
     }
 
     .ai-stat .lbl {
@@ -603,8 +685,8 @@
     }
 
     .ai-card {
-      background: linear-gradient(135deg, rgba(255, 255, 255, .04) 0%, rgba(139, 92, 246, .05) 100%);
-      border: 1px solid rgba(139, 92, 246, .15);
+      background: linear-gradient(135deg, rgba(255, 255, 255, .04) 0%, rgba(6, 182, 212, .05) 100%);
+      border: 1px solid rgba(6, 182, 212, .15);
       border-radius: 20px;
       padding: 24px 28px;
       display: flex;
@@ -614,7 +696,7 @@
     }
 
     .ai-card:hover {
-      border-color: rgba(139, 92, 246, .35);
+      border-color: rgba(6, 182, 212, .35);
       transform: translateX(4px);
     }
 
@@ -622,7 +704,7 @@
       width: 48px;
       height: 48px;
       border-radius: 14px;
-      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      background: linear-gradient(135deg, var(--cyan), var(--teal));
       display: flex;
       align-items: center;
       justify-content: center;
@@ -834,6 +916,7 @@
       max-width: 1040px;
       width: 100%;
       margin-top: 56px;
+      perspective: 1000px;
     }
 
     .win-card {
@@ -998,8 +1081,8 @@
       color: var(--green);
     }
 
-    .highlight-purple {
-      color: var(--purple);
+    .highlight-cyan {
+      color: var(--cyan);
     }
 
     h2.main-title {
@@ -1015,29 +1098,242 @@
     /* ── ANIMATIONS ── */
     .fade-up {
       opacity: 0;
-      transform: translateY(32px);
-      transition: opacity .7s ease, transform .7s ease;
+      transform: translateY(40px) scale(.97);
+      filter: blur(4px);
+      transition: opacity .8s cubic-bezier(.16, 1, .3, 1),
+        transform .8s cubic-bezier(.16, 1, .3, 1),
+        filter .8s cubic-bezier(.16, 1, .3, 1);
     }
 
     .fade-up.visible {
       opacity: 1;
       transform: none;
+      filter: blur(0);
     }
 
-    .fade-up:nth-child(2) {
+    /* stagger delays per i figli diretti della slide */
+    .slide>.fade-up:nth-child(1) {
+      transition-delay: .05s;
+    }
+
+    .slide>.fade-up:nth-child(2) {
+      transition-delay: .15s;
+    }
+
+    .slide>.fade-up:nth-child(3) {
+      transition-delay: .25s;
+    }
+
+    .slide>.fade-up:nth-child(4) {
+      transition-delay: .35s;
+    }
+
+    .slide>.fade-up:nth-child(5) {
+      transition-delay: .45s;
+    }
+
+    /* stagger grid children */
+    .problem-grid .fade-up:nth-child(1) {
       transition-delay: .1s;
     }
 
-    .fade-up:nth-child(3) {
-      transition-delay: .2s;
+    .problem-grid .fade-up:nth-child(2) {
+      transition-delay: .22s;
     }
 
-    .fade-up:nth-child(4) {
-      transition-delay: .3s;
+    .problem-grid .fade-up:nth-child(3) {
+      transition-delay: .34s;
     }
 
-    .fade-up:nth-child(5) {
-      transition-delay: .4s;
+    .win-grid .fade-up:nth-child(1) {
+      transition-delay: .1s;
+    }
+
+    .win-grid .fade-up:nth-child(2) {
+      transition-delay: .22s;
+    }
+
+    .win-grid .fade-up:nth-child(3) {
+      transition-delay: .34s;
+    }
+
+    .ai-features .fade-up:nth-child(1) {
+      transition-delay: .1s;
+    }
+
+    .ai-features .fade-up:nth-child(2) {
+      transition-delay: .22s;
+    }
+
+    .ai-features .fade-up:nth-child(3) {
+      transition-delay: .34s;
+    }
+
+    .ai-features .fade-up:nth-child(4) {
+      transition-delay: .46s;
+    }
+
+    .steps .fade-up:nth-child(2) {
+      transition-delay: .1s;
+    }
+
+    .steps .fade-up:nth-child(3) {
+      transition-delay: .22s;
+    }
+
+    .steps .fade-up:nth-child(4) {
+      transition-delay: .34s;
+    }
+
+    .steps .fade-up:nth-child(5) {
+      transition-delay: .46s;
+    }
+
+    .demo-steps .fade-up:nth-child(1) {
+      transition-delay: .1s;
+    }
+
+    .demo-steps .fade-up:nth-child(2) {
+      transition-delay: .22s;
+    }
+
+    .demo-steps .fade-up:nth-child(3) {
+      transition-delay: .34s;
+    }
+
+    /* ── SCROLL PROGRESS BAR ── */
+    #scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, var(--cyan), var(--teal), var(--emerald));
+      z-index: 1000;
+      transition: width .1s linear;
+      box-shadow: 0 0 12px var(--cyan);
+    }
+
+    /* ── CURSOR GLOW ── */
+    #cursor-glow {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      background: radial-gradient(circle, rgba(6, 182, 212, .06) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
+      transition: left .12s ease, top .12s ease;
+      mix-blend-mode: screen;
+    }
+
+    /* ── SLIDE TRANSITION OVERLAY ── */
+    #slide-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      pointer-events: none;
+      background: var(--bg);
+      clip-path: circle(0% at 50% 50%);
+      transition: clip-path 0s;
+    }
+
+    #slide-overlay.expanding {
+      clip-path: circle(150% at 50% 50%);
+      transition: clip-path .55s cubic-bezier(.8, 0, .2, 1);
+    }
+
+    #slide-overlay.collapsing {
+      clip-path: circle(0% at 50% 50%);
+      transition: clip-path .45s cubic-bezier(.8, 0, .2, 1);
+    }
+
+    /* nessun overlay nella nav scroll normale */
+
+    /* ── SHINE SWEEP sulle card ── */
+    .problem-card,
+    .win-card,
+    .ai-card,
+    .impact-num {
+      overflow: hidden;
+    }
+
+    .problem-card::after,
+    .win-card::after,
+    .ai-card::after,
+    .impact-num::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -75%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg,
+          transparent,
+          rgba(255, 255, 255, .06),
+          transparent);
+      transform: skewX(-20deg);
+      transition: left .6s ease;
+      pointer-events: none;
+    }
+
+    .problem-card:hover::after,
+    .win-card:hover::after,
+    .ai-card:hover::after,
+    .impact-num:hover::before {
+      left: 150%;
+    }
+
+    /* ── 3D TILT PERSPECTIVE ── */
+    .tilt-wrap {
+      perspective: 800px;
+    }
+
+    .tilt-card {
+      transform-style: preserve-3d;
+      transition: transform .3s ease;
+      will-change: transform;
+    }
+
+    /* ── GLITCH sul titolo hero ── */
+    @keyframes glitch-1 {
+
+      0%,
+      90%,
+      100% {
+        clip-path: none;
+        transform: none;
+        opacity: 1;
+      }
+
+      91% {
+        clip-path: polygon(0 10%, 100% 10%, 100% 32%, 0 32%);
+        transform: translateX(-4px);
+        opacity: .9;
+      }
+
+      93% {
+        clip-path: polygon(0 55%, 100% 55%, 100% 70%, 0 70%);
+        transform: translateX(4px);
+        opacity: .9;
+      }
+
+      95% {
+        clip-path: none;
+        transform: none;
+        opacity: 1;
+      }
+    }
+
+    .hero-mega-text {
+      animation: hero-in 1s cubic-bezier(.16, 1, .3, 1) both,
+        glitch-1 8s 2s ease-in-out infinite;
+    }
+
+    /* ── COUNTER NUMBERS ── */
+    .count-num {
+      display: inline-block;
     }
 
     /* ── SCROLLBAR ── */
@@ -1065,6 +1361,15 @@
 </head>
 
 <body>
+
+  <!-- SCROLL PROGRESS -->
+  <div id="scroll-progress"></div>
+
+  <!-- CURSOR GLOW -->
+  <div id="cursor-glow"></div>
+
+  <!-- SLIDE TRANSITION OVERLAY -->
+  <div id="slide-overlay"></div>
 
   <canvas id="particles-canvas"></canvas>
 
@@ -1131,24 +1436,26 @@
   <section class="slide slide-problem" id="slide-1">
     <div class="slide-label fade-up">Il problema</div>
     <h2 class="main-title fade-up">
-      Milioni di persone visitano nuove città.<br>
-      <span class="highlight">Quasi nessuna le scopre davvero.</span>
+      Il turismo di massa produce<br>
+      <span class="highlight">esperienza zero.</span>
     </h2>
     <div class="problem-grid">
       <div class="problem-card fade-up">
-        <div class="problem-icon"><i data-lucide="frown"></i></div>
-        <strong>Guida turistica = noia</strong>
-        <p>Leggere didascalie su un cartello non è un'esperienza. È un compito.</p>
+        <div class="problem-icon"><i data-lucide="list"></i></div>
+        <strong>Guide uguali per tutti</strong>
+        <p>TripAdvisor, Google Maps, guide cartacee: propongono sempre gli stessi posti, senza sapere nulla di chi sei.
+        </p>
       </div>
       <div class="problem-card fade-up">
-        <div class="problem-icon"><i data-lucide="compass"></i></div>
-        <strong>Troppo da scegliere</strong>
-        <p>"Dove vado?" è la domanda che blocca ogni turista al mattino.</p>
+        <div class="problem-icon"><i data-lucide="zap-off"></i></div>
+        <strong>Nessun coinvolgimento reale</strong>
+        <p>Leggere una targa o guardare un video non crea memoria. Serve partecipazione attiva, non passiva.</p>
       </div>
       <div class="problem-card fade-up">
-        <div class="problem-icon"><i data-lucide="camera-off"></i></div>
-        <strong>Solo selfie, zero memoria</strong>
-        <p>Si fotografa tutto, si ricorda niente. Manca il legame emotivo con il luogo.</p>
+        <div class="problem-icon"><i data-lucide="unlink"></i></div>
+        <strong>Digitale scollegato dal territorio</strong>
+        <p>Le app di viaggio non generano valore locale. I commercianti non esistono, i quartieri autentici restano
+          invisibili.</p>
       </div>
     </div>
     <div class="slide-num">02 / 08</div>
@@ -1160,32 +1467,30 @@
   <section class="slide slide-solution" id="slide-2">
     <div class="slide-label fade-up">La soluzione</div>
     <h2 class="solution-title fade-up">
-      Ogni città diventa un<br>
-      <span class="highlight">gioco di ruolo</span><br>
-      nella vita reale.
+      Il tuo profilo in<br>
+      <span class="highlight">4 dimensioni.</span><br>
+      La città, su misura.
     </h2>
     <p class="solution-desc fade-up">
-      ITINERA trasforma ogni monumento in una missione,
-      ogni quartiere in un livello da completare,
-      ogni storia nascosta in una ricompensa reale.
+      5 domande al primo avvio costruiscono il tuo DNA da esploratore.
+      L'AI mappa i tuoi interessi su 4 assi e li aggiorna dopo ogni esperienza.
     </p>
     <div class="solution-pills fade-up">
       <div class="pill">
-        <div class="pill-dot"></div>Gamification urbana
+        <div class="pill-dot" style="background:var(--teal)"></div>Relax
       </div>
       <div class="pill">
-        <div class="pill-dot"></div>AI che personalizza tutto
+        <div class="pill-dot" style="background:var(--cyan)"></div>Cultura
       </div>
       <div class="pill">
-        <div class="pill-dot"></div>GPS in tempo reale
+        <div class="pill-dot" style="background:var(--emerald)"></div>Avventura
       </div>
       <div class="pill">
-        <div class="pill-dot"></div>Premi reali dai partner
-      </div>
-      <div class="pill">
-        <div class="pill-dot"></div>Narrazione vocale
+        <div class="pill-dot" style="background:var(--cyan)"></div>Socialità
       </div>
     </div>
+    <p class="fade-up" style="font-size:14px;color:var(--text-dim);margin-top:28px;letter-spacing:.5px;">Il profilo
+      evolve con te — ogni feedback aggiorna il modello in tempo reale.</p>
     <div class="slide-num">03 / 08</div>
   </section>
 
@@ -1195,32 +1500,31 @@
   <section class="slide slide-how" id="slide-3">
     <div class="slide-label fade-up">Come funziona</div>
     <h2 class="main-title fade-up" style="text-align:center">
-      4 passi per trasformare<br>una passeggiata in un'avventura
+      Dal profilo alla ricompensa:<br>ogni passo è un'avventura
     </h2>
     <div class="steps">
       <div class="steps-line"></div>
       <div class="step fade-up">
-        <div class="step-num"><i data-lucide="brain"></i></div>
-        <h3>Ti conosce</h3>
-        <p>Un onboarding di 2 minuti capisce chi sei: amante dell'arte? Foodie? Avventuriero?</p>
+        <div class="step-num"><i data-lucide="user-check"></i></div>
+        <h3>5 domande</h3>
+        <p>In meno di 2 minuti costruisci il tuo profilo. L'AI calcola i tuoi pesi su Relax, Cultura, Avventura e
+          Socialità.</p>
       </div>
       <div class="step fade-up">
-        <div class="step-num"><i data-lucide="map-pin"></i></div>
-        <h3>Ti guida</h3>
-        <p>La mappa mostra i luoghi vicini a te, filtrati per i tuoi gusti. L'AI scopre le chicche nascoste del
-          quartiere.</p>
+        <div class="step-num"><i data-lucide="map"></i></div>
+        <h3>Mappa viva</h3>
+        <p>L'algoritmo combina rilevanza del luogo e le tue preferenze per mostrarti solo i POI che fanno per te.</p>
       </div>
       <div class="step fade-up">
-        <div class="step-num"><i data-lucide="target"></i></div>
-        <h3>Ti sfida</h3>
-        <p>Arrivato sul posto, una storia unica e un quiz generati dall'AI ti aspettano. Ogni risposta ti dà XP e
-          monete.</p>
+        <div class="step-num"><i data-lucide="swords"></i></div>
+        <h3>2 sfide per POI</h3>
+        <p>Da remoto: quiz per stimolare la curiosità. In presenza: esperienze immersive legate all'ambiente reale.</p>
       </div>
       <div class="step fade-up">
-        <div class="step-num"><i data-lucide="gift"></i></div>
-        <h3>Ti premia</h3>
-        <p>Le monete si riscattano da partner reali: caffè, ristoranti, esperienze. La città ti ringrazia per averla
-          esplorata.</p>
+        <div class="step-num"><i data-lucide="badge"></i></div>
+        <h3>XP → Premi reali</h3>
+        <p>Punti, badge e monete sbloccano sconti ed esperienze dai partner locali. Digitale e territorio finalmente
+          connessi.</p>
       </div>
     </div>
     <div class="slide-num">04 / 08</div>
@@ -1232,61 +1536,62 @@
   <section class="slide slide-ai" id="slide-4">
     <div class="ai-layout">
       <div class="ai-left">
-        <div class="slide-label fade-up">La magia dell'AI</div>
-        <h2 class="ai-left fade-up">
-          Non una guida uguale per tutti.<br>
-          <span class="highlight-purple">La tua guida.</span>
+        <div class="slide-label fade-up">Il motore AI</div>
+        <h2 class="ai-left fade-up"
+          style="font-family:'Space Grotesk',sans-serif;font-size:clamp(34px,4.5vw,56px);font-weight:700;line-height:1.1;letter-spacing:-1.5px;margin-bottom:20px;">
+          Rilevanza del luogo<br>
+          + preferenze tue =
+          <span class="highlight-cyan">percorso unico.</span>
         </h2>
         <p class="fade-up">
-          Ogni utente vive la città in modo completamente diverso,
-          generato in tempo reale dall'AI in base ai suoi interessi,
-          alla sua posizione e al momento della giornata.
+          L'algoritmo non è una semplice lista ordinata. Combina la rilevanza oggettiva del POI con
+          il tuo vettore di preferenze — e si aggiorna dopo ogni esperienza grazie ai tuoi feedback.
         </p>
         <div class="ai-stat-row fade-up">
           <div class="ai-stat">
-            <div class="val">∞</div>
-            <div class="lbl">storie uniche<br>generate</div>
+            <div class="val"><span class="count-num" data-target="4" data-suffix="">4</span></div>
+            <div class="lbl">dimensioni<br>del profilo</div>
           </div>
           <div class="ai-stat">
-            <div class="val">0</div>
-            <div class="lbl">domande uguali<br>al quiz</div>
+            <div class="val"><span class="count-num" data-target="5" data-suffix="">5</span></div>
+            <div class="lbl">domande per<br>l'onboarding</div>
           </div>
           <div class="ai-stat">
-            <div class="val">100%</div>
-            <div class="lbl">esperienze<br>personalizzate</div>
+            <div class="val"><span class="count-num" data-target="2" data-suffix="">2</span></div>
+            <div class="lbl">sfide generate<br>per ogni POI</div>
           </div>
         </div>
       </div>
       <div class="ai-features">
         <div class="ai-card fade-up">
-          <div class="icon"><i data-lucide="map"></i></div>
+          <div class="icon"><i data-lucide="sliders-horizontal"></i></div>
           <div>
-            <h3>Mappa dinamica</h3>
-            <p>I POI cambiano in base a chi sei e dove sei. L'AI scopre luoghi mai catalogati nelle guide turistiche.
-            </p>
+            <h3>Algoritmo ibrido</h3>
+            <p>Rilevanza dei luoghi × vettore preferenze personali. Non si basa su rating medi: impara continuamente da
+              te.</p>
           </div>
         </div>
         <div class="ai-card fade-up">
-          <div class="icon"><i data-lucide="book-open"></i></div>
+          <div class="icon"><i data-lucide="sparkles"></i></div>
           <div>
-            <h3>Storie generate al volo</h3>
-            <p>Ogni narrazione è unica: diversa se sei amante della storia, dell'arte o dell'avventura. E diversa la
-              sera rispetto alla mattina.</p>
+            <h3>Storie &amp; curiosità generative</h3>
+            <p>Ogni POI produce contenuti unici: testo breve, curiosità contestuali e una modalità audio per chi
+              cammina.</p>
           </div>
         </div>
         <div class="ai-card fade-up">
-          <div class="icon"><i data-lucide="circle-help"></i></div>
+          <div class="icon"><i data-lucide="refresh-cw"></i></div>
           <div>
-            <h3>Quiz impossibili da copiare</h3>
-            <p>Le sfide vengono generate in tempo reale. Non c'è un database di domande: l'AI ne crea di nuove ogni
-              volta.</p>
+            <h3>Profilo che evolve</h3>
+            <p>I pesi delle 4 dimensioni si aggiornano dopo ogni feedback. Più usi ITINERA, più diventa tua.</p>
           </div>
         </div>
         <div class="ai-card fade-up">
           <div class="icon"><i data-lucide="headphones"></i></div>
           <div>
-            <h3>Voce che racconta</h3>
-            <p>ElevenLabs legge la storia al posto tuo. Puoi camminare e ascoltare, senza guardare lo schermo.</p>
+            <h3>Modalità audio</h3>
+            <p>ElevenLabs sintetizza la narrazione. Cammini, ascolti, vivi — senza tenere lo sguardo fisso sullo
+              schermo.</p>
           </div>
         </div>
       </div>
@@ -1312,26 +1617,26 @@
 
       <div class="demo-split-right">
         <div class="slide-label fade-up">Live Demo</div>
-        <h2 class="main-title fade-up" style="text-align:left; margin-bottom: 10px;">L'app in azione</h2>
+        <h2 class="main-title fade-up" style="text-align:left; margin-bottom: 10px;">Vedi ITINERA<br>in azione</h2>
 
         <div class="demo-steps">
           <div class="demo-step fade-up">
             <div class="demo-step-num">STEP 01</div>
-            <h3>Profilazione Istantanea</h3>
-            <p>Durante l'apertura, l'app identifica i tuoi interessi. Bastano pochi tap per comunicare all'AI il tuo
-              stile di viaggio.</p>
+            <h3>Scegli la città, scegli te stesso</h3>
+            <p>Dalla mappa interattiva selezioni la città. 5 domande veloci calibrano le 4 dimensioni del tuo profilo:
+              Relax, Cultura, Avventura, Socialità.</p>
           </div>
           <div class="demo-step fade-up">
             <div class="demo-step-num">STEP 02</div>
-            <h3>Navigazione Intelligente</h3>
-            <p>L'interfaccia si popola in tempo reale. I POI attorno a te non sono casuali, ma filtrati e calcolati su
-              misura per farti vivere un'avventura unica.</p>
+            <h3>POI su misura, in tempo reale</h3>
+            <p>L'algoritmo seleziona i punti d'interesse per te. Apri un POI: trovi storia generata dall'AI, curiosità e
+              l'opzione ascolto.</p>
           </div>
           <div class="demo-step fade-up">
             <div class="demo-step-num">STEP 03</div>
-            <h3>Check-in e Ricompensa</h3>
-            <p>Raggiunto l'obiettivo, parte la storia vocale. Superando il quiz sblocchi monete virtuali spendibili
-              presso le attività commerciali locali.</p>
+            <h3>Sfida → XP → Ricompensa locale</h3>
+            <p>2 sfide per ogni luogo: quiz da remoto o esperienza immersiva sul posto. I punti si trasformano in sconti
+              e offerte dai partner locali.</p>
           </div>
         </div>
       </div>
@@ -1346,31 +1651,31 @@
   <section class="slide slide-win" id="slide-6">
     <div class="slide-label fade-up">Perché ITINERA vince</div>
     <h2 class="main-title fade-up" style="text-align:center">
-      Non è un'app turistica.<br>
-      È un nuovo modo di<br>
-      <span class="highlight">vivere le città.</span>
+      Il ponte che mancava tra<br>
+      <span class="highlight">digitale e territorio.</span>
     </h2>
     <p class="fade-up" style="font-size:18px;color:var(--text-mid);max-width:700px;line-height:1.7;margin-bottom:0;">
-      Non sostituiamo le guide. Non cloniamo TripAdvisor.<br>
-      Creiamo qualcosa che non è mai esistito: una città che parla con te, ti conosce e ti sorprende ogni volta.
+      Non siamo una guida digitale. Non siamo un social. Siamo l'infrastruttura che<br>
+      connette l'esploratore al tessuto vivo della città — e porta valore reale ai partner locali.
     </p>
     <div class="win-grid">
       <div class="win-card fade-up">
-        <div class="win-icon"><i data-lucide="rocket"></i></div>
-        <h3>Pronto oggi</h3>
-        <p>L'app funziona ora, ovunque. Non è un prototipo: è un prodotto con mappa 3D, AI integrata e sistema di
-          reward.</p>
+        <div class="win-icon"><i data-lucide="link-2"></i></div>
+        <h3>Digitale ↔ Territorio</h3>
+        <p>Le monete guadagnate si spendono da caffè, ristoranti ed esperienze locali. Ogni click diventa fatturato
+          reale per il territorio.</p>
+      </div>
+      <div class="win-card fade-up">
+        <div class="win-icon"><i data-lucide="trophy"></i></div>
+        <h3>Sistema XP &amp; Badge</h3>
+        <p>Punti, livelli e badge incentivano l'esplorazione continua. Il gioco non finisce mai: ogni visita aggiunge
+          una tessera al mosaico.</p>
       </div>
       <div class="win-card fade-up">
         <div class="win-icon"><i data-lucide="globe"></i></div>
-        <h3>Scalabile all'infinito</h3>
-        <p>Il motore AI non conosce confini. Firenze, Barcellona, Tokyo, New York: basta cambiare le coordinate.</p>
-      </div>
-      <div class="win-card fade-up">
-        <div class="win-icon"><i data-lucide="heart"></i></div>
-        <h3>Emozione, non feature</h3>
-        <p>Le persone non ricorderanno le notifiche push. Ricorderanno la storia nascosta che li ha fatti emozionare.
-        </p>
+        <h3>Ogni città, subito</h3>
+        <p>Il motore AI non ha confini geografici. Nuova città? Bastano le coordinate: il profilo dell'utente viaggia
+          con lui.</p>
       </div>
     </div>
     <div class="slide-num">07 / 08</div>
@@ -1397,7 +1702,9 @@
   </section>
 
   <script>
-    // ── PARTICLES ──
+    // ══════════════════════════════════════════
+    // PARTICLES
+    // ══════════════════════════════════════════
     (function () {
       const canvas = document.getElementById('particles-canvas');
       const ctx = canvas.getContext('2d');
@@ -1418,21 +1725,16 @@
         this.alpha = Math.random() * 0.5 + 0.1;
       }
 
-      for (let i = 0; i < 120; i++) {
-        particles.push(new Particle());
-      }
+      for (let i = 0; i < 120; i++) particles.push(new Particle());
       window.addEventListener('resize', resize);
       resize();
 
       function draw() {
         ctx.clearRect(0, 0, W, H);
         particles.forEach(p => {
-          p.x += p.vx;
-          p.y += p.vy;
-          if (p.x < 0) p.x = W;
-          if (p.x > W) p.x = 0;
-          if (p.y < 0) p.y = H;
-          if (p.y > H) p.y = 0;
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+          if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(6,182,212,${p.alpha})`;
@@ -1443,40 +1745,175 @@
       draw();
     })();
 
-    // ── NAV DOTS ──
+    // ══════════════════════════════════════════
+    // SCROLL PROGRESS BAR
+    // ══════════════════════════════════════════
+    const progressBar = document.getElementById('scroll-progress');
+    function updateProgress() {
+      const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      progressBar.style.width = (scrollTop / scrollHeight * 100) + '%';
+    }
+    window.addEventListener('scroll', updateProgress, { passive: true });
+
+    // ══════════════════════════════════════════
+    // CURSOR GLOW
+    // ══════════════════════════════════════════
+    const cursorGlow = document.getElementById('cursor-glow');
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener('mousemove', e => {
+      mouseX = e.clientX; mouseY = e.clientY;
+      cursorGlow.style.left = mouseX + 'px';
+      cursorGlow.style.top = mouseY + 'px';
+    });
+
+    // ══════════════════════════════════════════
+    // NAV DOTS + SLIDE TRANSITION OVERLAY
+    // ══════════════════════════════════════════
     const slides = document.querySelectorAll('.slide');
     const dots = document.querySelectorAll('.nav-dot');
+    const overlay = document.getElementById('slide-overlay');
+    let isTransitioning = false;
+
+    function triggerSlideTransition(targetSlide) {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      // expand overlay from current mouse position
+      const cx = mouseX / window.innerWidth * 100;
+      const cy = mouseY / window.innerHeight * 100;
+      overlay.style.clipPath = `circle(0% at ${cx}% ${cy}%)`;
+      overlay.style.transition = 'none';
+
+      requestAnimationFrame(() => {
+        overlay.style.transition = 'clip-path .45s cubic-bezier(.8,0,.2,1)';
+        overlay.style.clipPath = `circle(150% at ${cx}% ${cy}%)`;
+
+        setTimeout(() => {
+          targetSlide.scrollIntoView({ behavior: 'instant' });
+          // collapse overlay
+          overlay.style.transition = 'clip-path .45s cubic-bezier(.2,1,.8,1)';
+          overlay.style.clipPath = `circle(0% at ${cx}% ${cy}%)`;
+          setTimeout(() => { isTransitioning = false; }, 500);
+        }, 480);
+      });
+    }
 
     dots.forEach(dot => {
       dot.addEventListener('click', () => {
         const idx = parseInt(dot.dataset.index);
-        slides[idx].scrollIntoView({ behavior: 'smooth' });
+        triggerSlideTransition(slides[idx]);
       });
     });
 
     const ioNav = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          const id = entry.target.id;
-          const idx = parseInt(id.split('-')[1]);
+          const idx = parseInt(entry.target.id.split('-')[1]);
           dots.forEach(d => d.classList.remove('active'));
           if (dots[idx]) dots[idx].classList.add('active');
         }
       });
     }, { threshold: 0.5 });
-
     slides.forEach(s => ioNav.observe(s));
 
-    // ── FADE IN ANIMATIONS ──
+    // ══════════════════════════════════════════
+    // FADE-UP CON BLUR + STAGGER
+    // ══════════════════════════════════════════
     const ioFade = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
         }
       });
-    }, { threshold: 0.15 });
-
+    }, { threshold: 0.12 });
     document.querySelectorAll('.fade-up').forEach(el => ioFade.observe(el));
+
+    // ══════════════════════════════════════════
+    // 3D TILT su card
+    // ══════════════════════════════════════════
+    document.querySelectorAll('.problem-card, .win-card, .impact-num').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - .5;
+        const y = (e.clientY - rect.top) / rect.height - .5;
+        card.style.transform = `translateY(-6px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg) scale(1.02)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+
+    // ══════════════════════════════════════════
+    // ANIMATED COUNTER per .count-num
+    // ══════════════════════════════════════════
+    function animateCounter(el) {
+      const suffix = el.dataset.suffix || '';
+      const prefix = el.dataset.prefix || '';
+      const end = parseFloat(el.dataset.target);
+      const dur = parseInt(el.dataset.dur) || 1600;
+      const start = performance.now();
+      const isInt = Number.isInteger(end);
+
+      function step(now) {
+        const frac = Math.min((now - start) / dur, 1);
+        // ease out expo
+        const eased = 1 - Math.pow(2, -10 * frac);
+        const val = end * eased;
+        el.textContent = prefix + (isInt ? Math.round(val) : val.toFixed(1)) + suffix;
+        if (frac < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    const ioCount = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !entry.target.dataset.animated) {
+          entry.target.dataset.animated = '1';
+          animateCounter(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.count-num').forEach(el => ioCount.observe(el));
+
+    // ══════════════════════════════════════════
+    // SLIDE ENTRANCE: ripple di luce quando
+    // una slide entra nel viewport
+    // ══════════════════════════════════════════
+    const ioSlide = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('slide-visible');
+        } else {
+          entry.target.classList.remove('slide-visible');
+        }
+      });
+    }, { threshold: 0.45 });
+    slides.forEach(s => ioSlide.observe(s));
+
+    // ══════════════════════════════════════════
+    // KEYBOARD NAVIGATION (Arrow / Page keys)
+    // ══════════════════════════════════════════
+    let currentSlideIdx = 0;
+    const ioKbd = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting)
+          currentSlideIdx = parseInt(entry.target.id.split('-')[1]);
+      });
+    }, { threshold: 0.6 });
+    slides.forEach(s => ioKbd.observe(s));
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+        e.preventDefault();
+        const next = Math.min(currentSlideIdx + 1, slides.length - 1);
+        if (next !== currentSlideIdx) triggerSlideTransition(slides[next]);
+      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+        e.preventDefault();
+        const prev = Math.max(currentSlideIdx - 1, 0);
+        if (prev !== currentSlideIdx) triggerSlideTransition(slides[prev]);
+      }
+    });
 
     lucide.createIcons();
   </script>
