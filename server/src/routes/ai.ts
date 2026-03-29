@@ -48,6 +48,7 @@ aiRouter.post('/challenge', async (req: Request, res: Response) => {
       count = 2,
       userInterests,
       difficulty,
+      mode,
     } = req.body;
 
     if (!poiName) {
@@ -64,6 +65,7 @@ aiRouter.post('/challenge', async (req: Request, res: Response) => {
       count: Math.min(count, 4), // cap at 4
       userInterests,
       difficulty,
+      mode,
     });
 
     res.json({ challenges });

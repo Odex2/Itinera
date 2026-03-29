@@ -97,6 +97,7 @@ export async function fetchChallenges(params: {
   category: string;
   count?: number;
   userInterests?: string[];
+  mode?: 'visual' | 'topic';
 }): Promise<GeneratedChallenge[]> {
   const result = await post<{ challenges: GeneratedChallenge[] }>('/api/ai/challenge', params);
   return result.challenges;

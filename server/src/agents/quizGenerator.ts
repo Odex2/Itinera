@@ -21,6 +21,7 @@ interface QuizGeneratorInput {
   count: number;
   userInterests?: string[];
   difficulty?: string;
+  mode?: 'visual' | 'topic';
 }
 
 // BUG 3 FIX: Completely rewritten prompt.
@@ -37,7 +38,7 @@ interface QuizGeneratorInput {
 // - Forces at least one "do something physical" challenge per set.
 // - Requires interest-tailored framing (a history buff gets different phrasing than a foodie).
 // - Requires counting/observation challenges to use free-input mode.
-const SYSTEM_PROMPT = `Sei il Quiz Master di "Play The City", gioco di esplorazione urbana a Roma.
+const VISUAL_SYSTEM_PROMPT = `Sei il Quiz Master di "Play The City", gioco di esplorazione urbana a Roma.
 
 TIPI DI SFIDA — usa una MIX di questi:
 
@@ -62,6 +63,30 @@ REGOLE:
 - Almeno una sfida deve richiedere di MUOVERSI fisicamente (camminare, girare attorno, toccare, cercare).
 - Personalizza il TONO in base agli interessi: se l'utente ama l'enogastronomia, collega la domanda al cibo/vino locale; se ama lo sport, usa metafore sportive; se ama l'arte, chiedi di osservare stili architettonici.
 - Le opzioni sbagliate devono essere plausibili, non ridicole.
+- xpBonus: facile=20-30, medio=40-60, difficile=70-120
+
+Rispondi SOLO con un array JSON valido. Nessun testo aggiuntivo.`;
+
+const TOPIC_SYSTEM_PROMPT = `Sei il Quiz Master di "Play The City", gioco di esplorazione urbana a Roma.
+
+L'utente è LONTANO dal luogo, quindi NON può osservare fisicamente nulla. Genera quiz culturali e narrativi.
+
+TIPI DI SFIDA CONSENTITI (solo questi due):
+
+1. QUIZ (scelta multipla): domanda con 4 opzioni, una corretta.
+   → options: ["A","B","C","D"], correctAnswer: 0-3
+
+2. CHOICE (narrativa): l'utente sceglie un percorso, non c'è risposta giusta.
+   → options: 3 scelte narrative, correctAnswer: -1 (sempre "corretto")
+
+TIPI VIETATI: countdown, observation — richiedono presenza fisica.
+
+REGOLE:
+- Le domande devono essere risolvibili da QUALSIASI luogo, basate su conoscenza culturale, storica o curiosità.
+- Personalizza il TONO in base agli interessi dell'utente: se ama l'enogastronomia, collega la domanda al cibo/vino; se ama lo sport, usa metafore sportive; se ama l'arte, chiedi di stili e movimenti artistici.
+- Domande NON banali: no "In che anno è stato costruito?", no "Chi lo ha progettato?" salvo se controintuitivo.
+- Le opzioni sbagliate devono essere plausibili, non ridicole.
+- Framing: "Quanto ne sai su..." piuttosto che "Guarda e rispondi..."
 - xpBonus: facile=20-30, medio=40-60, difficile=70-120
 
 Rispondi SOLO con un array JSON valido. Nessun testo aggiuntivo.`;
@@ -97,11 +122,16 @@ OBBLIGATORIO:
 - Almeno una sfida deve richiedere azione fisica sul posto.
 - Ogni sfida deve sembrare scritta su misura per questo utente, non copiata da Wikipedia.`;
 
-  const raw = await generateStructured<GeneratedChallenge[]>(SYSTEM_PROMPT, userMessage);
+  const systemPrompt = input.mode === 'topic' ? TOPIC_SYSTEM_PROMPT : VISUAL_SYSTEM_PROMPT;
+  const raw = await generateStructured<GeneratedChallenge[]>(systemPrompt, userMessage);
 
   // Normalize: ensure correctAnswer=-1 for 'choice' type,
-  // and that free-input challenges have empty options array
+  // and that free-input challenges have empty options array.
+  // In topic mode, force any physical types to quiz as a safety net.
   return raw.map((c) => {
+    if (input.mode === 'topic' && (c.type === 'countdown' || c.type === 'observation')) {
+      c = { ...c, type: 'quiz' };
+    }
     if (c.type === 'choice') {
       return { ...c, options: c.options ?? [], correctAnswer: -1 };
     }
