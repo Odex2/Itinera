@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Coins, Clock, ChevronDown, ChevronUp, Star, Tag, MapPin, Sun, Sunset, Moon, CloudMoon } from 'lucide-react';
+import { Coins, Clock, ChevronDown, ChevronUp, Star, Tag, Sun, Sunset, Moon, CloudMoon, Percent, MapPin } from 'lucide-react';
 import type { Reward, UserProfile, InterestCategory } from '../types';
 
 interface ShopScreenProps {
@@ -21,18 +21,19 @@ const CATEGORY_FILTERS: { label: string; value: InterestCategory | 'tutti' }[] =
   { label: 'Sport', value: 'sport' },
 ];
 
-const CATEGORY_GRADIENTS: Record<string, string> = {
-  enogastronomia: 'from-cyan-400 to-sky-500',
-  cultura: 'from-indigo-400 to-purple-500',
-  arte: 'from-rose-400 to-pink-500',
-  storia: 'from-blue-600 to-cyan-700',
-  natura: 'from-emerald-400 to-green-600',
-  paesaggio: 'from-sky-400 to-cyan-500',
-  shopping: 'from-fuchsia-400 to-purple-500',
-  artigianato: 'from-sky-400 to-red-500',
-  intrattenimento: 'from-violet-400 to-indigo-500',
-  family: 'from-teal-400 to-emerald-500',
-  sport: 'from-blue-400 to-indigo-500',
+// Category accent colors (left border + icon tint)
+const CATEGORY_ACCENT: Record<string, { border: string; bg: string; text: string; icon: string }> = {
+  enogastronomia: { border: 'border-l-amber-400',  bg: 'bg-amber-50',   text: 'text-amber-700',  icon: '🍷' },
+  cultura:        { border: 'border-l-indigo-400', bg: 'bg-indigo-50',  text: 'text-indigo-700', icon: '🏛️' },
+  arte:           { border: 'border-l-rose-400',   bg: 'bg-rose-50',    text: 'text-rose-700',   icon: '🎨' },
+  storia:         { border: 'border-l-blue-400',   bg: 'bg-blue-50',    text: 'text-blue-700',   icon: '📜' },
+  natura:         { border: 'border-l-emerald-400',bg: 'bg-emerald-50', text: 'text-emerald-700',icon: '🌿' },
+  paesaggio:      { border: 'border-l-sky-400',    bg: 'bg-sky-50',     text: 'text-sky-700',    icon: '🌅' },
+  shopping:       { border: 'border-l-fuchsia-400',bg: 'bg-fuchsia-50', text: 'text-fuchsia-700',icon: '🛍️' },
+  artigianato:    { border: 'border-l-orange-400', bg: 'bg-orange-50',  text: 'text-orange-700', icon: '🏺' },
+  intrattenimento:{ border: 'border-l-violet-400', bg: 'bg-violet-50',  text: 'text-violet-700', icon: '🎭' },
+  family:         { border: 'border-l-teal-400',   bg: 'bg-teal-50',    text: 'text-teal-700',   icon: '👨‍👩‍👧' },
+  sport:          { border: 'border-l-cyan-400',   bg: 'bg-cyan-50',    text: 'text-cyan-700',   icon: '⚡' },
 };
 
 const TIME_LABELS: Record<string, string> = {
@@ -44,16 +45,11 @@ const TIME_LABELS: Record<string, string> = {
 
 function TimeIcon({ timeOfDay }: { timeOfDay: string }) {
   switch (timeOfDay) {
-    case 'mattina':
-      return <Sun className="w-5 h-5 text-cyan-500" />;
-    case 'pomeriggio':
-      return <Sunset className="w-5 h-5 text-sky-500" />;
-    case 'sera':
-      return <Moon className="w-5 h-5 text-indigo-400" />;
-    case 'notte':
-      return <CloudMoon className="w-5 h-5 text-slate-400" />;
-    default:
-      return <Sun className="w-5 h-5 text-cyan-500" />;
+    case 'mattina':    return <Sun className="w-4 h-4 text-amber-500" />;
+    case 'pomeriggio': return <Sunset className="w-4 h-4 text-sky-500" />;
+    case 'sera':       return <Moon className="w-4 h-4 text-indigo-400" />;
+    case 'notte':      return <CloudMoon className="w-4 h-4 text-slate-400" />;
+    default:           return <Sun className="w-4 h-4 text-amber-500" />;
   }
 }
 
@@ -71,6 +67,12 @@ function matchesUserInterests(reward: Reward, profile: UserProfile): boolean {
   return profile.interests.includes(reward.category);
 }
 
+// Extract numeric discount from originalValue string like "15%"
+function parseDiscount(originalValue: string): number | null {
+  const match = originalValue.match(/(\d+)%/);
+  return match ? parseInt(match[1]) : null;
+}
+
 export default function ShopScreen({ rewards, profile, onClaimReward, timeOfDay }: ShopScreenProps) {
   const [selectedCategory, setSelectedCategory] = useState<InterestCategory | 'tutti'>('tutti');
   const [claimedExpanded, setClaimedExpanded] = useState(false);
@@ -84,60 +86,52 @@ export default function ShopScreen({ rewards, profile, onClaimReward, timeOfDay 
   const claimedRewards = filteredRewards.filter((r) => r.claimed);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-cyan-50 to-sky-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white/95 backdrop-blur-md shadow-md shadow-cyan-900/10">
+      <div className="bg-white border-b border-slate-100 shadow-sm">
         <div className="px-4 pt-6 pb-4">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-3xl font-bold text-slate-900">Ricompense</h1>
-            <div className="flex items-center gap-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-4 py-2 rounded-full shadow-[0_8px_30px_rgb(6,182,212,0.12)]">
-              <Coins className="w-5 h-5" />
-              <span className="text-lg font-bold tracking-wide">{profile.coins}</span>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">Ricompense</h1>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <TimeIcon timeOfDay={timeOfDay} />
+                <span className="text-sm text-slate-500">Offerte {TIME_LABELS[timeOfDay]}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 bg-cyan-500 text-white px-3 py-2 rounded-xl">
+              <Coins className="w-4 h-4" />
+              <span className="font-bold text-base">{profile.coins}</span>
             </div>
           </div>
-
-          <div className="flex items-center gap-2 text-slate-600">
-            <TimeIcon timeOfDay={timeOfDay} />
-            <span className="text-sm font-medium">
-              Offerte {TIME_LABELS[timeOfDay]}
-            </span>
-          </div>
         </div>
-      </div>
 
-      {/* Subtitle */}
-      <div className="px-4 pt-4 pb-2">
-        <p className="text-sm text-slate-500 italic">
-          Premi ottimizzati per te, in questo momento
-        </p>
-      </div>
-
-      {/* Category Filter Pills */}
-      <div className="px-4 pb-3">
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {CATEGORY_FILTERS.map((cat) => (
-            <button
-              key={cat.value}
-              onClick={() => setSelectedCategory(cat.value)}
-              className={`
-                flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200
-                ${selectedCategory === cat.value
-                  ? 'bg-cyan-500 text-white shadow-md shadow-cyan-900/10'
-                  : 'bg-white/95 backdrop-blur-md text-slate-600 border border-slate-200 hover:border-cyan-300 hover:text-cyan-600'
-                }
-              `}
-            >
-              {cat.label}
-            </button>
-          ))}
+        {/* Category Filter Pills */}
+        <div className="px-4 pb-3">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {CATEGORY_FILTERS.map((cat) => (
+              <button
+                key={cat.value}
+                onClick={() => setSelectedCategory(cat.value)}
+                className={`
+                  flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-150
+                  ${selectedCategory === cat.value
+                    ? 'bg-cyan-500 text-white'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }
+                `}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Reward Cards */}
-      <div className="px-4 space-y-4 pb-4">
+      <div className="p-4 space-y-3 pb-6">
         {availableRewards.length === 0 && (
-          <div className="text-center py-12 text-slate-400">
-            <Tag className="w-10 h-10 mx-auto mb-3 opacity-50" />
+          <div className="text-center py-16 text-slate-400">
+            <Tag className="w-8 h-8 mx-auto mb-3 opacity-40" />
             <p className="text-sm">Nessuna ricompensa in questa categoria</p>
           </div>
         )}
@@ -147,84 +141,90 @@ export default function ShopScreen({ rewards, profile, onClaimReward, timeOfDay 
           const available = isAvailableNow(reward);
           const availabilityLabel = getAvailabilityLabel(reward);
           const recommended = matchesUserInterests(reward, profile);
-          const gradient = CATEGORY_GRADIENTS[reward.category] || 'from-slate-400 to-slate-500';
+          const discount = parseDiscount(reward.originalValue);
+          const accent = CATEGORY_ACCENT[reward.category] ?? CATEGORY_ACCENT.cultura;
 
           return (
             <div
               key={reward.id}
               className={`
-                bg-white/95 backdrop-blur-md rounded-xl shadow-md shadow-cyan-900/10 overflow-hidden transition-all duration-200
-                ${available ? 'hover:shadow-[0_8px_30px_rgb(6,182,212,0.12)]' : 'opacity-80'}
+                bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden
+                border-l-4 ${accent.border}
+                ${!available ? 'opacity-70' : ''}
+                transition-all duration-150 hover:shadow-md
               `}
             >
-              {/* Image Placeholder */}
-              <div className={`relative h-32 bg-gradient-to-br ${gradient}`}>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <MapPin className="w-10 h-10 text-white/40" />
-                </div>
-
-                {recommended && (
-                  <div className="absolute top-2 left-2 flex items-center gap-1 bg-white/90 backdrop-blur-md backdrop-blur-sm text-cyan-600 text-xs font-semibold px-2.5 py-1 rounded-full shadow">
-                    <Star className="w-3.5 h-3.5 fill-cyan-400 text-cyan-400" />
-                    Consigliato per te
-                  </div>
-                )}
-
-                {!available && availabilityLabel && (
-                  <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full">
-                    <Clock className="w-3 h-3" />
-                    {availabilityLabel}
-                  </div>
-                )}
-
-                {available && (
-                  <div className="absolute top-2 right-2 flex items-center gap-1 bg-emerald-500/90 text-white text-xs font-medium px-2.5 py-1 rounded-full">
-                    <span className="w-1.5 h-1.5 bg-white/95 backdrop-blur-md rounded-full animate-pulse" />
-                    Disponibile ora
-                  </div>
-                )}
-              </div>
-
-              {/* Card Content */}
               <div className="p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">
-                      {reward.partnerName} -- {reward.partnerType}
-                    </p>
-                    <h3 className="text-lg font-bold text-slate-900 mt-0.5 leading-tight">
-                      {reward.title}
-                    </h3>
-                    <p className="text-sm text-slate-500 mt-1 line-clamp-2">
-                      {reward.description}
-                    </p>
+                {/* Top row: category icon + name + badges */}
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    {/* Category emoji icon */}
+                    <div className={`${accent.bg} rounded-lg w-10 h-10 flex items-center justify-center flex-shrink-0 text-xl`}>
+                      {accent.icon}
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-slate-900 text-sm leading-tight">{reward.title}</h3>
+                      <p className="text-xs text-slate-400 mt-0.5">{reward.partnerName}</p>
+                    </div>
                   </div>
+
+                  {/* Discount badge */}
+                  {discount !== null && (
+                    <div className="flex items-center gap-0.5 bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded-lg flex-shrink-0">
+                      <Percent className="w-3 h-3" />
+                      {discount}
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex items-center justify-between mt-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5">
-                      <Coins className="w-4 h-4 text-cyan-500" />
-                      <span className="text-lg font-bold text-slate-900">{reward.cost}</span>
-                    </div>
-                    <span className="text-sm text-slate-400 line-through">
-                      {reward.originalValue}
-                    </span>
+                {/* Description */}
+                <p className="text-xs text-slate-500 leading-relaxed mb-3">{reward.description}</p>
+
+                {/* Bottom row: status + cost + button */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {/* Availability */}
+                    {available ? (
+                      <span className="flex items-center gap-1 text-xs text-emerald-600 font-medium">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                        Disponibile
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-xs text-slate-400">
+                        <Clock className="w-3 h-3" />
+                        {availabilityLabel}
+                      </span>
+                    )}
+
+                    {/* Recommended badge */}
+                    {recommended && (
+                      <span className="flex items-center gap-0.5 text-xs text-cyan-600 font-medium">
+                        <Star className="w-3 h-3 fill-cyan-400 text-cyan-400" />
+                        Per te
+                      </span>
+                    )}
                   </div>
 
-                  <button
-                    onClick={() => canAfford && available && onClaimReward(reward.id)}
-                    disabled={!canAfford || !available}
-                    className={`
-                      px-5 py-2 rounded-xl text-sm font-bold transition-all duration-200
-                      ${canAfford && available
-                        ? 'bg-gradient-to-r from-cyan-400 to-sky-500 text-white shadow-md shadow-cyan-900/10 hover:shadow-[0_8px_30px_rgb(6,182,212,0.12)] active:scale-95'
-                        : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                      }
-                    `}
-                  >
-                    {!canAfford ? 'Monete insufficienti' : !available ? 'Non disponibile' : 'Riscatta'}
-                  </button>
+                  {/* Cost + button */}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-1">
+                      <Coins className="w-3.5 h-3.5 text-cyan-500" />
+                      <span className="font-bold text-slate-800 text-sm">{reward.cost}</span>
+                    </div>
+                    <button
+                      onClick={() => canAfford && available && onClaimReward(reward.id)}
+                      disabled={!canAfford || !available}
+                      className={`
+                        px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150
+                        ${canAfford && available
+                          ? 'bg-cyan-500 text-white hover:bg-cyan-600 active:scale-95'
+                          : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                        }
+                      `}
+                    >
+                      {!canAfford ? 'Monete insufficienti' : !available ? 'Non disp.' : 'Riscatta'}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -237,10 +237,10 @@ export default function ShopScreen({ rewards, profile, onClaimReward, timeOfDay 
         <div className="px-4 pb-8">
           <button
             onClick={() => setClaimedExpanded(!claimedExpanded)}
-            className="flex items-center justify-between w-full bg-white/95 backdrop-blur-md rounded-xl px-4 py-3 shadow-sm shadow-cyan-900/5 border border-slate-100 mb-3"
+            className="flex items-center justify-between w-full bg-white rounded-xl px-4 py-3 shadow-sm border border-slate-100 mb-3"
           >
-            <span className="text-sm font-semibold text-slate-700">
-              Ricompense riscattate ({claimedRewards.length})
+            <span className="text-sm font-semibold text-slate-600">
+              Riscattate ({claimedRewards.length})
             </span>
             {claimedExpanded
               ? <ChevronUp className="w-4 h-4 text-slate-400" />
@@ -249,25 +249,31 @@ export default function ShopScreen({ rewards, profile, onClaimReward, timeOfDay 
           </button>
 
           {claimedExpanded && (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {claimedRewards.map((reward) => {
-                const gradient = CATEGORY_GRADIENTS[reward.category] || 'from-slate-400 to-slate-500';
+                const accent = CATEGORY_ACCENT[reward.category] ?? CATEGORY_ACCENT.cultura;
+                const discount = parseDiscount(reward.originalValue);
                 return (
                   <div
                     key={reward.id}
-                    className="bg-white/95 backdrop-blur-md rounded-xl shadow-sm shadow-cyan-900/5 overflow-hidden opacity-70 border border-slate-100"
+                    className={`bg-white rounded-xl border border-slate-100 border-l-4 ${accent.border} opacity-60 overflow-hidden`}
                   >
                     <div className="flex items-center gap-3 p-3">
-                      <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${gradient} flex items-center justify-center flex-shrink-0`}>
-                        <Tag className="w-5 h-5 text-white/60" />
+                      <div className={`${accent.bg} rounded-lg w-9 h-9 flex items-center justify-center flex-shrink-0 text-lg`}>
+                        {accent.icon}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-slate-700 truncate">{reward.title}</p>
                         <p className="text-xs text-slate-400">{reward.partnerName}</p>
                       </div>
-                      <span className="text-xs font-medium text-emerald-500 bg-emerald-50 px-2 py-1 rounded-full flex-shrink-0">
-                        Riscattato
-                      </span>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {discount !== null && (
+                          <span className="text-xs text-slate-400">-{discount}%</span>
+                        )}
+                        <span className="text-xs font-medium text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full">
+                          Riscattato
+                        </span>
+                      </div>
                     </div>
                   </div>
                 );
