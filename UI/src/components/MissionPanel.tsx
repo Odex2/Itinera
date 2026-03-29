@@ -23,9 +23,9 @@ interface MissionPanelProps {
 type Tab = 'storia' | 'sfida' | 'completato';
 
 const difficultyConfig: Record<Challenge['difficulty'], { label: string; color: string; bg: string }> = {
-  facile:   { label: 'Facile',   color: 'text-green-700', bg: 'bg-green-100' },
-  medio:    { label: 'Medio',    color: 'text-cyan-700', bg: 'bg-cyan-100' },
-  difficile:{ label: 'Difficile',color: 'text-red-700',   bg: 'bg-red-100'   },
+  facile: { label: 'Facile', color: 'text-green-700', bg: 'bg-green-100' },
+  medio: { label: 'Medio', color: 'text-cyan-700', bg: 'bg-cyan-100' },
+  difficile: { label: 'Difficile', color: 'text-red-700', bg: 'bg-red-100' },
 };
 
 const categoryLabels: Record<string, string> = {
@@ -200,10 +200,9 @@ function CountdownChallenge({ challenge, onAnswer }: { challenge: Challenge | Ge
           <input type="number" inputMode="numeric" value={freeInputValue}
             onChange={(e) => setFreeInputValue(e.target.value)}
             disabled={submitted || timeLeft === 0} placeholder="Scrivi la tua risposta..."
-            className={`w-full p-3 rounded-xl border-2 text-center text-lg font-semibold outline-none transition-all ${
-              submitted ? (freeInputCorrect ? 'border-green-500 bg-green-50 text-green-700' : 'border-red-500 bg-red-50 text-red-700')
+            className={`w-full p-3 rounded-xl border-2 text-center text-lg font-semibold outline-none transition-all ${submitted ? (freeInputCorrect ? 'border-green-500 bg-green-50 text-green-700' : 'border-red-500 bg-red-50 text-red-700')
               : 'border-slate-200 bg-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200 text-slate-800'
-            }`} />
+              }`} />
           {submitted && !freeInputCorrect && (
             <p className="text-slate-500 text-sm text-center">Risposta corretta: {challenge.correctAnswer}</p>
           )}
@@ -238,11 +237,10 @@ function CountdownChallenge({ challenge, onAnswer }: { challenge: Challenge | Ge
         </button>
       )}
       {submitted && (
-        <div className={`p-3 rounded-xl text-center font-medium ${
-          timeLeft === 0 ? 'bg-red-50 text-red-700'
+        <div className={`p-3 rounded-xl text-center font-medium ${timeLeft === 0 ? 'bg-red-50 text-red-700'
           : (isFreeInput ? freeInputCorrect : selected === challenge.correctAnswer) ? 'bg-green-50 text-green-700'
-          : 'bg-red-50 text-red-700'
-        }`}>
+            : 'bg-red-50 text-red-700'
+          }`}>
           {timeLeft === 0 ? 'Tempo scaduto!' : (isFreeInput ? freeInputCorrect : selected === challenge.correctAnswer) ? 'Risposta corretta! Ben fatto!' : 'Risposta sbagliata.'}
         </div>
       )}
@@ -298,10 +296,9 @@ function ObservationChallenge({ challenge, onAnswer }: { challenge: Challenge | 
           <input type="number" inputMode="numeric" value={freeInputValue}
             onChange={(e) => setFreeInputValue(e.target.value)}
             disabled={submitted} placeholder="Scrivi la tua risposta..."
-            className={`w-full p-3 rounded-xl border-2 text-center text-lg font-semibold outline-none transition-all ${
-              submitted ? (freeInputCorrect ? 'border-green-500 bg-green-50 text-green-700' : 'border-red-500 bg-red-50 text-red-700')
+            className={`w-full p-3 rounded-xl border-2 text-center text-lg font-semibold outline-none transition-all ${submitted ? (freeInputCorrect ? 'border-green-500 bg-green-50 text-green-700' : 'border-red-500 bg-red-50 text-red-700')
               : 'border-slate-200 bg-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200 text-slate-800'
-            }`} />
+              }`} />
           {submitted && !freeInputCorrect && (
             <p className="text-slate-500 text-sm text-center">Risposta corretta: {challenge.correctAnswer}</p>
           )}
@@ -365,12 +362,11 @@ function ChoiceChallenge({ challenge, onAnswer }: { challenge: Challenge | Gener
       <div className="space-y-2">
         {challenge.options?.map((option, idx) => (
           <button key={idx} disabled={confirmed} onClick={() => setSelected(idx)}
-            className={`w-full text-left p-3 rounded-xl border-2 transition-all duration-200 ${
-              confirmed && idx === selected ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-300'
+            className={`w-full text-left p-3 rounded-xl border-2 transition-all duration-200 ${confirmed && idx === selected ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-300'
               : confirmed ? 'border-slate-200 bg-slate-50 opacity-50'
-              : idx === selected ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-300'
-              : 'border-slate-200 bg-white/95 backdrop-blur-md hover:border-cyan-400'
-            }`}>
+                : idx === selected ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-300'
+                  : 'border-slate-200 bg-white/95 backdrop-blur-md hover:border-cyan-400'
+              }`}>
             <span className="text-slate-700 text-sm">{option}</span>
           </button>
         ))}
@@ -498,7 +494,6 @@ function FreeInputChallenge({
             onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
             placeholder="Inserisci il numero..."
             disabled={timeLeft === 0}
-            autoFocus
             className="w-full px-4 py-4 rounded-xl border-2 border-slate-200 focus:border-cyan-500 focus:outline-none text-slate-800 text-center text-2xl font-bold tracking-widest transition-colors"
           />
           <button
@@ -510,17 +505,16 @@ function FreeInputChallenge({
           </button>
         </div>
       ) : (
-        <div className={`p-4 rounded-xl text-center space-y-1.5 ${
-          timeLeft === 0 ? 'bg-red-50 text-red-700'
+        <div className={`p-4 rounded-xl text-center space-y-1.5 ${timeLeft === 0 ? 'bg-red-50 text-red-700'
           : isCorrect ? 'bg-green-50 text-green-700'
-          : 'bg-orange-50 text-orange-700'
-        }`}>
+            : 'bg-orange-50 text-orange-700'
+          }`}>
           <p className="font-semibold text-base">
             {timeLeft === 0
               ? 'Tempo scaduto!'
               : isCorrect
-              ? '✓ Giusto! Ottimo spirito di osservazione!'
-              : (() => {
+                ? '✓ Giusto! Ottimo spirito di osservazione!'
+                : (() => {
                   const raw = challenge.correctAnswer;
                   const num = typeof raw === 'string' ? parseInt(raw, 10) : raw;
                   return typeof num === 'number' && !isNaN(num)
@@ -613,9 +607,8 @@ function VoiceButton({
       onClick={toggle}
       disabled={disabled}
       title={playing ? 'Interrompi narrazione' : 'Ascolta la storia'}
-      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
-        playing ? 'bg-cyan-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-cyan-50 hover:text-cyan-700'
-      } disabled:opacity-40 disabled:cursor-not-allowed`}
+      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${playing ? 'bg-cyan-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-cyan-50 hover:text-cyan-700'
+        } disabled:opacity-40 disabled:cursor-not-allowed`}
     >
       {loading ? (
         <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -757,7 +750,14 @@ export default function MissionPanel({
 
   const renderChallenge = () => {
     if (aiChallengesLoading) return <ChallengeSkeleton />;
-    if (!currentChallenge) return null;
+    if (!currentChallenge) return (
+      <div className="text-center py-6 px-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+        <Target className="w-8 h-8 text-slate-400 mx-auto" />
+        <p className="text-slate-600 font-medium font-sm">
+          L'AI sta pensando alla domanda perfetta per te...
+        </p>
+      </div>
+    );
 
     const props = { key: currentChallengeIndex, challenge: currentChallenge, onAnswer: handleChallengeAnswer };
 
@@ -765,7 +765,9 @@ export default function MissionPanel({
     // fall back to FreeInputChallenge instead of rendering an empty options list.
     const hasOptions = (currentChallenge.options?.length ?? 0) > 0;
 
-    switch (currentChallenge.type) {
+    const challengeType = String(currentChallenge.type).toLowerCase();
+
+    switch (challengeType) {
       case 'quiz':
         return hasOptions ? <QuizChallenge {...props} /> : <FreeInputChallenge {...props} />;
       case 'countdown':
@@ -1031,11 +1033,10 @@ function TabButton({ active, onClick, icon, label, disabled }: {
 }) {
   return (
     <button onClick={onClick} disabled={disabled}
-      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
-        active ? 'bg-white/95 backdrop-blur-md text-cyan-700 shadow-sm shadow-cyan-900/5'
+      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${active ? 'bg-white/95 backdrop-blur-md text-cyan-700 shadow-sm shadow-cyan-900/5'
         : disabled ? 'text-slate-300 cursor-not-allowed'
-        : 'text-slate-500 hover:text-slate-700'
-      }`}>
+          : 'text-slate-500 hover:text-slate-700'
+        }`}>
       {icon}{label}
     </button>
   );
