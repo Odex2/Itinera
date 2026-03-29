@@ -11,8 +11,11 @@ import MissionPanel from './components/MissionPanel';
 import { useGameState } from './hooks/useGameState';
 import { useGeolocation, getDistanceMeters } from './hooks/useGeolocation';
 
+import CitySelectionScreen from './components/CitySelectionScreen';
+
 function App() {
   const [splashDone, setSplashDone] = useState(false);
+  const [customCityLocation, setCustomCityLocation] = useState<{ lat: number; lng: number; name: string } | null>(null);
 
   const {
     profile,
@@ -36,8 +39,11 @@ function App() {
   } = useGameState();
 
   const geo = useGeolocation();
-  const userLocation =
+  const actualUserLocation =
     geo.lat !== null && geo.lng !== null ? { lat: geo.lat, lng: geo.lng } : null;
+
+  // L'app utiizza come posizione il customCity scelto (se presente) ALTRIMENTI la vera posizione GPS
+  const userLocation = customCityLocation || actualUserLocation;
 
   const getUserDistanceToPOI = () => {
     if (!selectedPOI || !userLocation) return null;
@@ -65,7 +71,23 @@ function App() {
     return <OnboardingScreen onComplete={completeOnboarding} />;
   }
 
-  // 4️⃣ App principale
+  // 4️⃣ Scelta della città -- dopo l'onboarding, prima della mappa principale
+  if (currentScreen === 'city_selection') {
+    return (
+      <CitySelectionScreen
+        onSelect={(coords) => {
+          if (coords) {
+            setCustomCityLocation(coords);
+          } else {
+            setCustomCityLocation(null);
+          }
+          setCurrentScreen('map');
+        }}
+      />
+    );
+  }
+
+  // 5️⃣ App principale
   return (
     <div className="min-h-screen bg-slate-50 relative">
       <div className="pb-16">
@@ -79,6 +101,7 @@ function App() {
             timeOfDay={timeOfDay}
             onRequestDynamicPOIs={fetchDynamicPOIs}
             hideBottomCard={!!selectedPOI}
+            cityName={customCityLocation?.name}
           />
         )}
         {currentScreen === 'missions' && (

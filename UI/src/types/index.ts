@@ -151,4 +151,4 @@ export interface GameState {
   timeOfDay: 'mattina' | 'pomeriggio' | 'sera' | 'notte';
 }
 
-export type Screen = 'onboarding' | 'map' | 'missions' | 'shop' | 'profile';
+export type Screen = 'onboarding' | 'city_selection' | 'map' | 'missions' | 'shop' | 'profile';

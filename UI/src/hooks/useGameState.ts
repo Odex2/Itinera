@@ -177,7 +177,7 @@ export function useGameState() {
         personalityScores: personality,
       }));
       setHasOnboarded(true);
-      setCurrentScreen('map');
+      setCurrentScreen('city_selection');
     },
     []
   );
@@ -365,14 +365,14 @@ export function useGameState() {
           prev.map((p) =>
             p.id === poiId
               ? {
-                  ...p,
-                  aiNarration: {
-                    narration: result.narration,
-                    hiddenFact: result.hiddenFact,
-                    voiceStyle: result.voiceStyle,
-                  },
-                  isGeneratingNarration: false,
-                }
+                ...p,
+                aiNarration: {
+                  narration: result.narration,
+                  hiddenFact: result.hiddenFact,
+                  voiceStyle: result.voiceStyle,
+                },
+                isGeneratingNarration: false,
+              }
               : p,
           ),
         );
