@@ -8,7 +8,7 @@ import { discoverRouter } from './routes/discover.js';
 
 const app = express();
 
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:4173', 'http://127.0.0.1:5173', 'http://127.0.0.1:4173'] }));
+app.use(cors({ origin: true })); // allows all origins (dev/tunnel mode)
 app.use(express.json({ limit: '10mb' })); // 10mb for base64 audio payloads
 
 app.get('/api/health', (_req, res) => {
