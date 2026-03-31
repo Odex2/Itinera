@@ -1,0 +1,73 @@
+Itinera Source Available License
+
+Copyright (c) 2026 Odex2. All rights reserved.
+
+1. DEFINITIONS
+   "Software" means the source code, documentation, assets, and all associated
+   files in this repository.
+   "Non-Commercial Use" means any use that is not primarily intended for or
+   directed towards commercial advantage or monetary compensation.
+   "Commercial Use" means any use of the Software, in whole or in part, for
+   direct or indirect commercial advantage, monetary compensation, or business
+   operations, including but not limited to SaaS products, paid applications,
+   internal business tools, or integration into commercially distributed software.
+   "Use" means executing, running, deploying, integrating, copying, modifying,
+   or distributing the Software or any derivative thereof.
+
+2. OWNERSHIP
+   The Software is and remains the exclusive intellectual property of the
+   copyright holder (Odex2). No transfer of ownership is granted by this license.
+
+3. PERMITTED USES — NON-COMMERCIAL
+   Subject to the conditions in Section 5, any person is permitted, free of
+   charge, to:
+   a) Clone, download, and view this repository;
+   b) Run and use the Software locally for personal, educational, research, or
+      other non-commercial purposes;
+   c) Modify the Software for private non-commercial use.
+
+4. COMMERCIAL USE — RESERVED
+   Any Commercial Use of the Software requires prior explicit written permission
+   from the copyright holder. To request a commercial license, contact the
+   copyright holder directly. Unauthorized Commercial Use constitutes copyright
+   infringement.
+
+5. NOTIFICATION REQUIREMENT
+   Any person or organization that Uses the Software — whether for non-commercial
+   or (where separately authorized) commercial purposes — MUST notify the
+   copyright holder prior to or at the time of first use by sending a written
+   notice to the copyright holder's publicly listed contact or by opening an
+   issue in the official repository. The notification must include:
+   a) The name of the person or organization;
+   b) A brief description of how and where the Software is being used;
+   c) Whether the use is non-commercial or commercial.
+
+6. RESTRICTIONS
+   Unless expressly permitted by this license or by separate written agreement:
+   a) You may not sublicense, sell, rent, lease, or otherwise transfer rights
+      to the Software to any third party;
+   b) You may not remove or alter any copyright, trademark, or attribution
+      notices contained in the Software;
+   c) You may not use the name, logo, or trademarks of the copyright holder to
+      endorse or promote products derived from this Software without prior
+      written permission.
+
+7. REDISTRIBUTION
+   Redistribution of the Software or derivative works is not permitted without
+   prior explicit written permission from the copyright holder, except that
+   sharing the unmodified repository URL (linking to this repository) is always
+   permitted.
+
+8. DISCLAIMER OF WARRANTIES
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL
+   THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY,
+   WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF,
+   OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+9. TERMINATION
+   Any rights granted under this license terminate automatically if you fail to
+   comply with its terms. Upon termination, you must cease all use and destroy
+   all copies of the Software in your possession.
