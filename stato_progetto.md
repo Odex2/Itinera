@@ -1,57 +1,52 @@
-# Stato del Progetto - Itinera (Scacchiera Urbana)
+# Stato del Progetto e System Audit - Itinera
 
 > Ultimo aggiornamento: 2 Aprile 2026
 
 ## 1. Architettura di Sistema
 
-L'architettura di "Scacchiera Urbana" (ora **Itinera**) segue un paradigma Client-Server interamente basato su **Monorepo** organizzato in npm workspaces (`UI` e `server`). Integra un motore di orchestrazione AI per generare contenuti e personalizzare dinamicamente l'esperienza di viaggio.
+L'architettura di "Scacchiera Urbana" (ora **Itinera**) segue un paradigma Client-Server basato su **Monorepo** (npm workspaces: `UI` e `server`). 
+*   **Frontend**: React 18, Vite 5, TailwindCSS, Mappa Navigabile Mapbox 3D (`react-map-gl`), Gameloop gestito da `useGameState` con Supabase debounced mutuation pattern.
+*   **Backend**: Server Node.js (Express, TSX) ad architettura modulare per isolare intelligenza generativa, proxy weather locale e synthesis TTS.
+*   **Intelligenza Artificiale**: Centralizzata su engine **Regolo.ai** post-refactoring; gli orchestratori gestiscono autonomamente trivia, generazioni dialoghi e filtri dinamici a runtime senza passaggi legacy.
 
-### Frontend (UI)
-*   Applicazione scritta in **React 18** + **TypeScript** con build tool **Vite 5**.
-*   Lo stile è gestito interamente tramite **TailwindCSS**, con l'ausilio di **Lucide React** per l'iconografia.
-*   Il nucleo della gamification (profili, punti exp, monete, ricompense) e lo stato del player, mantenuto da `useGameState`, sono nativamente collegati a **Supabase** tramite *hydration silente* e pattern di *debounced optimistic mutaton*. Il client transiziona fluidamente garantendo un eccellente local data-fallback in caso di disconnessioni offline.
-*   La mappa interattiva (`MapView.tsx`) utilizza **Mapbox GL JS** (`react-map-gl` + `mapbox-gl`) supportando funzionalità avanzate: rendering di edifici 3D, clustering scalare rapido dei POI e nodo proximity reattivo. È munita di un layer frontend altamente customizzato e ottimizzato in deep-cache memory (*Aggressive React Memoization*) contro i loop di frame-drop derivanti dall'inserimento dom layer UI dinamici sopra al canvas.
-*   Il flusso di sessione dell'app: *Splash Screen* → *Profile Setup* → *Onboarding* → *City Selection* (con calcolo geospaziale su db) → *Map/Missions/Shop/Profile*.
-*   Il modale dedicato all'ispezione locale (`MissionPanel.tsx`) espone tab isolati per la narrazione AI dinamica (UI con Skeleton Loading visivo in pending mode) e le sfide AI.
+---
 
-### Backend (Server)
-*   Server **Node.js** con **Express** e **TypeScript** (ESM, via `tsx`).
-*   Routing modulare per separare logicamente i controller: core AI (`ai.ts`, `discover.ts`), meteo locale (`weather.ts`), synthesis vocale TTS (`voice.ts`), e bridge diagnostiche (`diagnostics.ts`).
-*   Endpoint informativi base predefiniti operativi: `GET /api/health` e `GET /api/diagnostics`.
-*   Tutti i layer provider di third-party keys (Regolo, ElevenLabs, OpenWeather) sono isolati e mappati via system variables in `server/.env`.
+## 2. REPORT DI AUDIT ARCHITETTURALE PROFONDO
 
-### AI Orchestration (Regolo.ai)
-*   L'intero lifecycle logico del backend e degli engine bot è solidamente vincolato ed unificato sull'API REST nativa di **Regolo.ai** (`https://api.regolo.ai/v1`).
-*   L'intero blocco del driver middleware legacy (OpenAI SDK/Claude) è stato ritirato, smontato, ed estraniato per purificare l'architettura base da debito persistente. Regolo controlla autonomamente l'esecuzione testuale dinamica, la sfida visuale, le logiche di controllo trivia, e i discovery agent esplorativi.
+A seguito di esplorazione statica su codebase, sono emersi i seguenti debt tech, anti-pattern ed edge-cases, categorizzati per livello di criticità.
 
-## 2. Stato Recente degli Sviluppi (Nuova Analisi - Post Sprints)
+### 🔴 CRITICO (Risolvereimmediatamente)
 
-### ✅ Completamento Unitario AI Driver
-*   Tutti i vecchi agenti dipendenti dal root obsoleto (Quiz Generator, Validator, Discovery) ora puntano con successo al robusto driver unitario nativo `regolo.ts`. 
-*   Eseguita una pulizia generale sull'albero dipendenze isolando i pacchetti zombie obsoleti associati ai pre-generatori AI.
+**1. Sicurezza & Edge Cases: Accesso Supabase `game_saves` vulnerabile** 
+*   **File coinvolti**: `UI/src/hooks/useGameState.ts` e DB Cloud
+*   **Problema**: L'integrazione Supabase espone in client plain-text la `VITE_SUPABASE_ANON_KEY` basandosi su una PK di tipo UUID generata locally (`crypto.randomUUID()`). In assenza di Row-Level Security (RLS) protetta sul database cloud o *Anonymous Auth*, qualunque utente manipolando lo storage locale può intercettare le chiamate per inserire e sovrascrivere lo stato di salvataggio altrui, rovinando il DB.
+*   **Soluzione Architetturale**: Attivare su frontend `supabase.auth.signInAnonymously()`. Nel Database abilitare RLS in strict-mode ponendo la rule SQL: `(auth.uid() = id)` forzando l'owner di sessione sulle tabelle o disabilitando i bypass di POST bruteforce.
 
-### ✅ Ottimizzazione Rendering Mappa (Sprint 3A completato)
-*   Sono stati riscontrati forti battery drain e latency dovuti alla rigenerazione per update su componentistica ReactDOM complessa (POIMarker pseudo tooltips e layer sovrapposti) durante i trigger costanti di `onZoom` del mapbox view nativo.
-*   **Risultato Messo a Terra:** Refactoring del blocco UI cartografico adottando un solido pattern di caching front-end (`React.memo` personalizzato su comparazioni mirate per status POI; freeze memory object tramite callbacks per eventi loop). Conseguenza: azzeramento totale del re-render log su pan e zoom massivi limitando i passaggi alle sole variazioni necessarie.
+**2. Robustezza React: Mancanza assoluta di Error Boundaries Root**
+*   **File coinvolti**: `UI/src/App.tsx` e `main.tsx`
+*   **Problema**: Gli asincroni hook come `useGeolocation` e gli switch logici custom della navigation in `App.tsx` non presentano classi di fallback/boundary. Se uno switch di schermata lanciasse throw (es. API json error format unmanaged), l'intero Root di React verrebbe distrutto in *White-Screen of Death* (Schermo Bianco).
+*   **Soluzione Architetturale**: Wrappar l'App con la libreria `react-error-boundary` incapsulando perlomeno i router macro e esponendo una Schermata "Riconnessione/Errore di Partenza" safe che consenta il retry manuale.
 
-### ✅ Integrazione e Persistenza Cloud Supabase (Sprint 3B completato)
-*   Anziché spezzettare superficialmente l'imponente object destructuring locale del gameplay su più interfacce, ho centralizzato lo scambio via sync temporizzato per racchiudere logicamente un `game_saves`. L'ID giocatore diviene storiabile localmente al device.
-*   **Risultato Messo a Terra:** All'app bootstrap la logica recupera e compila fedelmente tutto (da reward riscattati, step onboarding saltati a location salvate). L'operatività base (claim coin e completamenti target), non intralcia per frame visuali l'utente appoggiandosi su feedback grafici immediati per poi salvare per batch ritardate limitando traffico dati. 
+### 🟠 MEDIO (Ottimizzazione Importante)
 
-## 3. Problemi Noti e Analisi Critica (Non Bloccanti)
-*In seguito alle tre fasi cicliche di bonifica e sprint optimization completate, tutto il debito tecnico noto è stato saldato. Nessun refactoring o Warning critico ostilizza le pipeline ed i core correnti dell'app.*
+**3. Architettura & Flusso Dati: Monolithic Debounced State Sync**
+*   **File coinvolti**: `UI/src/hooks/useGameState.ts`
+*   **Problema**: Nonostante la protezione in *debounce* per l'upsert ottimistico verso Supabase eviti ddos da click, il frontend carica e sostituisce via POST l'intero blocco JSON (`profile`, `rewards`, `badges` combinati). Nel mid-late game l'oggetto supererà svariati kilobyte: ricaricare la nuvola su rete Mobile 3G per un semplice claim (`coins +10`) distrugge le performance di connettività. 
+*   **Soluzione Architetturale**: Implementare delta/granular updates (ad es: tramite Remote Procedure Call, REST `.update()` o l'impiego nativo di librerie caching come React Query/SWR) capaci di inviare payload solo sulle field effettivamente alterate in diff.
 
-## 4. Roadmap / Sprint Checklist
+**4. Debito Tecnico & Dead Code: File Proxy Voice Zombificati**
+*   **File coinvolti**: `UI/src/services/api.ts`
+*   **Problema**: Tutta l'esportazione delle call `fetchTTS` e `submitVoiceAnswer` è rimasta orfana (Dead Code). Attualmente il framework di riproduzione vocale compie la fetch del Blob Audio direttamente all'interno dei componenti figli (es. `MissionPanel.tsx` in `BUG 1 FIX`). Tali wrapper vecchi creano confusione e causerebbero memory leaks con createObjectURL se ripescati incorrettamente.
+*   **Soluzione Architetturale**: Purge del codebase. Individuare l'eliminazione dei layer proxy obsoleti e uniformare il flusso asincrono blob all'interno di un unico service manager centralizzato.
 
-- [x] **Sprint 1. Setup & Bugfix**: Risoluzione duplicate base dipendenze, setting workspace root corretto, fix totalitari typescript.
-- [x] **Sprint 2. Backend Server & AI**: Consolidamento totale architettura Agenti ed Express mapping.
-    - [x] Migrazione e test narrazioni univoche su endpoint `/ai/narration` `dialogueWriter`.
-    - [x] Mappato la telemetria root su `/api/diagnostics`.
-    - [x] Riconversione in bulk definitiva (4 su 4 agenti legacy) verso driver REST Regolo, distruggendo completamente e cancellando le codebase zombie.
-- [x] **Sprint 3A. Mappa UI e View Performance**
-    - [x] Rendering massivo clustering mapbox 3D.
-    - [x] Flusso router di onboarding da city selector all'handling di gioco.
-    - [x] Risoluzione del critical freeze da memory overload / diff re-rendering durante le operatività base sui Marker in overlay.
-- [x] **Sprint 3B. System Persistency Gamification**
-    - [x] Inserimento real-time rewards correlate logicamente alla temporizzazione di TimeOfDay shop client/ai.
-    - [x] Inserimento e test completo infrastruttura base Supabase client side in app (Dati resi immortali in un blocco cloud-save resiliente al ricaricamento app e alla mancanza improvvisa network layer).
+### 🟡 BASSO / OTTIMIZZAZIONE (Migliorie)
+
+**5. Prestazioni: Algoritmi di ordinamento Lineari bloccanti `O(N log N)`**
+*   **File coinvolti**: `UI/src/hooks/useGameState.ts` (`getVisiblePOIs`)
+*   **Problema**: La funzione che recupera i point interattivi più vicini ricalcola per tutti l'intero array delle città. Richiama `.sort()` ed array iterators in cascata filtrando chilometricamente su Main Thread puro al muovere del GPS. Per densità metropolitane complesse produrrà *Stuttering UI* mobile.
+*   **Soluzione Architetturale**: Eseguire l'offload dei filtraggi geospaziali implementando indici WebWorker client-side o sfruttando strutture dati ad-hoc per calcoli di vicinanza geometrica come RBTree / K-D Tree, smettendo di ricomparare distanze a tappeto su tutto lo stack.
+
+**6. Code Smells: Type-Safety Debole su Componenti Mapbox**
+*   **File coinvolti**: `UI/src/components/MapView.tsx`
+*   **Problema**: Abuso marginale di keyword d'evasione su TS (`evt: any`) negli unmanaged events di react-map-gl, causando mancanza di intelliscence e protezioni IDE sugli handler di stopPropagation per la feature "click/pan" in mappe.
+*   **Soluzione Architetturale**: Tipizzazione formale tramite importazione diretta dell'interfaccia `MapLayerMouseEvent` ed estensione corretta delle sintassi TypeScript.
