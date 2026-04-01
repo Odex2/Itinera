@@ -1,7 +1,7 @@
 // npm remove react-leaflet leaflet
 // npm install mapbox-gl react-map-gl
 
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { useMemo, useState, useRef, useEffect, useCallback, memo } from 'react';
 import Map, {
   Marker,
   Source,
@@ -155,10 +155,10 @@ const STATUS_ICONS: Record<POI['status'], string> = {
 interface POIMarkerProps {
   poi: POI;
   isNearest: boolean;
-  onClick: () => void;
+  onClick: (poi: POI) => void;
 }
 
-function POIMarker({ poi, isNearest, onClick }: POIMarkerProps) {
+const POIMarker = memo(function POIMarker({ poi, isNearest, onClick }: POIMarkerProps) {
   const size = isNearest ? 40 : 32;
   const { bg, border, pulse } = STATUS_COLORS[poi.status];
   const icon = STATUS_ICONS[poi.status];
@@ -169,7 +169,7 @@ function POIMarker({ poi, isNearest, onClick }: POIMarkerProps) {
       longitude={poi.lng}
       latitude={poi.lat}
       anchor="center"
-      onClick={(evt: any) => { evt.originalEvent.stopPropagation(); onClick(); }}
+      onClick={(evt: any) => { evt.originalEvent.stopPropagation(); onClick(poi); }}
     >
       <div style={{ position: 'relative', width: size, height: size, cursor: 'pointer' }}>
         {/* Pulse ring */}
@@ -231,14 +231,19 @@ function POIMarker({ poi, isNearest, onClick }: POIMarkerProps) {
       </div>
     </Marker>
   );
-}
+}, (prev, next) => {
+  return prev.poi.id === next.poi.id &&
+         prev.poi.status === next.poi.status &&
+         prev.isNearest === next.isNearest &&
+         prev.onClick === next.onClick;
+});
 
 // ── Unlock radius circle rendered as GeoJSON Source+Layer ────────────────────
 interface UnlockCircleProps {
   poi: POI;
 }
 
-function UnlockCircle({ poi }: UnlockCircleProps) {
+const UnlockCircle = memo(function UnlockCircle({ poi }: UnlockCircleProps) {
   const color =
     poi.status === 'completed' ? '#22c55e' :
       poi.status === 'available' ? '#f59e0b' :
@@ -288,10 +293,16 @@ function UnlockCircle({ poi }: UnlockCircleProps) {
       <Layer {...outlineLayerProps} />
     </Source>
   );
-}
+}, (prev, next) => {
+  return prev.poi.id === next.poi.id &&
+         prev.poi.status === next.poi.status &&
+         prev.poi.lat === next.poi.lat &&
+         prev.poi.lng === next.poi.lng &&
+         prev.poi.unlockDistance === next.poi.unlockDistance;
+});
 
 // ── User location dot ─────────────────────────────────────────────────────────
-function UserDot({ location }: { location: { lat: number; lng: number } }) {
+const UserDot = memo(function UserDot({ location }: { location: { lat: number; lng: number } }) {
   return (
     <Marker longitude={location.lng} latitude={location.lat} anchor="center">
       <div style={{ position: 'relative', width: 20, height: 20 }}>
@@ -319,7 +330,7 @@ function UserDot({ location }: { location: { lat: number; lng: number } }) {
       </div>
     </Marker>
   );
-}
+}, (prev, next) => prev.location.lat === next.location.lat && prev.location.lng === next.location.lng);
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatDistance(meters: number): string {
@@ -356,6 +367,10 @@ export default function MapView({ pois, profile, userLocation, onPOISelect, time
 
   // BUG 7 FIX: track current zoom to toggle marker vs cluster rendering
   const [mapZoom, setMapZoom] = useState(15.5);
+
+  const handlePOISelect = useCallback((poi: POI) => {
+    onPOISelect(poi);
+  }, [onPOISelect]);
 
   // ── GeoJSON for clustering ──────────────────────────────────────────────────
   const poisGeoJSON = useMemo(() => ({
@@ -404,10 +419,25 @@ export default function MapView({ pois, profile, userLocation, onPOISelect, time
   const xpProgress = xpForCurrentLevel > 0 ? Math.min((profile.xp / xpForCurrentLevel) * 100, 100) : 0;
   const TimeIcon = TIME_LABELS[timeOfDay].icon;
 
-  // BUG 7 FIX: individual markers are only visible when zoom > CLUSTER_MAX_ZOOM.
-  // At lower zoom levels, Mapbox clusters the points into orange circles with counts.
-  // Rendering both simultaneously caused double-markers on top of cluster bubbles.
   const showIndividualMarkers = mapZoom > CLUSTER_MAX_ZOOM;
+
+  const renderedMarkers = useMemo(() => {
+    if (!showIndividualMarkers) return null;
+    return pois.map((poi) => (
+      <POIMarker
+        key={poi.id}
+        poi={poi}
+        isNearest={nearestAvailable?.poi.id === poi.id}
+        onClick={handlePOISelect}
+      />
+    ));
+  }, [showIndividualMarkers, pois, nearestAvailable?.poi.id, handlePOISelect]);
+
+  const renderedCircles = useMemo(() => {
+    return pois.map((poi) => (
+      <UnlockCircle key={`circle-${poi.id}`} poi={poi} />
+    ));
+  }, [pois]);
 
   return (
     <div className="relative w-full" style={{ height: 'calc(100vh - 4rem)' }}>
@@ -459,27 +489,13 @@ export default function MapView({ pois, profile, userLocation, onPOISelect, time
         </Source>
 
         {/* Unlock radius circles — always visible */}
-        {pois.map((poi) => (
-          <UnlockCircle key={`circle-${poi.id}`} poi={poi} />
-        ))}
+        {renderedCircles}
 
         {/* User dot */}
         {userLocation && <UserDot location={userLocation} />}
 
-        {/*
-          BUG 7 FIX: POI markers are only rendered when zoomed in past the
-          cluster threshold. At lower zoom, the Mapbox cluster layers above
-          already show orange bubbles with counts — rendering React markers
-          on top caused ghost-markers inside/behind the cluster circles.
-        */}
-        {showIndividualMarkers && pois.map((poi) => (
-          <POIMarker
-            key={poi.id}
-            poi={poi}
-            isNearest={nearestAvailable?.poi.id === poi.id}
-            onClick={() => onPOISelect(poi)}
-          />
-        ))}
+        {/* Individually rendered interactive markers (memoized) */}
+        {renderedMarkers}
       </Map>
 
       {/* ── Top Bar Overlay ── */}

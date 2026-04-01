@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import {
   UserProfile,
   POI,
@@ -12,6 +12,7 @@ import {
 } from '../types';
 import { romePOIs } from '../data/pois';
 import { rewards as initialRewards } from '../data/rewards';
+import { supabase } from '../services/supabase';
 
 import { getDistanceMeters } from './useGeolocation';
 import { fetchDiscoverPOIs, DiscoveredPOI, fetchNarration } from '../services/api';
@@ -30,9 +31,17 @@ const initialBadges: Badge[] = [
   { id: 'foodie', name: 'Buongustaio', description: 'Riscatta 3 premi gastronomici', icon: 'utensils', requirement: 3, progress: 0, unlocked: false, category: 'collector', color: 'pink' },
 ];
 
+function getOrInitProfileId(): string {
+  const stored = localStorage.getItem('itinera_user_id');
+  if (stored) return stored;
+  const newId = crypto.randomUUID();
+  localStorage.setItem('itinera_user_id', newId);
+  return newId;
+}
+
 function createInitialProfile(): UserProfile {
   return {
-    id: crypto.randomUUID(),
+    id: getOrInitProfileId(),
     username: '',
     age: 0,
     answers: [],
@@ -68,7 +77,79 @@ export function useGameState() {
   const [activeChallenge, setActiveChallenge] = useState<Challenge | null>(null);
   const [hasOnboarded, setHasOnboarded] = useState(false);
 
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [hasHydrated, setHasHydrated] = useState(false);
+
   const timeOfDay = getTimeOfDay();
+
+  // ── SUPABASE CLOUD SYNC & HYDRATION ─────────────────────────────────────
+  useEffect(() => {
+    // Phase 1: Hydration
+    const hydrate = async () => {
+      try {
+        const userId = profile.id;
+        const { data, error } = await supabase
+          .from('game_saves')
+          .select('*')
+          .eq('id', userId)
+          .single();
+          
+        if (data && !error) {
+           if (data.profile) {
+             setProfile(data.profile);
+             // Reconstruct local POI progress based on completed list
+             if (data.profile.completedPOIs && data.profile.completedPOIs.length > 0) {
+               setPois(prev => prev.map(p => 
+                 data.profile.completedPOIs.includes(p.id) ? { ...p, status: 'completed' } : p
+               ));
+             }
+           }
+           if (data.rewards) setRewards(data.rewards);
+           if (data.badges) setBadges(data.badges);
+           if (data.hasOnboarded) {
+             setHasOnboarded(data.hasOnboarded);
+             setCurrentScreen(data.profile?.currentCity ? 'map' : 'city_selection');
+           } else if (data.profile?.username) {
+             setCurrentScreen('onboarding');
+           }
+        }
+      } catch (err) {
+        console.warn("[Hydration] Offline fallback o errore di fetch:", err);
+      } finally {
+        // Garantisce che il gioco funzioni sempre, anche se offline (Edge Case Handled)
+        setHasHydrated(true);
+      }
+    };
+    hydrate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // Phase 2: Debounced Optimistic Mutation
+    if (!hasHydrated) return;
+    
+    setIsSyncing(true);
+    const syncData = {
+      id: profile.id,
+      profile,
+      rewards,
+      badges,
+      hasOnboarded,
+      updated_at: new Date().toISOString()
+    };
+    
+    const timeout = setTimeout(async () => {
+      try {
+        await supabase.from('game_saves').upsert(syncData);
+      } catch (err) {
+        console.warn("[Cloud Mutation] Impossibile salvare in cloud — dati sicuri nel local state:", err);
+      } finally {
+        setIsSyncing(false);
+      }
+    }, 1500); // 1.5s Debounce protection
+    
+    return () => clearTimeout(timeout);
+  }, [profile, rewards, badges, hasOnboarded, hasHydrated]);
 
   // ── Dynamic POI discovery ───────────────────────────────────────────────
   const lastFetchLocation = useRef<{ lat: number; lng: number } | null>(null);
@@ -407,6 +488,8 @@ export function useGameState() {
     activeChallenge,
     hasOnboarded,
     timeOfDay,
+    isSyncing,
+    hasHydrated,
     setCurrentScreen,
     setSelectedPOI,
     setActiveChallenge,

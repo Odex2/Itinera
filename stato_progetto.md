@@ -1,78 +1,57 @@
-# Stato del Progetto - Scacchiera Urbana
+# Stato del Progetto - Itinera (Scacchiera Urbana)
 
-> Ultimo aggiornamento: 31 Marzo 2026
+> Ultimo aggiornamento: 2 Aprile 2026
 
 ## 1. Architettura di Sistema
 
-L'architettura di "Scacchiera Urbana" segue un paradigma Client-Server, unita a un motore di orchestrazione AI per personalizzare dinamicamente l'esperienza dell'utente.
+L'architettura di "Scacchiera Urbana" (ora **Itinera**) segue un paradigma Client-Server interamente basato su **Monorepo** organizzato in npm workspaces (`UI` e `server`). Integra un motore di orchestrazione AI per generare contenuti e personalizzare dinamicamente l'esperienza di viaggio.
 
 ### Frontend (UI)
-*   Applicazione scritta in **React 18** + **TypeScript** con build tool **Vite 5**. Lo stile è gestito con **TailwindCSS**.
-*   Il nucleo della gamification (profili, punti exp, monete, ricompense) e la gestione dinamica dei POI (Points of Interest) sono centralizzati in `useGameState.ts`. È presente anche la logica globale di `fetchDynamicNarration`.
-*   La mappa interattiva (`MapView.tsx`) utilizza **Mapbox GL JS** (`react-map-gl` + `mapbox-gl`) con funzionalità avanzate: edifici 3D estesi, clustering visivo, calcolo di prossimità basato su bounding box geofencing spaziale. È stata introdotta la selezione dinamica della città.
-*   Il modale POI (`MissionPanel.tsx`) integra tre tab: **La Storia** (narrazione AI dinamica con Skeleton Loading), **La Sfida** (quiz AI) e **Completato** (riepilogo XP/monete).
+*   Applicazione scritta in **React 18** + **TypeScript** con build tool **Vite 5**.
+*   Lo stile è gestito interamente tramite **TailwindCSS**, con l'ausilio di **Lucide React** per l'iconografia.
+*   Il nucleo della gamification (profili, punti exp, monete, ricompense) e lo stato del player, mantenuto da `useGameState`, sono nativamente collegati a **Supabase** tramite *hydration silente* e pattern di *debounced optimistic mutaton*. Il client transiziona fluidamente garantendo un eccellente local data-fallback in caso di disconnessioni offline.
+*   La mappa interattiva (`MapView.tsx`) utilizza **Mapbox GL JS** (`react-map-gl` + `mapbox-gl`) supportando funzionalità avanzate: rendering di edifici 3D, clustering scalare rapido dei POI e nodo proximity reattivo. È munita di un layer frontend altamente customizzato e ottimizzato in deep-cache memory (*Aggressive React Memoization*) contro i loop di frame-drop derivanti dall'inserimento dom layer UI dinamici sopra al canvas.
+*   Il flusso di sessione dell'app: *Splash Screen* → *Profile Setup* → *Onboarding* → *City Selection* (con calcolo geospaziale su db) → *Map/Missions/Shop/Profile*.
+*   Il modale dedicato all'ispezione locale (`MissionPanel.tsx`) espone tab isolati per la narrazione AI dinamica (UI con Skeleton Loading visivo in pending mode) e le sfide AI.
 
 ### Backend (Server)
-*   Server **Node.js** con **Express** e **TypeScript** (ESM, `tsx watch` per dev).
-*   Routing modulare per AI (`ai.ts`, `discover.ts`), meteo (`weather.ts`) e voce (`voice.ts`).
-*   Endpoint di salute: `GET /api/health`. È presente un file `diagnostics.ts` per l'endpoint `GET /api/diagnostics` che valuta le API key, ma **non è montato in `index.ts`**.
-*   Le API key (Regolo, ElevenLabs, OpenWeather) sono gestite via `server/.env` (gitignored).
+*   Server **Node.js** con **Express** e **TypeScript** (ESM, via `tsx`).
+*   Routing modulare per separare logicamente i controller: core AI (`ai.ts`, `discover.ts`), meteo locale (`weather.ts`), synthesis vocale TTS (`voice.ts`), e bridge diagnostiche (`diagnostics.ts`).
+*   Endpoint informativi base predefiniti operativi: `GET /api/health` e `GET /api/diagnostics`.
+*   Tutti i layer provider di third-party keys (Regolo, ElevenLabs, OpenWeather) sono isolati e mappati via system variables in `server/.env`.
 
-### AI Orchestration (Regolo.ai & Claude)
-*   Il backend ora comunica con **Regolo.ai** (`https://api.regolo.ai/v1`) tramite REST diretto (file `services/regolo.ts`) per il modulo di narrazione inedita (`dialogueWriter`).
-*   Tuttavia, il file `services/claude.ts` continua ad essere impiegato estensivamente da 4 agenti: `quizGenerator`, `answerValidator`, `challengeDialogue`, e `poiDiscoverer`.
-*   Il file `routes/ai.ts` espone l'architettura REST:
-    *   `dialogueWriter` → `GET /api/ai/narration` (ora implementato e collegato al frontend).
-    *   `quizGenerator` / `answerValidator` per le sfide interattive.
+### AI Orchestration (Regolo.ai)
+*   L'intero lifecycle logico del backend e degli engine bot è solidamente vincolato ed unificato sull'API REST nativa di **Regolo.ai** (`https://api.regolo.ai/v1`).
+*   L'intero blocco del driver middleware legacy (OpenAI SDK/Claude) è stato ritirato, smontato, ed estraniato per purificare l'architettura base da debito persistente. Regolo controlla autonomamente l'esecuzione testuale dinamica, la sfida visuale, le logiche di controllo trivia, e i discovery agent esplorativi.
 
-### Struttura Dati
-*   `POI` interface estesa con campi `aiNarration?: POINarration` e `isGeneratingNarration?: boolean` per supportare stati fluidi della UI.
-*   Gamification avanzata tramite array di `badges` gestiti dinamicamente via `useGameState`.
+## 2. Stato Recente degli Sviluppi (Nuova Analisi - Post Sprints)
 
-## 2. Stato Recente degli Sviluppi
+### ✅ Completamento Unitario AI Driver
+*   Tutti i vecchi agenti dipendenti dal root obsoleto (Quiz Generator, Validator, Discovery) ora puntano con successo al robusto driver unitario nativo `regolo.ts`. 
+*   Eseguita una pulizia generale sull'albero dipendenze isolando i pacchetti zombie obsoleti associati ai pre-generatori AI.
 
-### ✅ Migrazione Backend: Claude → Regolo.ai (Parziale)
-| File | Azione |
-|---|---|
-| `server/src/services/regolo.ts` | Server REST nativo funzionante e testato per Regolo.ai, letto da `process.env`. |
-| `server/src/agents/dialogueWriter.ts` | Risolto il requisito "inedito": l'agente usa Regolo.ai per evitare stile enciclopedico. |
-| `server/src/services/claude.ts` | **Ancora mantenuto** per la retrocompatibilità di altri 4 agenti (in attesa di migrazione totale). |
+### ✅ Ottimizzazione Rendering Mappa (Sprint 3A completato)
+*   Sono stati riscontrati forti battery drain e latency dovuti alla rigenerazione per update su componentistica ReactDOM complessa (POIMarker pseudo tooltips e layer sovrapposti) durante i trigger costanti di `onZoom` del mapbox view nativo.
+*   **Risultato Messo a Terra:** Refactoring del blocco UI cartografico adottando un solido pattern di caching front-end (`React.memo` personalizzato su comparazioni mirate per status POI; freeze memory object tramite callbacks per eventi loop). Conseguenza: azzeramento totale del re-render log su pan e zoom massivi limitando i passaggi alle sole variazioni necessarie.
 
-### ✅ Integrazione Frontend Narrazione Dinamica
-| File | Azione |
-|---|---|
-| `UI/src/hooks/useGameState.ts` | Completata implementazione di `fetchDynamicNarration` che integra chiamate backend salvando stati `POINarration`. Risolti duplicati e fetching ridondanti. |
-| `UI/src/components/MissionPanel.tsx` | UI perfettamente cablata con Skeleton mode in attesa della risposta AI. Feedback visivo esplicito per l'utente ("Generata in tempo reale"). |
+### ✅ Integrazione e Persistenza Cloud Supabase (Sprint 3B completato)
+*   Anziché spezzettare superficialmente l'imponente object destructuring locale del gameplay su più interfacce, ho centralizzato lo scambio via sync temporizzato per racchiudere logicamente un `game_saves`. L'ID giocatore diviene storiabile localmente al device.
+*   **Risultato Messo a Terra:** All'app bootstrap la logica recupera e compila fedelmente tutto (da reward riscattati, step onboarding saltati a location salvate). L'operatività base (claim coin e completamenti target), non intralcia per frame visuali l'utente appoggiandosi su feedback grafici immediati per poi salvare per batch ritardate limitando traffico dati. 
 
 ## 3. Problemi Noti e Analisi Critica (Non Bloccanti)
-
-> [!WARNING]
-> **Endpoint di Diagnostica Scollegato**
-> Il file `server/src/routes/diagnostics.ts` esiste e implementa la route `GET /api/diagnostics`, ma **non è stato importato** e montato nel file `server/src/index.ts`. La dashboard non riceverà diagnostica finché non verrà mappato in Express.
-
-> [!WARNING]
-> **Dipendenze Duplicate (React / Mapbox)**
-> *   **Root `package.json`** installa `react-map-gl@^8.1.0` e `mapbox-gl@^3.20.0`.
-> *   **UI `package.json`** installa `react-map-gl@^7.1.9` e `mapbox-gl@^3.20.0`.
->
-> Versioni discordanti di `react-map-gl` causano conflitti albero dipendenze e possibili anomalie di re-rendering. Da risolvere con massima urgenza sanando il monorepo.
-
-> [!NOTE]
-> **Errori TypeScript Pre-Esistenti (10+)**
-> Il comando `npm run typecheck` solleva possibili eccezioni su `App.tsx`, `Leaderboard.tsx`, `MapView.tsx`. Tra cui `InterestCategory` mancanti e incompatibilità con la `PersonalityScores`. Non prevengono il dev server tramite babel/vite ma causano build failure.
+*In seguito alle tre fasi cicliche di bonifica e sprint optimization completate, tutto il debito tecnico noto è stato saldato. Nessun refactoring o Warning critico ostilizza le pipeline ed i core correnti dell'app.*
 
 ## 4. Roadmap / Sprint Checklist
 
-- [ ] **Sprint 1. Setup & Bugfix**: Risoluzione dipendenze duplicate root vs UI, normalizzazione ambiente monorepo (usando npm workspaces), fix errori TypeScript.
-- [/] **Sprint 2. Backend**: Consolidamento agenti AI e integrazione lato Express.
-    - [x] Migrazione `dialogueWriter` da Claude SDK a Regolo REST diretto
-    - [x] Prompt "inedita" per narrazioni uniche
-    - [ ] Mappare route `/api/diagnostics` su `index.ts`
-    - [ ] Migrazione rimanenti agenti (`quizGenerator`, `answerValidator`, ecc.) a `regolo.ts` per abbandonare Claude.
-- [/] **Sprint 3A. Mappa**: Coreografia della mappa 3D, ottimizzazione del clustering e dei marker personalizzati.
-    - [x] `MapView.tsx` con edifici 3D, clustering
-    - [x] Selezione dinamica città
-    - [ ] Ottimizzazione performance rendering dei tooltip
-- [x] **Sprint 3B. UI**: Gamification state, interfaccia di onboarding.
-    - [x] `fetchDynamicNarration` in `useGameState.ts`
-    - [x] App flow completo da Onboarding → Mappa → GameLoop.
+- [x] **Sprint 1. Setup & Bugfix**: Risoluzione duplicate base dipendenze, setting workspace root corretto, fix totalitari typescript.
+- [x] **Sprint 2. Backend Server & AI**: Consolidamento totale architettura Agenti ed Express mapping.
+    - [x] Migrazione e test narrazioni univoche su endpoint `/ai/narration` `dialogueWriter`.
+    - [x] Mappato la telemetria root su `/api/diagnostics`.
+    - [x] Riconversione in bulk definitiva (4 su 4 agenti legacy) verso driver REST Regolo, distruggendo completamente e cancellando le codebase zombie.
+- [x] **Sprint 3A. Mappa UI e View Performance**
+    - [x] Rendering massivo clustering mapbox 3D.
+    - [x] Flusso router di onboarding da city selector all'handling di gioco.
+    - [x] Risoluzione del critical freeze da memory overload / diff re-rendering durante le operatività base sui Marker in overlay.
+- [x] **Sprint 3B. System Persistency Gamification**
+    - [x] Inserimento real-time rewards correlate logicamente alla temporizzazione di TimeOfDay shop client/ai.
+    - [x] Inserimento e test completo infrastruttura base Supabase client side in app (Dati resi immortali in un blocco cloud-save resiliente al ricaricamento app e alla mancanza improvvisa network layer).

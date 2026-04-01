@@ -1,4 +1,4 @@
-import { generateStructured } from '../services/claude.js';
+import { generateStructured } from '../services/regolo.js';
 
 export interface SpokenChallenge {
   question: string;
