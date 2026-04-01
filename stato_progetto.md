@@ -1,6 +1,6 @@
 # Stato del Progetto - Scacchiera Urbana
 
-> Ultimo aggiornamento: 28 Marzo 2026, 22:14
+> Ultimo aggiornamento: 31 Marzo 2026
 
 ## 1. Architettura di Sistema
 
@@ -8,83 +8,71 @@ L'architettura di "Scacchiera Urbana" segue un paradigma Client-Server, unita a 
 
 ### Frontend (UI)
 *   Applicazione scritta in **React 18** + **TypeScript** con build tool **Vite 5**. Lo stile è gestito con **TailwindCSS**.
-*   Il nucleo della gamification (profili, punti exp, monete, ricompense) e la gestione dinamica dei POI (Points of Interest) sono centralizzati in `useGameState.ts`.
-*   La mappa interattiva (`MapView.tsx`) utilizza **Mapbox GL JS** (`react-map-gl` + `mapbox-gl`) con funzionalità avanzate: edifici 3D estesi, clustering visivo, calcolo di prossimità basato su bounding box geofencing spaziale.
-*   Il modale POI (`MissionPanel.tsx`) integra tre tab: **La Storia** (narrazione AI dinamica), **La Sfida** (quiz AI) e **Completato** (riepilogo XP/monete).
+*   Il nucleo della gamification (profili, punti exp, monete, ricompense) e la gestione dinamica dei POI (Points of Interest) sono centralizzati in `useGameState.ts`. È presente anche la logica globale di `fetchDynamicNarration`.
+*   La mappa interattiva (`MapView.tsx`) utilizza **Mapbox GL JS** (`react-map-gl` + `mapbox-gl`) con funzionalità avanzate: edifici 3D estesi, clustering visivo, calcolo di prossimità basato su bounding box geofencing spaziale. È stata introdotta la selezione dinamica della città.
+*   Il modale POI (`MissionPanel.tsx`) integra tre tab: **La Storia** (narrazione AI dinamica con Skeleton Loading), **La Sfida** (quiz AI) e **Completato** (riepilogo XP/monete).
 
 ### Backend (Server)
 *   Server **Node.js** con **Express** e **TypeScript** (ESM, `tsx watch` per dev).
-*   Endpoint diagnostico: `GET /api/diagnostics` per verificare lo stato delle API key.
-*   Le API key sono gestite via `server/.env` (gitignored).
+*   Routing modulare per AI (`ai.ts`, `discover.ts`), meteo (`weather.ts`) e voce (`voice.ts`).
+*   Endpoint di salute: `GET /api/health`. È presente un file `diagnostics.ts` per l'endpoint `GET /api/diagnostics` che valuta le API key, ma **non è montato in `index.ts`**.
+*   Le API key (Regolo, ElevenLabs, OpenWeather) sono gestite via `server/.env` (gitignored).
 
-### AI Orchestration (Regolo.ai)
-*   Il backend comunica con **Regolo.ai** (`https://api.regolo.ai/v1`) tramite REST diretto (file `services/regolo.ts`), usando il modello **Llama-3.3-70B-Instruct**.
-*   La dipendenza precedente dal pacchetto `openai` SDK è stata sostituita con `fetch` nativo per il `dialogueWriter`.
-*   Il file `routes/ai.ts` espone l'architettura a tre agenti:
-    *   `dialogueWriter` → `POST /api/ai/narration` — Genera narrazioni personalizzate **inedite** in tempo reale.
-    *   `quizGenerator` → `POST /api/ai/challenge` — Crea quiz dinamici basati sugli interessi utente.
-    *   `answerValidator` → `POST /api/ai/validate` — Valida le risposte dell'utente.
+### AI Orchestration (Regolo.ai & Claude)
+*   Il backend ora comunica con **Regolo.ai** (`https://api.regolo.ai/v1`) tramite REST diretto (file `services/regolo.ts`) per il modulo di narrazione inedita (`dialogueWriter`).
+*   Tuttavia, il file `services/claude.ts` continua ad essere impiegato estensivamente da 4 agenti: `quizGenerator`, `answerValidator`, `challengeDialogue`, e `poiDiscoverer`.
+*   Il file `routes/ai.ts` espone l'architettura REST:
+    *   `dialogueWriter` → `GET /api/ai/narration` (ora implementato e collegato al frontend).
+    *   `quizGenerator` / `answerValidator` per le sfide interattive.
 
-### Tipi e Interfacce
-*   `POI` interface estesa con:
-    *   `aiNarration?: POINarration` — narrazione generata dall'AI (narration, hiddenFact, voiceStyle).
-    *   `isGeneratingNarration?: boolean` — flag di caricamento per skeleton UI.
-*   `POINarration` interface dedicata: `{ narration, hiddenFact, voiceStyle }`.
+### Struttura Dati
+*   `POI` interface estesa con campi `aiNarration?: POINarration` e `isGeneratingNarration?: boolean` per supportare stati fluidi della UI.
+*   Gamification avanzata tramite array di `badges` gestiti dinamicamente via `useGameState`.
 
-## 2. Modifiche Completate in Sessione
+## 2. Stato Recente degli Sviluppi
 
-### ✅ Migrazione Backend: Claude → Regolo.ai
+### ✅ Migrazione Backend: Claude → Regolo.ai (Parziale)
 | File | Azione |
 |---|---|
-| `server/src/services/regolo.ts` | **[NUOVO]** Client REST nativo per Regolo.ai, sostituisce l'SDK OpenAI per `dialogueWriter`. API key letta da `process.env`. |
-| `server/src/agents/dialogueWriter.ts` | **[RISCRITTO]** Import da `regolo.ts`. Prompt rafforzato con requisiti "inedita" (contenuto unico, mai enciclopedico). |
-| `server/src/services/claude.ts` | **[INVARIATO]** Ancora usato da `quizGenerator`, `answerValidator`, `challengeDialogue`, `poiDiscoverer`. |
+| `server/src/services/regolo.ts` | Server REST nativo funzionante e testato per Regolo.ai, letto da `process.env`. |
+| `server/src/agents/dialogueWriter.ts` | Risolto il requisito "inedito": l'agente usa Regolo.ai per evitare stile enciclopedico. |
+| `server/src/services/claude.ts` | **Ancora mantenuto** per la retrocompatibilità di altri 4 agenti (in attesa di migrazione totale). |
 
 ### ✅ Integrazione Frontend Narrazione Dinamica
 | File | Azione |
 |---|---|
-| `UI/src/types/index.ts` | Aggiunte `POINarration` interface e campi `aiNarration`, `isGeneratingNarration` a `POI`. |
-| `UI/src/hooks/useGameState.ts` | Aggiunta funzione `fetchDynamicNarration(poiId, userParams?)` con loading state, error handling e fallback. |
-| `UI/src/components/MissionPanel.tsx` | Label "Contenuto statico" → "Contenuto dal database". Badge AI: "Generata in tempo reale da AI". Aggiunto logging diagnostico nel `useEffect` e nel `.catch()`. |
+| `UI/src/hooks/useGameState.ts` | Completata implementazione di `fetchDynamicNarration` che integra chiamate backend salvando stati `POINarration`. Risolti duplicati e fetching ridondanti. |
+| `UI/src/components/MissionPanel.tsx` | UI perfettamente cablata con Skeleton mode in attesa della risposta AI. Feedback visivo esplicito per l'utente ("Generata in tempo reale"). |
 
-### ✅ Fix Infrastrutturali
-| File | Azione |
-|---|---|
-| `UI/src/vite-env.d.ts` | **[NUOVO]** Aggiunto `/// <reference types="vite/client" />` per risolvere errore `import.meta.env`. |
-| `server/.env` e `UI/.env` | **[CREATI]** File gitignored creati con le rispettive API key (Regolo, ElevenLabs, OpenWeather per server, e Mapbox per UI). |
-| `server/src/routes/diagnostics.ts` | **[NUOVO]** Route diagnostica `GET /api/diagnostics` mancante che impediva l'avvio del server. |
+## 3. Problemi Noti e Analisi Critica (Non Bloccanti)
 
-## 3. Problemi Noti (Non Bloccanti)
+> [!WARNING]
+> **Endpoint di Diagnostica Scollegato**
+> Il file `server/src/routes/diagnostics.ts` esiste e implementa la route `GET /api/diagnostics`, ma **non è stato importato** e montato nel file `server/src/index.ts`. La dashboard non riceverà diagnostica finché non verrà mappato in Express.
 
 > [!WARNING]
 > **Dipendenze Duplicate (React / Mapbox)**
 > *   **Root `package.json`** installa `react-map-gl@^8.1.0` e `mapbox-gl@^3.20.0`.
 > *   **UI `package.json`** installa `react-map-gl@^7.1.9` e `mapbox-gl@^3.20.0`.
-> 
-> Versioni discordanti di `react-map-gl` possono causare collisioni React. Da risolvere nello Sprint 1.
+>
+> Versioni discordanti di `react-map-gl` causano conflitti albero dipendenze e possibili anomalie di re-rendering. Da risolvere con massima urgenza sanando il monorepo.
 
 > [!NOTE]
-> **Errori TypeScript pre-esistenti (10)**
-> Presenti in `App.tsx`, `Leaderboard.tsx`, `MapView.tsx`, `OnboardingScreen.tsx`, `ProfileScreen.tsx`, `VoiceChallengeModal.tsx`. Nessuno causato dalle nostre modifiche. Riguardano variabili non usate, tipo `InterestCategory` mancante (`famiglia`), e incompatibilità `PersonalityScores` con `Record<string, number>`.
-
-> [!NOTE]
-> **Migrazione `claude.ts` incompleta**
-> `services/claude.ts` è ancora usato da 4 agenti (`quizGenerator`, `answerValidator`, `challengeDialogue`, `poiDiscoverer`). Solo `dialogueWriter` è stato migrato a `regolo.ts`. Da completare negli sprint successivi.
+> **Errori TypeScript Pre-Esistenti (10+)**
+> Il comando `npm run typecheck` solleva possibili eccezioni su `App.tsx`, `Leaderboard.tsx`, `MapView.tsx`. Tra cui `InterestCategory` mancanti e incompatibilità con la `PersonalityScores`. Non prevengono il dev server tramite babel/vite ma causano build failure.
 
 ## 4. Roadmap / Sprint Checklist
 
-- [ ] **Sprint 1. Setup**: Risoluzione dipendenze duplicate root vs UI, normalizzazione ambiente monorepo, fix errori TypeScript pre-esistenti.
+- [ ] **Sprint 1. Setup & Bugfix**: Risoluzione dipendenze duplicate root vs UI, normalizzazione ambiente monorepo (usando npm workspaces), fix errori TypeScript.
 - [/] **Sprint 2. Backend**: Consolidamento agenti AI e integrazione lato Express.
-    - [x] Migrazione `dialogueWriter` da Claude SDK a Regolo.ai REST diretto
-    - [x] Prompt "inedita" per narrazioni uniche e non enciclopediche
-    - [x] Logging diagnostico su `regolo.ts` e `routes/ai.ts`
-    - [x] Endpoint `GET /api/diagnostics` per verifica API key
-    - [ ] Migrazione rimanenti agenti (`quizGenerator`, `answerValidator`, `challengeDialogue`, `poiDiscoverer`) a `regolo.ts`
+    - [x] Migrazione `dialogueWriter` da Claude SDK a Regolo REST diretto
+    - [x] Prompt "inedita" per narrazioni uniche
+    - [ ] Mappare route `/api/diagnostics` su `index.ts`
+    - [ ] Migrazione rimanenti agenti (`quizGenerator`, `answerValidator`, ecc.) a `regolo.ts` per abbandonare Claude.
 - [/] **Sprint 3A. Mappa**: Coreografia della mappa 3D, ottimizzazione del clustering e dei marker personalizzati.
-    - [x] `MapView.tsx` con edifici 3D, clustering, geofencing, dynamic POI fetch
-    - [ ] Ottimizzazione performance rendering marker
-- [/] **Sprint 3B. UI**: Gamification state, interfaccia di onboarding e interazioni utente.
+    - [x] `MapView.tsx` con edifici 3D, clustering
+    - [x] Selezione dinamica città
+    - [ ] Ottimizzazione performance rendering dei tooltip
+- [x] **Sprint 3B. UI**: Gamification state, interfaccia di onboarding.
     - [x] `fetchDynamicNarration` in `useGameState.ts`
-    - [x] Skeleton loading + label AI dinamiche in `MissionPanel.tsx`
-    - [x] Tipi `POINarration` e `isGeneratingNarration` nel sistema di tipi
-    - [x] Integrazione `fetchDynamicNarration` dal game state nel modale (rimossi vecchi import da `api.ts` e completato lo Sprint 3B)
+    - [x] App flow completo da Onboarding → Mappa → GameLoop.

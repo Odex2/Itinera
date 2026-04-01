@@ -1,7 +1,7 @@
 // npm remove react-leaflet leaflet
 // npm install mapbox-gl react-map-gl
 
-import { useMemo, useCallback, useState, useRef, useEffect } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import Map, {
   Marker,
   Source,
@@ -160,7 +160,6 @@ interface POIMarkerProps {
 
 function POIMarker({ poi, isNearest, onClick }: POIMarkerProps) {
   const size = isNearest ? 40 : 32;
-  const half = size / 2;
   const { bg, border, pulse } = STATUS_COLORS[poi.status];
   const icon = STATUS_ICONS[poi.status];
   const iconSize = poi.status === 'locked' ? 14 : 16;
@@ -170,7 +169,7 @@ function POIMarker({ poi, isNearest, onClick }: POIMarkerProps) {
       longitude={poi.lng}
       latitude={poi.lat}
       anchor="center"
-      onClick={(e) => { e.originalEvent.stopPropagation(); onClick(); }}
+      onClick={(evt: any) => { evt.originalEvent.stopPropagation(); onClick(); }}
     >
       <div style={{ position: 'relative', width: size, height: size, cursor: 'pointer' }}>
         {/* Pulse ring */}
@@ -352,7 +351,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function MapView({ pois, profile, userLocation, isDemoMode, onPOISelect, timeOfDay, onRequestDynamicPOIs, hideBottomCard, cityName, onChangeCity }: MapViewProps) {
+export default function MapView({ pois, profile, userLocation, onPOISelect, timeOfDay, onRequestDynamicPOIs, hideBottomCard, cityName, onChangeCity }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
 
   // BUG 7 FIX: track current zoom to toggle marker vs cluster rendering
@@ -440,7 +439,7 @@ export default function MapView({ pois, profile, userLocation, isDemoMode, onPOI
         {...(GEOFENCE_ENABLED ? { maxBounds: OSTIENSE_BOUNDS } : {})}
         minZoom={MIN_ZOOM}
         // BUG 7 FIX: keep zoom state in sync so we can toggle marker visibility
-        onZoom={(evt) => setMapZoom(evt.viewState.zoom)}
+        onZoom={(evt: any) => setMapZoom(evt.viewState.zoom)}
       >
         {/* 3D buildings */}
         <Layer {...buildingsLayer} />

@@ -33,6 +33,7 @@ export type InterestCategory =
   | 'artigianato'
   | 'intrattenimento'
   | 'family'
+  | 'famiglia'
   | 'sport';
 
 export interface PersonalityScores {
@@ -41,6 +42,7 @@ export interface PersonalityScores {
   cultura: number;
   avventura: number;
   socialita: number;
+  [key: string]: number;
 }
 
 export interface OnboardingQuestion {
