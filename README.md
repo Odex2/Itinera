@@ -2,6 +2,12 @@
 
 Itinera is an AI-powered, location-based city discovery game. It turns a walk through the city into an interactive adventure by combining nearby points of interest, personalized narration, quizzes, voice challenges, rewards, and real-time context such as weather and opening hours.
 
+## Hackathon project
+
+Itinera was developed for the **Codemotion Hackathon “Hack Nation”** in Rome, held on **28–29 March 2026**.
+
+The project was created in response to the **“Play the City” challenge by Gunpowder**, exploring how technology, AI, and gamification can transform the way people discover and experience a city.
+
 ## Features
 
 - **Interactive city map** with nearby points of interest (POIs)
