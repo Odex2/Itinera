@@ -24,7 +24,6 @@ export default function VoiceChallengeModal({
   question,
   correctAnswer,
   acceptableKeywords,
-  xpBonus,
   onResult,
   onClose,
 }: VoiceChallengeModalProps) {

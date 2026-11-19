@@ -20,7 +20,6 @@ function App() {
   const {
     profile,
     pois,
-    rewards,
     badges,
     currentScreen,
     selectedPOI,

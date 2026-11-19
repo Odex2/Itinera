@@ -12,7 +12,7 @@ import {
   Trophy,
   Lock,
 } from 'lucide-react';
-import type { UserProfile, Badge, InterestCategory } from '../types';
+import type { UserProfile, Badge, InterestCategory, PersonalityScores } from '../types';
 
 interface ProfileScreenProps {
   profile: UserProfile;
@@ -90,7 +90,7 @@ function getLevelTitle(level: number): string {
   return LEVEL_TITLES[LEVEL_TITLES.length - 1].title;
 }
 
-function getDominantTrait(scores: Record<string, number>): string {
+function getDominantTrait(scores: PersonalityScores): string {
   let maxKey = 'cultura';
   let maxVal = -1;
   for (const [key, val] of Object.entries(scores)) {

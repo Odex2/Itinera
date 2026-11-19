@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MapPin, Navigation, Compass, Loader2 } from 'lucide-react';
 
 interface CitySelectionScreenProps {
@@ -36,9 +36,9 @@ export default function CitySelectionScreen({ onSelect }: CitySelectionScreenPro
             const name = bestMatch.text;
 
             onSelect({ lat, lng, name });
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err);
-            setErrorMsg(err.message || 'Si è verificato un errore');
+            setErrorMsg(err instanceof Error && err.message ? err.message : 'Si è verificato un errore');
         } finally {
             setLoading(false);
         }

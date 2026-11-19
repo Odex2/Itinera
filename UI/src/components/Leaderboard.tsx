@@ -39,7 +39,6 @@ const RANK_STYLES: Record<number, { bg: string; text: string; icon: string }> = 
 export default function Leaderboard({ city = 'Rome', onClose }: LeaderboardProps) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     let cancelled = false;

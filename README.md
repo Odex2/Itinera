@@ -1,209 +1,188 @@
+<div align="center">
+
 # Itinera
 
-Itinera is an AI-powered, location-based city discovery game. It turns a walk through the city into an interactive adventure by combining nearby points of interest, personalized narration, quizzes, voice challenges, rewards, and real-time context such as weather and opening hours.
+**Turn a walk through the city into an AI-powered adventure.**
 
-## Hackathon project
+Itinera is a location-based city discovery game: it finds the points of interest around you,
+tells their story in a voice tailored to you, and challenges you with quizzes and voice games
+while you explore.
 
-Itinera was developed for the **Codemotion Hackathon “Hack Nation”** in Rome, held on **28–29 March 2026**.
+[![CI](https://github.com/Odex2/Itinera/actions/workflows/ci.yml/badge.svg)](https://github.com/Odex2/Itinera/actions/workflows/ci.yml)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React_18-20232A?logo=react&logoColor=61DAFB)
+![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
+![Mapbox](https://img.shields.io/badge/Mapbox_GL-000000?logo=mapbox&logoColor=white)
 
-The project was created in response to the **“Play the City” challenge by Gunpowder**, exploring how technology, AI, and gamification can transform the way people discover and experience a city.
+Built at the **Codemotion Hackathon "Hack Nation"** (Rome, 28–29 March 2026)
+for the **"Play the City"** challenge by Gunpowder.
+
+[Pitch deck](docs/pitch/index.html) · [Pitch PDF](docs/pitch/Itinera-pitch.pdf) · [Demo video](docs/pitch/demo.mp4)
+
+</div>
+
+## Screenshots
+
+| Onboarding | City selection | Map | AI story | Quiz |
+| :---: | :---: | :---: | :---: | :---: |
+| <img src="docs/screenshots/1-onboarding.jpg" width="160" alt="Personality onboarding"> | <img src="docs/screenshots/2-city-selection.jpg" width="160" alt="City selection"> | <img src="docs/screenshots/3-map.jpg" width="160" alt="Map with nearby points of interest"> | <img src="docs/screenshots/4-ai-story.jpg" width="160" alt="AI-generated story of a place"> | <img src="docs/screenshots/5-quiz.jpg" width="160" alt="AI-generated quiz"> |
+
+The interface is in Italian, as the game was designed for the Rome hackathon.
+
+## How it works
+
+1. **Build your explorer profile.** A short onboarding quiz maps your interests and personality
+   (food, culture, art, history, nature, shopping, sport, ...).
+2. **Pick a city.** Use your real position or explore any city virtually.
+3. **Explore the map.** Real points of interest come from OpenStreetMap, enriched by AI with
+   hidden gems, filtered by opening hours and weather.
+4. **Unlock the story.** Each place gets a fresh narration written for your profile and the time
+   of day, with a hidden fact and optional text-to-speech.
+5. **Take the challenge.** Answer AI-generated quizzes, or speak your answer in a voice
+   challenge, to earn XP, coins, badges and rewards.
 
 ## Features
 
-- **Interactive city map** with nearby points of interest (POIs)
-- **Location-aware exploration** using the browser's geolocation APIs
-- **City selection** for exploring a location other than the user's current position
-- **AI-generated narration** tailored to the user's interests, personality, and time of day
-- **Dynamic POI discovery** powered by OpenStreetMap/Overpass and AI-generated hidden gems
-- **Interactive challenges and quizzes** for discovered locations
-- **Voice challenges** with speech synthesis and audio-answer transcription
-- **Weather-aware exploration**
-- **Gamification**, including XP, rewards, badges, missions, and a shop
-- **Opening-hours filtering** and tracking of completed locations
+- Interactive Mapbox map with 3D buildings, clustering and proximity detection
+- Real POI discovery from the OpenStreetMap Overpass API, enriched with AI-suggested hidden gems
+- Personalized AI narration based on interests, personality and time of day
+- AI-generated quizzes with written and spoken answers (speech-to-text + answer validation)
+- Text-to-speech narration with ElevenLabs
+- Weather-aware and opening-hours-aware suggestions
+- Gamification: XP and levels, coins, shop, missions, badges and a leaderboard
 
-## Project structure
+## Architecture
+
+```mermaid
+flowchart LR
+    U[React + Vite app] -->|REST| S[Express API]
+    U --> M[Mapbox GL]
+    S --> A[AI agents]
+    A -->|Llama 3.3 70B| R[Regolo.ai]
+    S -->|speech-to-text| R
+    S --> O[OpenStreetMap Overpass]
+    S --> E[ElevenLabs TTS]
+    S --> W[OpenWeather]
+```
+
+The backend is organised around small, single-purpose AI agents:
+
+| Agent | Role |
+| --- | --- |
+| `dialogueWriter` | Writes the personalized story of a place |
+| `quizGenerator` | Creates quizzes from the place and the user's interests |
+| `answerValidator` | Checks free-text answers |
+| `challengeDialogue` | Builds spoken challenges |
+| `poiDiscoverer` | Combines Overpass results with AI-suggested hidden gems |
 
 ```text
 .
-├── UI/                  # React + Vite frontend
+├── UI/                  # React + Vite + Tailwind frontend
 │   └── src/
-│       ├── components/  # Screens and reusable UI components
-│       ├── hooks/       # Application state and geolocation hooks
+│       ├── components/  # Screens and UI components
+│       ├── hooks/       # Game state and geolocation
+│       ├── services/    # API client
 │       └── App.tsx      # Main application flow
 ├── server/              # Express + TypeScript backend
 │   └── src/
-│       ├── agents/      # AI agents for narration, quizzes, discovery, and validation
-│       ├── routes/      # AI, weather, voice, and discovery endpoints
-│       ├── services/    # External API integrations
+│       ├── agents/      # AI agents (narration, quizzes, discovery, validation)
+│       ├── routes/      # AI, discovery, weather and voice endpoints
+│       ├── services/    # External API clients
 │       └── index.ts     # HTTP server entry point
-└── package.json         # Shared map-related dependencies
+└── docs/                # Pitch deck, demo video, screenshots, dev notes
 ```
 
 ## Tech stack
 
-### Frontend
+| Area | Technologies |
+| --- | --- |
+| Frontend | React 18, TypeScript, Vite, Tailwind CSS, Mapbox GL JS, react-map-gl, Lucide icons |
+| Backend | Node.js, Express, TypeScript (ESM) |
+| AI | Regolo.ai (Llama 3.3 70B Instruct, faster-whisper large v3) via an OpenAI-compatible API |
+| Data and services | OpenStreetMap Overpass API, ElevenLabs, OpenWeather |
+| Tooling | ESLint, GitHub Actions |
 
-- React 18
-- TypeScript
-- Vite
-- Tailwind CSS
-- Mapbox GL JS and `react-map-gl`
-- Lucide React icons
-- Supabase client library
+## Getting started
 
-### Backend
+### Prerequisites
 
-- Node.js
-- Express
-- TypeScript
-- OpenAI SDK
-- OpenStreetMap Overpass API
-- ElevenLabs text-to-speech integration
-- OpenWeather integration
+- Node.js 18 or newer and npm
+- A [Mapbox](https://account.mapbox.com/access-tokens/) public token
+- A [Regolo.ai](https://regolo.ai) API key for the AI features
+- Optional: [ElevenLabs](https://elevenlabs.io) and [OpenWeather](https://openweathermap.org/api) keys
 
-## Prerequisites
-
-- Node.js 18 or newer
-- npm
-- A Mapbox access token
-- API credentials for the services you want to enable:
-  - Regolo/OpenAI-compatible AI and speech-to-text features
-  - ElevenLabs voice synthesis
-  - OpenWeather weather data
-
-## Installation
-
-Clone the repository and install dependencies for the frontend and backend:
+### Install
 
 ```bash
 git clone https://github.com/Odex2/Itinera.git
 cd Itinera
 
-npm install
-cd UI && npm install
-cd ../server && npm install
+cd server && npm install && cp .env.example .env
+cd ../UI && npm install && cp .env.example .env
 ```
 
-## Environment variables
+Then fill in your keys in `server/.env` and `UI/.env`. Never commit these files.
 
-Create a `.env` file in the `server/` directory:
-
-```env
-PORT=3001
-REGOLO_API_KEY=your_regolo_api_key
-ELEVENLABS_API_KEY=your_elevenlabs_api_key
-OPENWEATHER_API_KEY=your_openweather_api_key
-```
-
-Configure the frontend with the environment variables expected by your Vite setup, including your Mapbox token. Vite variables must use the `VITE_` prefix. For example:
-
-```env
-VITE_MAPBOX_TOKEN=your_mapbox_public_token
-```
-
-Do not commit real API keys or tokens. Add local environment files to `.gitignore` if they are not already ignored.
-
-## Running locally
-
-Start the backend in development mode:
+### Run
 
 ```bash
-cd server
-npm run dev
+# Terminal 1: backend on http://localhost:3001
+cd server && npm run dev
+
+# Terminal 2: frontend on the URL printed by Vite
+cd UI && npm run dev
 ```
 
-In a second terminal, start the frontend:
+Check the backend with `curl http://localhost:3001/api/health`.
+In VS Code you can also run the **Start All (Server + UI)** task.
 
-```bash
-cd UI
-npm run dev
-```
+### Scripts
 
-Open the local URL printed by Vite in your browser. The backend listens on port `3001` by default.
+| Folder | Command | Description |
+| --- | --- | --- |
+| `UI/` | `npm run dev` | Start the Vite dev server |
+| `UI/` | `npm run build` | Production build |
+| `UI/` | `npm run lint` | ESLint |
+| `UI/` | `npm run typecheck` | TypeScript checks |
+| `server/` | `npm run dev` | Start the API with file watching |
+| `server/` | `npm run build` | Compile to `dist/` |
+| `server/` | `npm start` | Run the compiled API |
 
-You can verify that the backend is running with:
-
-```bash
-curl http://localhost:3001/api/health
-```
-
-Expected response:
-
-```json
-{
-  "status": "ok",
-  "timestamp": 0
-}
-```
-
-The timestamp is generated at request time.
-
-## Production build
-
-Build the backend:
-
-```bash
-cd server
-npm run build
-npm start
-```
-
-Build and preview the frontend:
-
-```bash
-cd UI
-npm run build
-npm run preview
-```
-
-## API overview
-
-The backend exposes the following route groups:
+## API
 
 | Route | Purpose |
 | --- | --- |
 | `GET /api/health` | Health check |
-| `POST /api/ai/narration` | Generate personalized POI narration |
+| `POST /api/ai/narration` | Personalized narration for a POI |
 | `POST /api/ai/challenge` | Generate quizzes and challenges |
-| `POST /api/ai/validate` | Validate a written challenge answer |
-| `POST /api/ai/discover-pois` | Discover nearby POIs using Overpass and AI |
-| `POST /api/ai/spoken-challenge` | Generate an audio-based challenge |
+| `POST /api/ai/validate` | Validate a written answer |
+| `POST /api/ai/discover-pois` | Discover nearby POIs (Overpass + AI) |
+| `POST /api/ai/spoken-challenge` | Generate an audio challenge |
 | `POST /api/ai/answer-challenge` | Transcribe and validate a spoken answer |
 | `POST /api/ai/filter-open` | Filter POIs by opening hours |
 | `GET /api/ai/overpass` | Query nearby OpenStreetMap elements |
 | `POST /api/ai/uncompleted` | Filter out completed POIs |
 | `POST /api/ai/mark-completed` | Mark a POI as completed |
-| `GET /api/weather` | Fetch weather for a latitude/longitude |
-| `POST /api/voice/tts` | Convert text to MP3 speech |
+| `GET /api/weather` | Weather for a latitude/longitude |
+| `POST /api/voice/tts` | Text to MP3 speech |
 
-## Development scripts
+## Known limitations
 
-### Frontend (`UI/`)
+Itinera is a hackathon prototype:
 
-```bash
-npm run dev        # Start the Vite development server
-npm run build      # Create a production build
-npm run lint       # Run ESLint
-npm run typecheck  # Run TypeScript checks
-npm run preview    # Preview the production build
-```
+- Completed POIs are kept in server memory and reset on restart.
+- CORS is open for development and tunnels; restrict origins before a public deployment.
+- Browser geolocation needs HTTPS outside `localhost`.
+- The leaderboard falls back to mock data when no backend data is available.
 
-### Backend (`server/`)
+## Team
 
-```bash
-npm run dev    # Start the server with file watching
-npm run build  # Compile TypeScript to dist/
-npm start       # Run the compiled server
-```
+Built at Hack Nation 2026 by:
 
-## Notes
-
-- Browser geolocation requires permission and is generally served over HTTPS outside localhost.
-- POI discovery combines real nearby OpenStreetMap data with AI-generated enrichment.
-- Voice endpoints require the relevant API credentials and return a service-unavailable response when voice services are not configured.
-- The backend currently enables permissive CORS for development and tunnel environments. Restrict allowed origins before deploying publicly.
-- Completed POIs are currently tracked through the server's in-memory store, so this state is not durable across server restarts.
+- **Edoardo Sisti Peta** ([@Odex2](https://github.com/Odex2))
+- **Giorgio Ravenna**
+- **Daniele Notarangelo**
 
 ## License
 
-No license has been specified for this project yet.
+See [LICENSE](LICENSE).
