@@ -9,6 +9,7 @@ tells their story in a voice tailored to you, and challenges you with quizzes an
 while you explore.
 
 [![CI](https://github.com/Odex2/Itinera/actions/workflows/ci.yml/badge.svg)](https://github.com/Odex2/Itinera/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React_18-20232A?logo=react&logoColor=61DAFB)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
@@ -185,4 +186,4 @@ Built at Hack Nation 2026 by:
 
 ## License
 
-See [LICENSE](LICENSE).
+Released under the [MIT License](LICENSE).
