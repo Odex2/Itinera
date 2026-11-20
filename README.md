@@ -183,6 +183,7 @@ Built at Hack Nation 2026 by:
 - **Edoardo Sisti Peta** ([@Odex2](https://github.com/Odex2))
 - **Giorgio Ravenna**
 - **Daniele Notarangelo**
+- **Francesco Rotondo**
 
 ## License
 
